@@ -40,13 +40,14 @@ The benefits of this interface tool are a standardized and convenient way to sol
 ## ToDo
 
 1. find a better name
-3. collect features in a mind map
+3. collect and evaluate requirements and needed features
 4. define process and boundarys
-5. define features
+6. define features
+6. evaluate current templates, strategies and code snippets for reuse
 6. implement
 7. test
 8. validate
 8. use
 9. evaluate
 10. imporve
-11. go to 8.
+11. goto 'use'test
