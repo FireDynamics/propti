@@ -4,12 +4,13 @@
 
 Propti (working title) is an interface tool that couples FDS (https://github.com/firemodels/fds) with spotpy (https://github.com/thouska/spotpy/) to solve the inverse problem of material parameter estimation in a modular way. Propti covers setting up the general framework of the process as well as the preprocessing, e.g. generating FDS input files from (provided or self-made) templates and handing them to spotpy, and the postprocessing, e.g. analysing the evaluations of spotpy, find the best solution, run the best fitting parameters and plot all the data in nice figures.
 
-The benefits of this interface tool are a standardized and convenient way to solve the inverse problem of material parameter optimization with all available options in FDS and spotpy, accompanied with a central results database, benchmark database, 
+The benefits of this interface tool are a standardized and convenient way to solve the inverse problem of material parameter optimization with all available options in FDS and spotpy, accompanied with a template simulation set ups, central results database, benchmark database, reference input files, modeling and experimental guides.
 
 ## Features
 
 - coupling of FDS and spotpy
 - automatized pre- and postprocessing
+- well documented
 - parallelizable (MPI, OpenMP, multiprocessing)
 - templates and reference input files
 - suitable for HPC use
@@ -23,17 +24,19 @@ The benefits of this interface tool are a standardized and convenient way to sol
 
 ## Goals
 
-### Short term goals
+### short term goals
 
 - find new name
-- implement
-- getting more involved in spotpy development and maintenance to provide a reliable base for propti
+- implement framework and pre- and postprocessingfeatures
+- provide templates and reference model designs
+- provide a reliable base for propti by getting more involved in spotpy development and maintenance
 
-### Mid term goals
+### mid term goals
 
 - promote use of Propti
+- 
 
-### Long term goals
+### long term goals
 
 - establish use of Propti
 
