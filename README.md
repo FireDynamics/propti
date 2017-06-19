@@ -54,3 +54,8 @@ The benefits of this interface tool are a standardized and convenient way to sol
 9. evaluate
 10. imporve
 11. goto 'use'test
+
+## Workshop
+
+Date: 14.08. - 17.08. (tbc)
+Place: Wuppertal (tbc)
