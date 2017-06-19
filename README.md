@@ -43,6 +43,7 @@ The benefits of this interface tool are a standardized and convenient way to sol
 ## ToDo
 
 1. find a better name
+2. collect currently used templates, strategies and code snippets
 3. collect and evaluate requirements and needed features
 4. define process and boundarys
 6. define features
