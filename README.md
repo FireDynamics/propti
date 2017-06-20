@@ -4,9 +4,9 @@
 
 ## Idea
 
-Propti (working title) is an interface tool that couples FDS (https://github.com/firemodels/fds) with spotpy (https://github.com/thouska/spotpy/) to solve the inverse problem of material parameter estimation in a modular way. Propti covers setting up the general framework of the process as well as the preprocessing, e.g. generating FDS input files from (provided or self-made) templates and handing them to spotpy, and the postprocessing, e.g. analysing the evaluations of spotpy, find the best solution, run the best fitting parameters and plot all the data in nice figures.
+Propti (working title) is an interface tool that couples FDS (https://github.com/firemodels/fds) with spotpy (https://github.com/thouska/spotpy/) to solve the inverse problem of material parameter estimation in a modular way. propti covers setting up the general framework of the process as well as the preprocessing, e.g. generating FDS input files from (provided or self-made) templates and handing them to spotpy, and the postprocessing, e.g. analysing the evaluations of spotpy, find the best solution, run the best fitting parameters and plot all the data in nice figures.
 
-The benefits of this interface tool are a standardized and convenient way to solve the inverse problem of material parameter optimization with all available options in FDS and spotpy, accompanied with template simulation set ups, central results database, benchmark database, reference input files, modeling and experimental guides.
+The benefits of this interface tool are a standardized and convenient way to solve the inverse problem of material parameter optimization with all available options in FDS (pyrolysis model, gas phase reaction, tga mode, use results in real scale simulation, etc...) and spotpy (several optimization strategies, sensitivity analysis, parallelization, etc...), accompanied with template simulation set ups, benchmark database, reference input files, modeling and experimental guides.
 
 ## Features
 
@@ -19,8 +19,8 @@ The benefits of this interface tool are a standardized and convenient way to sol
     - stop and restart processes
     - ...
 - guide for optimization (including experimental design?)
-- database for results and experimental data (?)
-- benchmark database
+- database for results and experimental data (later ?)
+- benchmark database (later ?)
 - provide a platform to discuss modeling the problem
 - ...
 
@@ -35,11 +35,13 @@ The benefits of this interface tool are a standardized and convenient way to sol
 
 ### mid term goals
 
-- promote use of Propti
+- evaluate simulation templates and reference input files
+- imporve propti
+- make propti publicly available
 
 ### long term goals
 
-- establish use of Propti
+- promote use of propti
 
 ## ToDo
 
