@@ -1,6 +1,6 @@
 ## Process
 
-![](propto.svg)
+![](propti.png)
 
 ## Idea
 
