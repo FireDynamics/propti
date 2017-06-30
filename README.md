@@ -59,6 +59,37 @@ The benefits of this universal interface tool are a standardized and convenient 
 10. imporve
 11. goto 'use'test
 
+## Workplan
+
+20.06.2017 - 14.07.2017
+1. Collect resources that could be useful and evaluate them. Put them in  
+the resources repository. Tristans scripts could provide a great basis  
+for our work, as they are written in a neat and modular way and are  
+documented at least adequate.
+
+03.07.2017 - 17.07.2017
+2. Based on that, we should collect and discuss the (individually) 
+needed features, requirements and ideas. For that part, we could use 
+both, gitlab, and a collaborative mind map (I'm searching for one at the 
+moment, suggestions welcome)
+
+17.07.2017 - 28.07.2017
+3. After evaluating 2., we have to define our process, the system 
+boundaries and the requirements, that the software has to fulfil.
+
+31.07.2017 - 04.08.2017
+4. With 3. done, we can build a working plan, to put all the work that 
+has to be done in work packages and assign it to someone
+
+14.08.2017 - XX.09.2017
+5. To implement what has been determined in 3., we will meet and 
+implement the biggest parts in a few days, (maybe from 14.08.-18.08. in 
+Wuppertal?)
+
+XX.09.2017 - ...
+6. circle of test, validate, use, evaluate, improve
+
+
 ## Workshop
 
 Date: 14.08. - 17.08. (tbc)
