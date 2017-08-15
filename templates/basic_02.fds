@@ -1,0 +1,5 @@
+&HEAD CHID='TEST', TITLE='Template Test 02'  /
+
+&MESH ID='MESH01', IJK=4,4,4, XB=-0.15,0.15,-0.15,0.15,0.0,0.4/
+
+&TAIL /

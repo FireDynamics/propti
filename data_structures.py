@@ -5,6 +5,7 @@ import os
 # PARAMETER CLASS
 class Parameter:
     def __init__(self, name: str,
+                 units: str = None,
                  place_holder: str = None,
                  value: float = None,
                  min_value: float = None,
@@ -23,7 +24,7 @@ class Parameter:
     def __str__(self) -> str:
         return "name: {}, value: {}".format(self.name, self.value)
 
-
+#TODO: add access elements via parameter name
 class ParameterSet:
     def __init__(self, name: str = None):
         self.name = name
@@ -66,18 +67,38 @@ def test_parameter_setup():
 ########################
 # SIMULATION SETUP CLASS
 
+class Relation:
+    def __init__(self):
+        self.model_x_label = None
+        self.model_y_label = None
+        self.experiment_x_label = None
+        self.experiment_y_label = None
+        self.x_def = None
+        self.model_y = None
+        self.experiment_y = None
+
 class SimulationSetup:
 
     def __init__(self,
                  name: str,
-                 work_dir: os.path = None,
+                 work_dir: os.path = os.path.join('.'),
                  model_template: os.path = None,
-                 model_parameter: ParameterSet = None):
+                 model_input_file: os.path = 'model_input.file',
+                 model_output_file: os.path = None,
+                 model_parameter: ParameterSet = ParameterSet(),
+                 model_executable: os.path = None,
+                 execution_dir: os.path = None,
+                 relationship_model_experiment: [Relation] = []):
 
         self.name = name
         self.work_dir = work_dir
         self.model_template = model_template
+        self.model_input_file = model_input_file
+        self.model_output_file = model_output_file
         self.model_parameter = model_parameter
+        self.model_executable = model_executable
+        self.exectuion_dir = execution_dir
+        self.realationship_model_experiment = relationship_model_experiment
 
         self.id = None
 
