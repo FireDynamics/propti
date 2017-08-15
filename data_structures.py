@@ -1,15 +1,16 @@
 import os
 
-###################################
-################### PARAMETER CLASS
+
+#################
+# PARAMETER CLASS
 class Parameter:
     def __init__(self, name: str,
-                 place_holder : str = None,
-                 value : float = None,
-                 min_value : float = None,
-                 max_value : float = None,
-                 distribution : str = None,
-                 max_increment : float = None):
+                 place_holder: str = None,
+                 value: float = None,
+                 min_value: float = None,
+                 max_value: float = None,
+                 distribution: str = None,
+                 max_increment: float = None):
 
         self.name = name
         self.place_holder = place_holder
@@ -22,21 +23,22 @@ class Parameter:
     def __str__(self) -> str:
         return "name: {}, value: {}".format(self.name, self.value)
 
+
 class ParameterSet:
-    def __init__(self, name : str = None):
+    def __init__(self, name: str = None):
         self.name = name
-        self.parameters = [] # type: List[Parameter]
+        self.parameters = []  # type: [Parameter]
 
     def __len__(self) -> int:
         return len(self.parameters)
 
-    def append(self, p : Parameter):
+    def append(self, p: Parameter):
         self.parameters.append(p)
 
-    def __getitem__(self, item : int) -> Parameter:
+    def __getitem__(self, item: int) -> Parameter:
         return self.parameters[item]
 
-    def __setitem__(self, key : int, value : Parameter):
+    def __setitem__(self, key: int, value: Parameter):
         self.parameters[key] = value
 
     def __str__(self):
@@ -51,6 +53,7 @@ class ParameterSet:
         res += "\n"
         return res
 
+
 def test_parameter_setup():
 
     ps = ParameterSet("test set")
@@ -60,46 +63,49 @@ def test_parameter_setup():
     print(ps)
 
 
-##########################################
-################### SIMULATION SETUP CLASS
+########################
+# SIMULATION SETUP CLASS
 
-class SimulationSetup():
+class SimulationSetup:
 
     def __init__(self,
-                 name : str,
-                 workdir : os.path = None,
-                 model_template : os.path = None,
-                 model_parameter : ParameterSet = None):
+                 name: str,
+                 work_dir: os.path = None,
+                 model_template: os.path = None,
+                 model_parameter: ParameterSet = None):
 
         self.name = name
-        self.workdir = workdir
+        self.work_dir = work_dir
         self.model_template = model_template
         self.model_parameter = model_parameter
 
         self.id = None
 
     def __str__(self) -> str:
-        return "id: {}, name: {}, workdir: {}".format(self.id, self.name, self.workdir)
+        return "id: {}, name: {}, workdir: {}".format(self.id,
+                                                      self.name,
+                                                      self.work_dir)
 
-class SimulationSetupSet():
 
-    def __init__(self, name : str = None):
+class SimulationSetupSet:
+
+    def __init__(self, name: str = None):
         self.name = name
-        self.setups = [] # type: List[SimulationSetup]
+        self.setups = []  # type: [SimulationSetup]
         self.next_id = 0
 
     def __len__(self) -> int:
         return len(self.setups)
 
-    def append(self, p : SimulationSetup):
-        self.setups.append(p)
+    def append(self, s: SimulationSetup):
+        self.setups.append(s)
         self.setups[-1].id = self.next_id
         self.next_id += 1
 
-    def __getitem__(self, item : int) -> SimulationSetup:
+    def __getitem__(self, item: int) -> SimulationSetup:
         return self.setups[item]
 
-    def __setitem__(self, key : int, value : SimulationSetup):
+    def __setitem__(self, key: int, value: SimulationSetup):
         self.setups[key] = value
 
     def __str__(self):
@@ -114,6 +120,7 @@ class SimulationSetupSet():
         res += "\n"
         return res
 
+
 def test_simulation_setup_setup():
     sss = SimulationSetupSet("test setups")
     sss.append(SimulationSetup("cone1"))
@@ -121,8 +128,9 @@ def test_simulation_setup_setup():
 
     print(sss)
 
-########################
-################### MAIN
+######
+# MAIN
+
 
 def data_structure_tests():
     test_parameter_setup()
