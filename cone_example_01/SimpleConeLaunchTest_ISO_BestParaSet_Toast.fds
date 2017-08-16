@@ -1,0 +1,218 @@
+Simulation of the Cone Calorimeter by Vytenis Babrauskas (NBSIR 82-2611), November 1992.
+Testsimulation to estimate time to perform one single simulation over a time of 2400 s, on JSC computing facilities.
+Heater temperature maintained corresponding to irradiance level of ca. 50 kW/m2 at sample surface.
+Combustion simulated by vent at sample surface according to CHRISTIFIRE pase 1 cable no. 219.
+
+
+&HEAD CHID='#filename#', TITLE='Cone Calorimeter (NBSIR 82-2611), November 1992'  / 
+
+&MESH ID='MESH01', IJK=#i#,#j#,#k#, XB=-0.15,0.15,-0.15,0.15,0.0,0.4/
+
+
+
+&TIME T_END=#tend#, WALL_INCREMENT=1, DT=1.0, /
+
+&MISC BNDF_DEFAULT=.FALSE., SOLID_PHASE_ONLY=.TRUE./
+
+
+
+***** Open Vents ********************
+
+&VENT MB = 'XMIN',SURF_ID = 'OPEN'/
+&VENT MB = 'XMAX',SURF_ID = 'OPEN'/
+&VENT MB = 'YMIN',SURF_ID = 'OPEN'/
+&VENT MB = 'YMAX',SURF_ID = 'OPEN'/
+ VENT MB = 'ZMIN',SURF_ID = 'OPEN'/
+&VENT MB = 'ZMAX',SURF_ID = 'OPEN'/
+
+
+
+##################
+#### Reaction ####
+##################
+
+***** REAC Parameters ******************
+
+&REAC FUEL       = 'TOLUENE' 
+      SOOT_YIELD = 0.178 /
+
+
+
+################################
+#### Materials and Surfaces ####
+################################
+
+***** Surfaces ********************
+
+Layer divide used to describe which layers generate fuel and on which side 
+of the model the fuel gases are emitted. It is just the number of layers 
+which should emit on a specific side.
+All layers shall emit to the top surface.
+
+Different surfaces are defined with different values for EXTERNAL_FLUX, to 
+mimic the three different Cone Calorimetry measurements performed during
+CHRISTIFIRE Phase 1 (25 kW, 50 kW and 75 kW). 
+
+&SURF ID = 'Cable219'
+	  EXTERNAL_FLUX=#exflux#,  
+      RGB =200,100,0,
+      BACKING = 'EXPOSED',
+	  CELL_SIZE_FACTOR = 0.25,
+      BURN_AWAY=.TRUE.,
+      THICKNESS(1:4) = #thickness1#, #thickness2#, #thickness1#, 0.025
+      HEAT_TRANSFER_COEFFICIENT = 0.,
+      MATL_ID(1,1) = 'Cable 219 Jacket Component A',
+      MATL_ID(1,2) = 'Cable 219 Jacket Component B',
+      MATL_MASS_FRACTION(1,1:2) = 0.35,0.65 ,
+      MATL_ID(2,1) = 'Cable 219 Insulation Component A',
+      MATL_ID(2,2) = 'Cable 219 Insulation Component B',
+      MATL_MASS_FRACTION(2,1:2) = 0.25,0.75,
+      MATL_ID(3,1) = 'Cable 219 Jacket Component A',
+      MATL_ID(3,2) = 'Cable 219 Jacket Component B',
+      MATL_MASS_FRACTION(3,1:2) = 0.35,0.65  
+      MATL_ID(4,1:1) = 'BACKING',
+      MATL_MASS_FRACTION(4,1:1) = 1.0/
+
+
+
+***** Materials ********************
+
+&MATL ID                    = 'Cable 219 Jacket Component A'
+      EMISSIVITY            = 0.415155053407
+      DENSITY               = 948.295891575
+      CONDUCTIVITY          = 0.204072778663
+      SPECIFIC_HEAT         = 1.20664363566
+      N_REACTIONS           = 1
+      A(1)                  = 1745.08192198
+      E(1)                  = 50956.6593506
+      N_S(1)                = 1.24929166824
+      NU_MATL(1,1)          = 0.46
+      MATL_ID(1,1)          = 'ResidueJacket'
+      NU_SPEC(1,1)          = 0.54
+      SPEC_ID(1,1)          = 'TOLUENE'
+      HEAT_OF_COMBUSTION(1) = 29091.8418822
+      HEAT_OF_REACTION(1)   = 1348.76323363 /
+
+&MATL ID                    = 'Cable 219 Jacket Component B'
+      EMISSIVITY            = 0.415155053407
+      DENSITY               = 948.295891575
+      CONDUCTIVITY          = 0.204072778663
+      SPECIFIC_HEAT         = 1.20664363566
+      N_REACTIONS           = 1
+      A(1)                  = 4.15507348631e+14
+      E(1)                  = 256110.737631
+      N_S(1)                = 1.95213014504
+      NU_MATL(1,1)          = 0.46
+      MATL_ID(1,1)          = 'ResidueJacket'
+      NU_SPEC(1,1)          = 0.54
+      SPEC_ID(1,1)          = 'TOLUENE'
+      HEAT_OF_COMBUSTION(1) = 29091.8418822
+      HEAT_OF_REACTION(1)   = 1348.76323363 /
+
+&MATL ID                    = 'ResidueJacket'
+      EMISSIVITY            = 0.802736884624
+      DENSITY               = 599.624933313
+      CONDUCTIVITY          = 0.197261299686
+      SPECIFIC_HEAT         = 1.02228105353 /
+
+
+
+&MATL ID                    = 'Cable 219 Insulation Component A'
+      EMISSIVITY            = 0.441464196011
+      DENSITY               = 1106.37735215
+      CONDUCTIVITY          = 0.198665140279
+      SPECIFIC_HEAT         = 1.50727683777
+      N_REACTIONS           = 1
+      A(1)                  = 40.7945749748
+      E(1)                  = 38992.2989777
+      N_S(1)                = 1.71554579991
+      NU_MATL(1,1)          = 0.49
+      MATL_ID(1,1)          = 'ResidueInsulator'
+      NU_SPEC(1,1)          = 0.51
+      SPEC_ID(1,1)          = 'TOLUENE'
+      HEAT_OF_COMBUSTION(1) = 40669.5835367
+      HEAT_OF_REACTION(1)   = 777.615793651 /
+
+&MATL ID                    = 'Cable 219 Insulation Component B'
+      EMISSIVITY            = 0.441464196011
+      DENSITY               = 1106.37735215
+      CONDUCTIVITY          = 0.198665140279
+      SPECIFIC_HEAT         = 1.50727683777
+      N_REACTIONS           = 1
+      A(1)                  = 4.54116434444e+20
+      E(1)                  = 240478.595147
+      N_S(1)                = 1.99178769428
+      NU_MATL(1,1)          = 0.49
+      MATL_ID(1,1)          = 'ResidueInsulator'
+      NU_SPEC(1,1)          = 0.51
+      SPEC_ID(1,1)          = 'TOLUENE'
+      HEAT_OF_COMBUSTION(1) = 40669.5835367
+      HEAT_OF_REACTION(1)   = 777.615793651 /	  
+	  
+&MATL ID                    = 'ResidueInsulator'
+      EMISSIVITY            = 0.539583203677
+      DENSITY               = 298.555727008
+      CONDUCTIVITY          = 0.196313437302
+      SPECIFIC_HEAT         = 0.933963731639 /	
+
+
+
+The backing material data is taken from Anna Matala's article
+'Pyrolysis modelling of PVC cable materials', Fire Safety Science --
+Proceedings of the tenth International Symposium. pp 917-930, 2011
+
+&MATL ID = 'BACKING'
+	  EMISSIVITY = 1.0
+	  DENSITY = 800.0
+	  CONDUCTIVITY = 0.1
+	  SPECIFIC_HEAT = 1.0/
+
+
+
+##################
+#### Geometry ####
+##################
+
+*** Specimen ***
+
+&VENT SURF_ID='Cable219', XB=-0.05,0.05,-0.05,0.05,0.0,0.0/ Sample
+
+
+
+##################
+#### Analysis ####
+##################
+
+***** Energy Release Rates *******************
+
+&BNDF QUANTITY='WALL TEMPERATURE' / 
+&BNDF QUANTITY='GAUGE HEAT FLUX' / 
+
+
+&DEVC ID='heater temp', QUANTITY='WALL TEMPERATURE', XYZ=0.0,0.0,0.0, IOR=3/
+&DEVC ID='sample temp', QUANTITY='WALL TEMPERATURE', XYZ=0.0,0.0,0.0, IOR=3/
+
+&DEVC ID='net heat flux', QUANTITY='NET HEAT FLUX', XYZ=0.0,0.0,0.0, IOR=3/
+&DEVC ID='gauge heat flux', QUANTITY='GAUGE HEAT FLUX', XYZ=0.0,0.0,0.0, IOR=3/
+
+
+&PROF ID='wall_temp_prof', QUANTITY='TEMPERATURE', XYZ=0.0,-0.00,0.0, IOR=3/
+&PROF ID='wall_temp_prof_fin', QUANTITY='TEMPERATURE', XYZ=0.0,-0.00,0.0, IOR=3, FORMAT_INDEX=2/
+
+
+
+&SLCF QUANTITY='TEMPERATURE', PBX=0.0/
+
+
+
+&SLCF QUANTITY='TEMPERATURE', PBY=0.0/
+
+
+
+&SLCF QUANTITY='VELOCITY', VECTOR=.TRUE., PBX=0.0/
+
+&SLCF QUANTITY='VELOCITY', VECTOR=.TRUE., PBY=0.0/
+
+
+
+&TAIL /
