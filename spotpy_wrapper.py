@@ -1,6 +1,7 @@
 import logging
 import sys
 import os
+import shutil
 import numpy as np
 
 import spotpy
@@ -21,7 +22,7 @@ class SpotpySetup(object):
 
         self.it = 0
 
-        print(params)
+        self.propty_params = params
 
         for p in params:
             logging.debug("setup spotpy parameter: {}".format(p.name))
@@ -36,6 +37,7 @@ class SpotpySetup(object):
             else:
                 logging.error('parameter distribution function unkown: {}'.
                               format(p.distribution))
+
     def parameters(self):
         return spotpy.parameter.generate(self.parameter)
 
@@ -43,18 +45,63 @@ class SpotpySetup(object):
         logging.debug("current simulation vector: {}".format(vector))
         logging.debug("iteration: {}".format(self.it))
 
+        for i in range(len(vector)):
+            self.propty_params[i].value = vector[i]
+
         for s in self.setups:
-            s.model_parameter[0].value = vector[0]
+            for p in s.model_parameter:
+                for pp in self.propty_params:
+                    if p.name == pp.name:
+                        p.value = pp.value
+
+        for s in self.setups:
             create_input_file(s)
             run_simulation(s)
             extract_simulation_data(s)
 
         self.it += 1
-        return self.setups[0].realationship_model_experiment[0].model_y
+
+        # determine the length of all data sets
+        n = 0
+        for s in self.setups:
+            for r in s.realationship_model_experiment:
+                n += r.map_to_def(len_only=True)
+
+        res = np.zeros(n)
+        index = 0
+        for s in self.setups:
+            for r in s.realationship_model_experiment:
+                n = r.map_to_def(len_only=True)
+                res[index:index+n] = r.map_to_def()
+                index += n
+
+        for s in self.setups:
+            shutil.rmtree(s.execution_dir)
+
+        return res
 
     def evaluation(self):
         logging.debug("evaluation")
-        return self.setups[0].realationship_model_experiment[0].experiment_y
+        for s in self.setups:
+            for r in s.realationship_model_experiment:
+                r.read_data(wd='.', target='experiment')
+
+        # determine the length of all data sets
+        n = 0
+        for s in self.setups:
+            for r in s.realationship_model_experiment:
+                n += r.map_to_def(target='experiment', len_only=True)
+
+        res = np.zeros(n)
+        index = 0
+        for s in self.setups:
+            for r in s.realationship_model_experiment:
+                n = r.map_to_def(target='experiment', len_only=True)
+                res[index:index + n] = r.map_to_def(target='experiment')
+                index += n
+
+        return res
+
 
 def run_optimisation(params: ParameterSet,
                      setups: SimulationSetupSet) -> ParameterSet:
@@ -66,8 +113,12 @@ def run_optimisation(params: ParameterSet,
                                       dbformat='csv',
                                       alt_objfun='rmse')
 
-    print("objective function: {}".format(sampler.objectivefunction))
     sampler.sample(10, ngs=len(params))
+
+    for i in range(len(params)):
+        params[i].value = spot.parameter[i]
+
+    return params
 
 def test_spotpy_setup():
 
@@ -93,18 +144,22 @@ def test_spotpy_run():
     ps.append(p1)
 
     r1 = Relation()
-    r1.model_x_label = "Time"
-    r1.model_y_label = "TEMP"
-    r1.x_def = np.linspace(3.0, 8.5, 3)
-    r1.experiment_y = np.ones_like(r1.x_def) * 42.1
+    r1.model[0].label_x = "Time"
+    r1.model[0].label_y = "TEMP"
+    r1.model[0].file_name = 'TEST_devc.csv'
+    r1.model[0].header_line = 1
 
+    r1.experiment[0].x = np.linspace(0, 10, 20)
+    r1.experiment[0].y = np.ones_like(r1.experiment[0].x) * 42.1
+
+    r1.x_def = np.linspace(3.0, 8.5, 3)
     relations = [r1]
+
     s0 = SimulationSetup(name='ambient run',
                          work_dir='test_spotpy',
                          model_template=os.path.join('templates',
                                                      'template_basic_03.fds'),
                          model_executable='fds',
-                         model_output_file='TEST_devc.csv',
                          relationship_model_experiment=relations,
                          model_parameter=ps
                          )

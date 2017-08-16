@@ -149,16 +149,10 @@ def extract_simulation_data(setup: SimulationSetup):
     # TODO: this is not general, but specific for FDS, i.e. first
     # TODO: line contains units, second the quantities names
 
-    logging.debug("opening devc file: {} in {}".format(setup.model_output_file,
-                                                       setup.execution_dir))
-    in_file = os.path.join(setup.execution_dir, setup.model_output_file)
-
-    data = pd.read_csv(in_file, header=1)
+    logging.debug("execution directory: {}".format(setup.execution_dir))
 
     for r in setup.realationship_model_experiment:
-        x = data[r.model_x_label]
-        y = data[r.model_y_label]
-        r.model_y = map_data(r.x_def, x, y)
+        r.read_data(setup.execution_dir)
 
 
 def map_data(x_def, x, y):
@@ -186,7 +180,6 @@ def test_prepare_run_extract():
                          model_template=os.path.join('templates',
                                                      'template_basic_03.fds'),
                          model_executable='fds',
-                         model_output_file='TEST_devc.csv',
                          relationship_model_experiment=relations,
                          model_parameter=paras
                          )
