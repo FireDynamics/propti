@@ -14,43 +14,48 @@ from basic_functions import create_input_file, run_simulation, \
 
 logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
 
+
 class SpotpySetup(object):
     def __init__(self, params: ParameterSet, setups: SimulationSetupSet):
-        self.parameter = []
 
         self.setups = setups
+        self.params = params
 
-        self.it = 0
-
-        self.propty_params = params
+        self.spotpy_parameter = []
 
         for p in params:
             logging.debug("setup spotpy parameter: {}".format(p.name))
             if p.distribution == 'uniform':
+
+                optguess = None
+                step = None
+                if p.value is not None:
+                    optguess = p.value
+                if p.max_increment is not None:
+                    step = p.max_increment
+
                 cp = spotpy.parameter.Uniform(p.place_holder,
                                               p.min_value, p.max_value,
-                                              step=p.max_increment,
-                                              optguess=p.value,
+                                              step=step,
+                                              optguess=optguess,
                                               minbound=p.min_value,
                                               maxbound=p.max_value)
-                self.parameter.append(cp)
+                self.spotpy_parameter.append(cp)
             else:
-                logging.error('parameter distribution function unkown: {}'.
-                              format(p.distribution))
+                logging.error('parameter distribution function unkown: {}'.format(p.distribution))
 
     def parameters(self):
-        return spotpy.parameter.generate(self.parameter)
+        return spotpy.parameter.generate(self.spotpy_parameter)
 
     def simulation(self, vector):
-        logging.debug("current simulation vector: {}".format(vector))
-        logging.debug("iteration: {}".format(self.it))
+        logging.debug("current spotpy simulation vector: {}".format(vector))
 
         for i in range(len(vector)):
-            self.propty_params[i].value = vector[i]
+            self.params[i].value = vector[i]
 
         for s in self.setups:
             for p in s.model_parameter:
-                for pp in self.propty_params:
+                for pp in self.params:
                     if p.name == pp.name:
                         p.value = pp.value
 
@@ -59,18 +64,16 @@ class SpotpySetup(object):
             run_simulation(s)
             extract_simulation_data(s)
 
-        self.it += 1
-
         # determine the length of all data sets
         n = 0
         for s in self.setups:
-            for r in s.realationship_model_experiment:
+            for r in s.relationship_model_experiment:
                 n += r.map_to_def(len_only=True)
 
         res = np.zeros(n)
         index = 0
         for s in self.setups:
-            for r in s.realationship_model_experiment:
+            for r in s.relationship_model_experiment:
                 n = r.map_to_def(len_only=True)
                 res[index:index+n] = r.map_to_def()
                 index += n
@@ -83,19 +86,19 @@ class SpotpySetup(object):
     def evaluation(self):
         logging.debug("evaluation")
         for s in self.setups:
-            for r in s.realationship_model_experiment:
+            for r in s.relationship_model_experiment:
                 r.read_data(wd='.', target='experiment')
 
         # determine the length of all data sets
         n = 0
         for s in self.setups:
-            for r in s.realationship_model_experiment:
+            for r in s.relationship_model_experiment:
                 n += r.map_to_def(target='experiment', len_only=True)
 
         res = np.zeros(n)
         index = 0
         for s in self.setups:
-            for r in s.realationship_model_experiment:
+            for r in s.relationship_model_experiment:
                 n = r.map_to_def(target='experiment', len_only=True)
                 res[index:index + n] = r.map_to_def(target='experiment')
                 index += n
@@ -113,10 +116,13 @@ def run_optimisation(params: ParameterSet,
                                       dbformat='csv',
                                       alt_objfun='rmse')
 
-    sampler.sample(10, ngs=len(params))
+    sampler.sample(1, ngs=len(params))
 
-    for i in range(len(params)):
-        params[i].value = spot.parameter[i]
+
+    print(sampler.status.params)
+
+    # for i in range(len(params)):
+    #     params[i].value = spot.parameter[i].
 
     return params
 

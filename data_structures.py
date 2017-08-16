@@ -16,7 +16,7 @@ class Parameter:
                  value: float = None,
                  min_value: float = None,
                  max_value: float = None,
-                 distribution: str = None,
+                 distribution: str = 'uniform',
                  max_increment: float = None):
 
         self.name = name
@@ -83,6 +83,8 @@ class DataSource:
         # self.column_y = None
         self.x = None
         self.y = None
+        self.factor = 1.0
+        self.offset = 0.0
 
 
 class Relation:
@@ -112,8 +114,8 @@ class Relation:
             logging.debug("read in data file: {} in directory".format(ds.file_name, wd))
             in_file = os.path.join(wd, ds.file_name)
             data = pd.read_csv(in_file, header=ds.header_line)
-            ds.x = data[ds.label_x]
-            ds.y = data[ds.label_y]
+            ds.x = data[ds.label_x].dropna().values
+            ds.y = data[ds.label_y].dropna().values
 
     def map_to_def(self, target: str = 'model', mode:str = 'average',
                    len_only: bool = False):
@@ -130,7 +132,7 @@ class Relation:
             res = np.zeros_like(self.x_def)
 
             for ds in ds_set:
-                tmp_y = np.interp(self.x_def, ds.x, ds.y)
+                tmp_y = np.interp(self.x_def, ds.x, ds.y) * ds.factor + ds.offset
                 res += tmp_y
             res /= len(ds_set)
             return res
@@ -176,7 +178,7 @@ class SimulationSetup:
         self.model_parameter = model_parameter
         self.model_executable = model_executable
         self.execution_dir = execution_dir
-        self.realationship_model_experiment = relationship_model_experiment
+        self.relationship_model_experiment = relationship_model_experiment
 
         self.id = None
 

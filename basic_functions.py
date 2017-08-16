@@ -139,7 +139,6 @@ def test_execute_fds():
                                                       'basic_02.fds'))
     run_simulation_serial(s)
 
-    # shutil.rmtree(s.execution_dir)
 
 ###########################
 # ANALYSE SIMULATION OUTPUT
@@ -151,7 +150,7 @@ def extract_simulation_data(setup: SimulationSetup):
 
     logging.debug("execution directory: {}".format(setup.execution_dir))
 
-    for r in setup.realationship_model_experiment:
+    for r in setup.relationship_model_experiment:
         r.read_data(setup.execution_dir)
 
 
@@ -206,7 +205,7 @@ def test_prepare_run_extract():
 
     for s in setups:
         extract_simulation_data(s)
-        for r in s.realationship_model_experiment:
+        for r in s.relationship_model_experiment:
             print(r.x_def, r.model_y)
 
 
@@ -218,7 +217,7 @@ def test_extract_data():
     r1 = ['VELO', ["none", "none"] ]
     r2 = ['TEMP', ["none", "none"] ]
 
-    s.realationship_model_experiment = [r1, r2]
+    s.relationship_model_experiment = [r1, r2]
 
     res = extract_simulation_data(s)
 
