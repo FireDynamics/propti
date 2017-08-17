@@ -1,5 +1,0 @@
-&HEAD CHID='#filename#', TITLE='Template Test 01'  /
-
-&MESH ID='MESH01', IJK=#i#,#j#,#k#, XB=#xmin#,0.15,-0.15,0.15,0.0,0.4/
-
-&TAIL /

@@ -1,6 +1,6 @@
 ## Process
 
-![](propti.png)
+![](resources/propti.png)
 
 ## Idea
 
