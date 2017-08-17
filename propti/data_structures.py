@@ -1,4 +1,5 @@
 import os
+import sys
 import logging
 import copy
 import numpy as np
@@ -21,9 +22,11 @@ class OptimiserProperties:
         """
         Constructor.
 
-        :param algorithm: choose spotpy algorithm, default: sceua, range: [sceua]
+        :param algorithm: choose spotpy algorithm, default: sceua,
+            range: [sceua]
         :param repetitions: number of sampling repetitions, default: 1
-        :param ngs: number of complexes, if None then set to len(para), default: None
+        :param ngs: number of complexes, if None then set to len(para),
+            default: None
         :param db_name: name of spotpy database file, default: propti_db
         :param db_type: type of database, default: csv, range: [csv]
         """
@@ -64,12 +67,16 @@ class Parameter:
 
         :param name: name of parameter
         :param units: units, default: None
-        :param place_holder: place holder string used in templates, if not set, name is used
-        :param value: holds current parameter value, which may also be the initial value
-        :param distribution: parameter distribution function used for sampling, default: uniform, range: [uniform]
+        :param place_holder: place holder string used in templates, if not set,
+            name is used
+        :param value: holds current parameter value, which may also be the
+            initial value
+        :param distribution: parameter distribution function used for sampling,
+            default: uniform, range: [uniform]
         :param min_value: assumed minimal value
         :param max_value: assumed maximal value
-        :param max_increment: step size required for some optimisation algorithms
+        :param max_increment: step size required for some optimisation
+        algorithms
         """
         self.name = name
         self.units = units
@@ -92,7 +99,8 @@ class Parameter:
         :return: info string
         """
         res = "name: {}".format(self.name)
-        if self.units: res += ", units: {}".format(self.units)
+        if self.units:
+            res += ", units: {}".format(self.units)
         res += ", value: {}".format(self.value)
         return res
 
@@ -161,6 +169,7 @@ class ParameterSet:
         return res
 
 
+# tests for Parameter classes
 def test_parameter_setup():
     ps = ParameterSet("test set")
     ps.append(Parameter("density"))
@@ -169,10 +178,17 @@ def test_parameter_setup():
     print(ps)
 
 
-########################
-# SIMULATION SETUP CLASS
+##################
+# RELATION CLASSES
 
 class DataSource:
+    """
+    Container for data and meta data of a data source, i.e. model or
+    experimental data.
+    """
+    # TODO: add arguments to constructor
+    # TODO: move read data to this class
+    # TODO: allow for column index definition as alternative to labels
     def __init__(self):
         self.file_name = None
         self.header_line = None
@@ -187,33 +203,81 @@ class DataSource:
 
 
 class Relation:
-    def __init__(self, x_def: np.ndarray = None):
-        # TODO: check that ns are at least one
-        self.model = DataSource()
-        self.experiment = DataSource()
+    """
+    Class representing a single relation between an experimental and model data
+    set.
+    """
+    def __init__(self,
+                 x_def: np.ndarray = None,
+                 model: DataSource = DataSource(),
+                 experiment: DataSource = DataSource()):
+        """
+        Set up a relation between the model and experiment data sources.
 
+        :param x_def: definition range for both sources
+        :param model: model data source
+        :param experiment: experiment data source
+        """
+        self.model = model
+        self.experiment = experiment
         self.x_def = x_def
 
     def read_data(self, wd: os.path, target: str = 'model'):
+        """
+        Read data from file and store it in the data source object.
+
+        :param wd: working directory, i.e. directory prefix
+        :param target: choose which data source is read, i.e. model or
+            experimental source
+        :return: None
+        """
+
+        # set ds to none and if it stays none, something went wrong
         ds = None
         if target == 'model':
             ds = self.model
         if target == 'experiment':
             ds = self.experiment
 
+        # error handling
         if ds is None:
             logging.error("wrong data read target: {}".format(target))
+            sys.exit()
 
-        if ds.file_name is None: return
+        # if file name is not specified, do not read from file, as data may
+        # have been set directly to ds.x / ds.y
+        if ds.file_name is None:
+            logging.warning("skip reading data, no data file defined")
+            return
+
         logging.debug("read in data file: {} in directory".format(ds.file_name,
                                                                   wd))
+
+        # construct the input file name
         in_file = os.path.join(wd, ds.file_name)
+        # read data
         data = pd.read_csv(in_file, header=ds.header_line)
+        # assign data from file to data source arrays
         ds.x = data[ds.label_x].dropna().values
         ds.y = data[ds.label_y].dropna().values
 
-    def map_to_def(self, target: str = 'model', mode: str = 'average',
+    def map_to_def(self,
+                   target: str = 'model',
+                   mode: str = 'average',
                    len_only: bool = False):
+        """
+        Maps the data of a data source to a definition set.
+
+        :param target: choose data source, i.e. experiment or model,
+            default: model, range: [model, experiment]
+        :param mode: choose if data should be processed, default: average,
+            range: [average]
+        :param len_only: if set, return only the length of the resulting array,
+            without creating the array
+        :return: mapped data array or length of array
+        """
+
+        # set ds to none and if it stays none, something went wrong
         ds = None
         if target == 'model':
             ds = self.model
@@ -221,16 +285,25 @@ class Relation:
             ds = self.experiment
         if ds is None:
             logging.error("wrong data read target: {}".format(target))
+            sys.exit()
 
+        # which mode?
         if mode == 'average':
-            if len_only: return len(self.x_def)
+            # if length is only required, return just the length of the
+            # definition set
+            if len_only:
+                return len(self.x_def)
 
+            # interpolate data on the definition set and return it
             return np.interp(self.x_def, ds.x,
                              ds.y) * ds.factor + ds.offset
 
+        # wrong mode was chosen
         logging.error("wrong data mapping mode: {}".format(mode))
+        sys.exit()
 
 
+# test for data readin
 def test_read_map_data():
     r = Relation()
     ds = r.model
@@ -239,16 +312,19 @@ def test_read_map_data():
     ds.label_x = 'Time'
     ds.label_y = 'VELO'
 
-    ds = r.model[1]
+    ds = r.model
     ds.file_name = 'TEST_devc.csv'
     ds.header_line = 1
     ds.label_x = 'Time'
     ds.label_y = 'TEMP'
 
     r.read_data('test_data')
-    r.x_def = r.model[0].x[::5]
+    r.x_def = r.model.x[::5]
     res = r.map_to_def()
     print(r.x_def, res)
+
+########################
+# SIMULATION SETUP CLASS
 
 
 class SimulationSetup:
@@ -260,7 +336,7 @@ class SimulationSetup:
                  model_parameter: ParameterSet = ParameterSet(),
                  model_executable: os.path = None,
                  execution_dir: os.path = None,
-                 relationship_model_experiment: List[Relation] = []):
+                 relationship_model_experiment: List[Relation] = None):
         self.name = name
         self.work_dir = work_dir
         self.model_template = model_template
@@ -268,7 +344,10 @@ class SimulationSetup:
         self.model_parameter = model_parameter
         self.model_executable = model_executable
         self.execution_dir = execution_dir
-        self.relationship_model_experiment = relationship_model_experiment
+        if relationship_model_experiment:
+            self.relationship_model_experiment = relationship_model_experiment
+        else:
+            self.relationship_model_experiment = []
 
         self.id = None
 
