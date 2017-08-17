@@ -15,7 +15,7 @@ import logging
 import pandas as pd
 import numpy as np
 
-from data_structures import Parameter, ParameterSet, SimulationSetup, \
+from .data_structures import Parameter, ParameterSet, SimulationSetup, \
     SimulationSetupSet, Relation
 
 logging.basicConfig(filename='propty.log', level=logging.DEBUG)

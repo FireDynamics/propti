@@ -6,10 +6,10 @@ import numpy as np
 
 import spotpy
 
-from data_structures import Parameter, ParameterSet, SimulationSetup, \
-    SimulationSetupSet, Relation
+from .data_structures import Parameter, ParameterSet, SimulationSetup, \
+    SimulationSetupSet, Relation, OptimiserProperties
 
-from basic_functions import create_input_file, run_simulation, \
+from .basic_functions import create_input_file, run_simulation, \
     extract_simulation_data
 
 logging.basicConfig(filename='propty.log', level=logging.DEBUG)
@@ -107,19 +107,26 @@ class SpotpySetup(object):
 
 
 def run_optimisation(params: ParameterSet,
-                     setups: SimulationSetupSet) -> ParameterSet:
+                     setups: SimulationSetupSet,
+                     opt: OptimiserProperties) -> ParameterSet:
 
     spot = SpotpySetup(params, setups)
 
-    sampler = spotpy.algorithms.sceua(spot,
-                                      dbname='propty',
-                                      dbformat='csv',
+    if opt.algorithm == 'sceua':
+        sampler = spotpy.algorithms.sceua(spot,
+                                      dbname=opt.db_name,
+                                      dbformat=opt.db_type,
                                       alt_objfun='rmse')
 
-    sampler.sample(1, ngs=len(params))
+        ngs = opt.ngs
+        if not ngs: ngs = len(params)
+        sampler.sample(opt.repetitions, ngs=ngs)
 
+        print(sampler.status.params)
 
-    print(sampler.status.params)
+    else:
+        logging.critical("unknown algorithm set: {}".format(opt.algorithm))
+        sys.exit()
 
     for i in range(len(params)):
         params[i].value = sampler.status.params[i]
