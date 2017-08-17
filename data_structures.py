@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 
 
-logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+logging.basicConfig(filename='propty.log', level=logging.DEBUG)
 
 #################
 # PARAMETER CLASS

@@ -18,7 +18,7 @@ import numpy as np
 from data_structures import Parameter, ParameterSet, SimulationSetup, \
     SimulationSetupSet, Relation
 
-logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+logging.basicConfig(filename='propty.log', level=logging.DEBUG)
 
 #####################
 # INPUT FILE HANDLING
@@ -43,7 +43,7 @@ def write_input_file(content: str, filename: os.path):
     try:
         outfile = open(filename, 'w')
     except OSError as err:
-        print("error writing input file: {}".format(filename))
+        logging.error("error writing input file: {}".format(filename))
         sys.exit()
 
     outfile.write(content)
@@ -70,7 +70,7 @@ def read_template(filename: os.path) -> str:
     try:
         infile = open(filename, 'r')
     except OSError as err:
-        print("error reading template file: {}".format(filename))
+        logging.error("error reading template file: {}".format(filename))
         sys.exit()
 
     content = infile.read()
@@ -125,7 +125,10 @@ def run_simulation_serial(setup: SimulationSetup):
 
     exec_file = setup.model_executable
     in_file = os.path.join('..', setup.model_input_file)
-    subprocess.check_call(exec_file + " " + in_file, shell=True)
+    log_file = open("execution.log", "w")
+    subprocess.check_call(exec_file + " " + in_file, shell=True,
+                          stdout=log_file, stderr=log_file)
+    log_file.close()
 
     os.chdir(old_cwd)
 

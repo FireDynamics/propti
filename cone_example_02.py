@@ -52,7 +52,7 @@ for iso in ['Alu', 'ISO']:
 
     r.read_data(wd='.', target='experiment')
     TEND = r.experiment[0].x[-1]
-    print('tend: {}'.format(TEND))
+    # print('tend: {}'.format(TEND))
     mps[3].value = TEND
 
     r.x_def = np.arange(0., TEND, 1)
@@ -70,8 +70,8 @@ for iso in ['Alu', 'ISO']:
 for s in setups:
     if not os.path.exists(s.work_dir): os.mkdir(s.work_dir)
 
-# res = run_optimisation(ops, setups)
-#
-# print(res)
+res = run_optimisation(ops, setups)
+
+print(res)
 
 
