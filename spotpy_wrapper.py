@@ -12,7 +12,7 @@ from data_structures import Parameter, ParameterSet, SimulationSetup, \
 from basic_functions import create_input_file, run_simulation, \
     extract_simulation_data
 
-logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+logging.basicConfig(filename='propty.log', level=logging.DEBUG)
 
 
 class SpotpySetup(object):
@@ -121,8 +121,8 @@ def run_optimisation(params: ParameterSet,
 
     print(sampler.status.params)
 
-    # for i in range(len(params)):
-    #     params[i].value = spot.parameter[i].
+    for i in range(len(params)):
+        params[i].value = sampler.status.params[i]
 
     return params
 
