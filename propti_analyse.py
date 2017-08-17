@@ -17,9 +17,9 @@ parser.add_argument("--plot_like_values",
                     help="plot like and values", action="store_true")
 cmdl_args = parser.parse_args()
 
-setups = None # type: pr.SimulationSetupSet
-ops = None # type: pr.ParameterSet
-optimiser = None
+setups = None #  type: pr.SimulationSetupSet
+ops = None #  type: pr.ParameterSet
+optimiser = None #  type: pr.OptimiserProperties
 
 in_file = open(os.path.join(cmdl_args.root_dir, 'propti.pickle.finished'), 'rb')
 setups, ops, optimiser = pickle.load(in_file)
@@ -37,7 +37,9 @@ print(setups, ops, optimiser)
 
 if cmdl_args.plot_like_values:
     print("- plot likes and values")
-    db_file_name = os.path.join(cmdl_args.root_dir, 'propti.csv')
+    db_file_name = os.path.join(cmdl_args.root_dir,
+                                '{}.{}'.format(optimiser.db_name,
+                                               optimiser.db_type))
     cols = ['like1']
     for p in ops:
         cols.append("par{}".format(p.place_holder))
