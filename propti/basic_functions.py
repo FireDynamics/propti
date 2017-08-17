@@ -23,6 +23,7 @@ logging.basicConfig(filename='propty.log', level=logging.DEBUG)
 #####################
 # INPUT FILE HANDLING
 
+
 def create_input_file(setup: SimulationSetup):
 
     in_fn = setup.model_template
