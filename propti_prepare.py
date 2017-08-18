@@ -16,7 +16,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("input_file", type=str,
                     help="python input file containing parameter and "
                          "simulation setups")
-parser.add_argument("-w", "--root_dir", type=str,
+parser.add_argument("--root_dir", type=str,
                     help="root directory for optimization process", default='.')
 cmdl_args = parser.parse_args()
 
@@ -42,22 +42,22 @@ logging.info("input file directory: {}".format(input_file_directory))
 
 for s in setups:
 
+    cdir = os.path.join(cmdl_args.root_dir, s.work_dir)
+
     # create work directories
-    if not os.path.exists(s.work_dir): os.mkdir(s.work_dir)
+    if not os.path.exists(cdir): os.mkdir(cdir)
 
     # copy model template
-    sh.copy(os.path.join(input_file_directory, s.model_template),
-            s.work_dir)
+    sh.copy(os.path.join(input_file_directory, s.model_template), cdir)
 
-    s.model_template = os.path.join(s.work_dir,
-                                    os.path.basename(s.model_template))
+    s.model_template = os.path.join(cdir, os.path.basename(s.model_template))
 
     # copy all exerimental data
     for r in s.relations:
         sh.copy(os.path.join(input_file_directory, r.experiment.file_name),
-                s.work_dir)
+                cdir)
         r.experiment.file_name = \
-            os.path.join(s.work_dir, os.path.basename(r.experiment.file_name))
+            os.path.join(cdir, os.path.basename(r.experiment.file_name))
 
 print(setups, ops, optimiser)
 
