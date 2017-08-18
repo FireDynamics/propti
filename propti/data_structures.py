@@ -337,6 +337,20 @@ class SimulationSetup:
                  model_executable: os.path = None,
                  execution_dir: os.path = None,
                  relations: List[Relation] = None):
+        """
+        Constructor.
+
+        :param name: name for simulation setup
+        :param work_dir: work directory, will contain all needed data
+        :param model_template: points to the model input template
+        :param model_input_file: name for model input file
+        :param model_parameter: parameter set needed for this setup
+        :param model_executable: call to invoke the model
+        :param execution_dir: directory where the model execution will be
+            caried out, mostly in temporally created directories
+        :param relations: relations between experimental and model data
+        """
+
         self.name = name
         self.work_dir = work_dir
         self.model_template = model_template
@@ -344,17 +358,26 @@ class SimulationSetup:
         self.model_parameter = model_parameter
         self.model_executable = model_executable
         self.execution_dir = execution_dir
+
+        # if relations are set, check if a list is passed, otherwise create
+        # a single element list
         if relations:
             if isinstance(relations, list):
                 self.relationships = relations
             else:
                 self.relationships = [relations]
+        # if no value was passed, create an empty list
         else:
             self.relations = []
 
         self.id = None
 
     def __str__(self) -> str:
+        """
+        Creates a string with the major simulation setup information.
+
+        :return: information string
+        """
         res = "id: {}, name: {}, workdir: {}".format(self.id,
                                                      self.name,
                                                      self.work_dir)
@@ -365,26 +388,65 @@ class SimulationSetup:
 
 
 class SimulationSetupSet:
-    def __init__(self, name: str = None):
+    """
+    Cointainer class for SimulationSetup objects.
+    """
+    def __init__(self,
+                 name: str = None,
+                 setups: List[SimulationSetup] = None):
+        """
+        Constructor.
+
+        :param name: set name
+        :param setups: list of initial setups
+        """
         self.name = name
-        self.setups = []  # type: [SimulationSetup]
+
+        # setups are passed, check if a single value was passed or a list
+        if setups:
+            if isinstance(setups, list):
+                self.setups = setups
+            else:
+                self.setups = [setups]
+        else:
+            self.setups = []  # type: List[SimulationSetup]
         self.next_id = 0
 
     def __len__(self) -> int:
+        """
+        Computes and returns the length of the set.
+
+        :return: length of the simulation setup set
+        """
+
         return len(self.setups)
 
     def append(self, s: SimulationSetup):
-        self.setups.append(s)
+        """
+        Appends a deep copy of the simulation setup to set.
+
+        :param s: simulation setup to be appended
+        :return: None
+        """
+        self.setups.append(copy.deepcopy(s))
         self.setups[-1].id = self.next_id
         self.next_id += 1
 
     def __getitem__(self, item: int) -> SimulationSetup:
+        """
+        Returns selected simulation setup.
+
+        :param item: index of selected element
+        :return: selected simulation setup
+        """
         return self.setups[item]
 
-    def __setitem__(self, key: int, value: SimulationSetup):
-        self.setups[key] = value
-
     def __str__(self):
+        """
+        Creates an information string.
+
+        :return: information string
+        """
         res = "\n"
         head_line = "simulaton setup set"
         if self.name:
@@ -407,7 +469,6 @@ def test_simulation_setup_setup():
 
 ######
 # MAIN
-
 
 def data_structure_tests():
     # test_parameter_setup()
