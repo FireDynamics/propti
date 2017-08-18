@@ -9,7 +9,6 @@ import pickle
 import propti as pr
 
 import logging
-logging.basicConfig(filename='propti.log', filemode='w', level=logging.DEBUG)
 
 import argparse
 parser = argparse.ArgumentParser()

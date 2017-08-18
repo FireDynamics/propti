@@ -13,7 +13,6 @@ import numpy as np
 from .data_structures import Parameter, ParameterSet, SimulationSetup, \
     SimulationSetupSet, Relation
 
-logging.basicConfig(filename='propty.log', level=logging.DEBUG)
 
 #####################
 # INPUT FILE HANDLING

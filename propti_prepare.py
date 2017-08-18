@@ -9,7 +9,6 @@ import pickle
 import propti as pr
 
 import logging
-logging.basicConfig(filename='propti.log', filemode='w', level=logging.DEBUG)
 
 import argparse
 parser = argparse.ArgumentParser()
@@ -66,6 +65,7 @@ for s in setups:
 in_file_list = []
 for s in setups:
     tpath = os.path.join(s.work_dir, s.model_input_file)
+    logging.debug("check if {} is in {}".format(tpath, in_file_list))
     if tpath in in_file_list:
         logging.error("non unique module input file path: {}".format(tpath))
         sys.exit()

@@ -12,7 +12,6 @@ from .data_structures import Parameter, ParameterSet, SimulationSetup, \
 from .basic_functions import create_input_file, run_simulation, \
     extract_simulation_data
 
-logging.basicConfig(filename='propty.log', level=logging.DEBUG)
 
 
 class SpotpySetup(object):
