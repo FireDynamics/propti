@@ -53,7 +53,7 @@ for s in setups:
                                     os.path.basename(s.model_template))
 
     # copy all exerimental data
-    for r in s.relationship_model_experiment:
+    for r in s.relations:
         sh.copy(os.path.join(input_file_directory, r.experiment.file_name),
                 s.work_dir)
         r.experiment.file_name = \
