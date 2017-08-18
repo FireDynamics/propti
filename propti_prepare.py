@@ -18,6 +18,9 @@ parser.add_argument("input_file", type=str,
                          "simulation setups")
 parser.add_argument("--root_dir", type=str,
                     help="root directory for optimization process", default='.')
+parser.add_argument("--prepare_init_inputs",
+                    help="prepare input files with initial values",
+                    action="store_true")
 cmdl_args = parser.parse_args()
 
 setups = None # type: pr.SimulationSetupSet
@@ -65,4 +68,7 @@ out_file = open('propti.pickle.init', 'wb')
 pickle.dump((setups, ops, optimiser), out_file)
 out_file.close()
 
-pr.OptimiserProperties()
+if cmdl_args.prepare_init_inputs:
+    logging.info("prepare input files with initial values")
+    for s in setups:
+        pr.create_input_file(s)
