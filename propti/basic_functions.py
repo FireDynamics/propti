@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Aug 15 09:49:55 2017
-
-@author: tristan
-"""
 
 import os
 import tempfile
@@ -154,7 +149,7 @@ def extract_simulation_data(setup: SimulationSetup):
 
     logging.debug("execution directory: {}".format(setup.execution_dir))
 
-    for r in setup.relationship_model_experiment:
+    for r in setup.relations:
         r.read_data(setup.execution_dir)
 
 
@@ -183,7 +178,7 @@ def test_prepare_run_extract():
                          model_template=os.path.join('templates',
                                                      'template_basic_03.fds'),
                          model_executable='fds',
-                         relationship_model_experiment=relations,
+                         relations=relations,
                          model_parameter=paras
                          )
 
@@ -209,7 +204,7 @@ def test_prepare_run_extract():
 
     for s in setups:
         extract_simulation_data(s)
-        for r in s.relationship_model_experiment:
+        for r in s.relations:
             print(r.x_def, r.model_y)
 
 
@@ -221,7 +216,7 @@ def test_extract_data():
     r1 = ['VELO', ["none", "none"] ]
     r2 = ['TEMP', ["none", "none"] ]
 
-    s.relationship_model_experiment = [r1, r2]
+    s.relations = [r1, r2]
 
     res = extract_simulation_data(s)
 

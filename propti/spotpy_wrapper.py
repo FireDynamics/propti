@@ -67,13 +67,13 @@ class SpotpySetup(object):
         # determine the length of all data sets
         n = 0
         for s in self.setups:
-            for r in s.relationship_model_experiment:
+            for r in s.relations:
                 n += r.map_to_def(len_only=True)
 
         res = np.zeros(n)
         index = 0
         for s in self.setups:
-            for r in s.relationship_model_experiment:
+            for r in s.relations:
                 n = r.map_to_def(len_only=True)
                 res[index:index+n] = r.map_to_def()
                 index += n
@@ -86,19 +86,19 @@ class SpotpySetup(object):
     def evaluation(self):
         logging.debug("evaluation")
         for s in self.setups:
-            for r in s.relationship_model_experiment:
+            for r in s.relations:
                 r.read_data(wd='.', target='experiment')
 
         # determine the length of all data sets
         n = 0
         for s in self.setups:
-            for r in s.relationship_model_experiment:
+            for r in s.relations:
                 n += r.map_to_def(target='experiment', len_only=True)
 
         res = np.zeros(n)
         index = 0
         for s in self.setups:
-            for r in s.relationship_model_experiment:
+            for r in s.relations:
                 n = r.map_to_def(target='experiment', len_only=True)
                 res[index:index + n] = r.map_to_def(target='experiment')
                 index += n
@@ -173,7 +173,7 @@ def test_spotpy_run():
                          model_template=os.path.join('templates',
                                                      'template_basic_03.fds'),
                          model_executable='fds',
-                         relationship_model_experiment=relations,
+                         relations=relations,
                          model_parameter=ps
                          )
     setups = SimulationSetupSet()

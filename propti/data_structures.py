@@ -363,9 +363,9 @@ class SimulationSetup:
         # a single element list
         if relations:
             if isinstance(relations, list):
-                self.relationships = relations
+                self.relations = relations
             else:
-                self.relationships = [relations]
+                self.relations = [relations]
         # if no value was passed, create an empty list
         else:
             self.relations = []
