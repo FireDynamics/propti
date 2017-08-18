@@ -1,4 +1,4 @@
-&HEAD CHID=#CHID#, TITLE='TGA tutorial' /
+&HEAD CHID='#CHID#', TITLE='TGA tutorial' /
 
 &MESH IJK=3,1,4, XB=-2,2,-0.5,0.5,0,1 /
 
