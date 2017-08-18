@@ -92,5 +92,5 @@ XX.09.2017 - ...
 
 ## Workshop
 
-Date: 14.08. - 17.08. (tbc)
-Place: Wuppertal (tbc)
+Date: 14.08. - 17.08.
+Place: Wuppertal
