@@ -62,6 +62,15 @@ for s in setups:
         r.experiment.file_name = \
             os.path.join(cdir, os.path.basename(r.experiment.file_name))
 
+# check for potential non-unique model input files
+in_file_list = []
+for s in setups:
+    tpath = os.path.join(s.work_dir, s.model_input_file)
+    if tpath in in_file_list:
+        logging.error("non unique module input file path: {}".format(tpath))
+        sys.exit()
+    in_file_list.append(tpath)
+
 print(setups, ops, optimiser)
 
 out_file = open('propti.pickle.init', 'wb')
