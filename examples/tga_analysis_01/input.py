@@ -61,4 +61,4 @@ setups.append(s)
 
 # use default values for optimiser
 optimiser = pr.OptimiserProperties(algorithm='sceua',
-                                   repetitions=100)
+                                   repetitions=1000)
