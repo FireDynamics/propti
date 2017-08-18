@@ -54,7 +54,7 @@ s = pr.SimulationSetup(name='tga_analysis_01',
                        model_template=template_file,
                        model_parameter=mps0,
                        model_executable='fds',
-                       relationship_model_experiment=[r])
+                       relations=r)
 
 # append above object to simulation setup set
 setups.append(s)

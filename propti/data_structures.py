@@ -323,9 +323,9 @@ def test_read_map_data():
     res = r.map_to_def()
     print(r.x_def, res)
 
+
 ########################
 # SIMULATION SETUP CLASS
-
 
 class SimulationSetup:
     def __init__(self,
@@ -336,7 +336,7 @@ class SimulationSetup:
                  model_parameter: ParameterSet = ParameterSet(),
                  model_executable: os.path = None,
                  execution_dir: os.path = None,
-                 relationship_model_experiment: List[Relation] = None):
+                 relations: List[Relation] = None):
         self.name = name
         self.work_dir = work_dir
         self.model_template = model_template
@@ -344,10 +344,13 @@ class SimulationSetup:
         self.model_parameter = model_parameter
         self.model_executable = model_executable
         self.execution_dir = execution_dir
-        if relationship_model_experiment:
-            self.relationship_model_experiment = relationship_model_experiment
+        if relations:
+            if isinstance(relations, list):
+                self.relationships = relations
+            else:
+                self.relationships = [relations]
         else:
-            self.relationship_model_experiment = []
+            self.relations = []
 
         self.id = None
 
