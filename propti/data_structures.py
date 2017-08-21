@@ -43,9 +43,12 @@ class OptimiserProperties:
         """
         return "\noptimiser properties\n" \
                "--------------------\n" \
-               "name: {}\nrep: {}\ndb_name: {}\n".format(self.algorithm,
-                                                         self.repetitions,
-                                                         self.db_name)
+               "alg: {}\nrep: {}\nngs: {}" \
+               "\ndb_name: {}\ndb_type: {}\n".format(self.algorithm,
+                                                     self.repetitions,
+                                                     self.ngs,
+                                                     self.db_name,
+                                                     self.db_type)
 
 
 #################

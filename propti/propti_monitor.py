@@ -5,7 +5,6 @@ Created on Wed Nov 30 15:39:13 2016
 @author: thehnen; based on a script from belt
 """
 
-#import StringIO
 
 import numpy as np
 import pandas as pd
@@ -37,8 +36,20 @@ mpl.rcParams['text.latex.preamble'] = [r'\usepackage{siunitx}',
 #%%
 
 
-def plot_scatter_rmse(df_name, plot_title,
-                      file_name=None):
+def plot_scatter(data_label, data_frame, plot_title,
+                      file_name=None, y_label=None, skip_lines=1):
+
+    """
+    :param data_label: column label for Pandas data frame
+    :param data_frame: name of the Pandas data frame
+    :param plot_title: title of the plot
+    :param file_name: name of the created PDF-file
+    :param y_label: label for the y-axis, default: data_label
+    :param skip_lines: used to create plots while omitting the first lines
+                       of the data frame
+    :return: creates a plot and saves it as PDF-file
+    """
+
     # Message to indicate that the plotting process has started.
     n_plots = 1
     print("")
@@ -48,23 +59,27 @@ def plot_scatter_rmse(df_name, plot_title,
 
     # Extract the RMSE values from the data frame.
     # Skip first entry.
-    rmse_values = df_name['like1'][1:]
+    rmse_values = data_frame[data_label][skip_lines:]
 
     # Plot the RMSE values.
     fig = plt.figure()
-    plt.plot(rmse_values, color='black')
+    plt.plot(rmse_values, color='black', marker='.', linestyle='None')
 
     # Finish the plot
     #pl.rcParams['figure.figsize'] = 16, 12
     plt.xlabel('Individuals')
-    plt.ylabel('Root Mean Square Error (RMSE)')
+
+    if y_label is None:
+        plt.ylabel(data_label)
+    else:
+        plt.ylabel(y_label)
     # Create plot title from file name.
     plt.title(plot_title + ' ' + file_name)
     plt.grid()
 
     # Check if a file name is provided, if it is a file will be
     # created.
-    if not file_name is None:
+    if file_name is not None:
         new_path = os.path.join(file_name + '_scatter.pdf')
 
         plt.savefig(new_path)

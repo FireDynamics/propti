@@ -118,7 +118,10 @@ def run_optimisation(params: ParameterSet,
                                       alt_objfun='rmse')
 
         ngs = opt.ngs
-        if not ngs: ngs = len(params)
+        if not ngs:
+            ngs = len(params)
+            opt.ngs = ngs
+
         sampler.sample(opt.repetitions, ngs=ngs)
 
         print(sampler.status.params)

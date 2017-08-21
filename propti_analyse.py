@@ -5,10 +5,13 @@ import pickle
 import matplotlib.pyplot as plt
 
 import propti as pr
-
+import propti.propti_monitor as pm
+import propti.propti_post_processing as ppm
 import logging
 
 import argparse
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument("root_dir", type=str,
                     help="optimisation root directory")
@@ -39,15 +42,19 @@ if cmdl_args.plot_like_values:
     db_file_name = os.path.join(cmdl_args.root_dir,
                                 '{}.{}'.format(optimiser.db_name,
                                                optimiser.db_type))
-    cols = ['like1']
+    cols = ['like1', 'chain']
     for p in ops:
         cols.append("par{}".format(p.place_holder))
     data = pd.read_csv(db_file_name, usecols=cols)
 
-    for c in cols:
-        fig, ax = plt.subplots()
-        ax.plot(data[c])
-        ax.set_ylabel(c)
-        fig.savefig("plot_{}.pdf".format(c))
-        fig.tight_layout()
-        fig.clear()
+    for c in cols[2:]:
+        pm.plot_scatter(c, data, 'Parameter development', c)
+
+    for c in cols[2:]:
+        ppm.plot_hist(c, data, 'histogram', y_label=None)
+
+    pm.plot_scatter('like1', data, 'RMSE', 'Fitness values',
+                    'Root Mean Square Error (RMSE)')
+
+    pm.plot_box_rmse(data, 'RMSE', len(ops), optimiser.ngs, 'Fitness values')
+
