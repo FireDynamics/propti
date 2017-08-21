@@ -16,9 +16,9 @@ parser.add_argument("root_dir", type=str,
                     help="optimisation root directory")
 cmdl_args = parser.parse_args()
 
-setups = None # type: pr.SimulationSetupSet
-ops = None
-optimiser = None
+setups = None  # type: pr.SimulationSetupSet
+ops = None  # type: pr.ParameterSet
+optimiser = None  # type: pr.OptimiserProperties
 
 in_file = open('propti.pickle.init', 'rb')
 setups, ops, optimiser = pickle.load(in_file)

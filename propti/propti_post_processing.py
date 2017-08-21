@@ -5,8 +5,14 @@ Created on Wed Nov 30 15:39:13 2016
 @author: thehnen; based on a script from belt
 """
 
-import numpy as np
+import re
+import os
+import sys
+import shutil as sh
+import logging
 
+import propti as pr
+import numpy as np
 import pandas as pd
 import scipy.signal as sign
 from scipy.stats import norm
@@ -17,8 +23,65 @@ mpl.use('pdf')
 
 import matplotlib.pyplot as plt
 
-import re
-import os
+
+
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("input_file", type=str,
+                    help="python input file containing parameter and "
+                         "simulation setups")
+parser.add_argument("--root_dir", type=str,
+                    help="root directory for optimization process", default='.')
+parser.add_argument("--prepare_init_inputs",
+                    help="prepare input files with initial values",
+                    action="store_true")
+cmdl_args = parser.parse_args()
+
+setups = None  # type: pr.SimulationSetupSet
+ops = None  # type: pr.ParameterSet
+optimiser = None  # type: pr.OptimiserProperties
+
+input_file = cmdl_args.input_file
+input_file_directory = os.path.dirname(input_file)
+
+
+def run_best_para(setups, ops, optimiser):
+    print(setups, ops, optimiser)
+
+    for s in setups:
+
+        cdir = os.path.join(cmdl_args.root_dir, s.best_dir)
+
+        # create best parameter simulation directories
+        if not os.path.exists(cdir):
+            os.mkdir(cdir)
+
+        # copy model template
+        sh.copy(os.path.join(input_file_directory, s.model_template), cdir)
+
+        s.model_template = os.path.join(cdir,
+                                        os.path.basename(s.model_template))
+
+        # copy all experimental data
+        for r in s.relations:
+            sh.copy(os.path.join(input_file_directory, r.experiment.file_name),
+                    cdir)
+            r.experiment.file_name = \
+                os.path.join(cdir, os.path.basename(r.experiment.file_name))
+
+    # check for potential non-unique model input files
+    in_file_list = []
+    for s in setups:
+        tpath = os.path.join(s.work_dir, s.model_input_file)
+        logging.debug("check if {} is in {}".format(tpath, in_file_list))
+        if tpath in in_file_list:
+            logging.error("non unique module input file path: {}".format(tpath))
+            sys.exit()
+        in_file_list.append(tpath)
+
+    res = pr.run_optimisation(ops, setups, optimiser)
+
+    pass
 
 
 def plot_hist(data_label, data_frame, file_name, bin_num=100, y_label=None):
@@ -49,3 +112,6 @@ def plot_hist(data_label, data_frame, file_name, bin_num=100, y_label=None):
         target_path = os.path.join(file_name + '_' + data_label + '.pdf')
         plt.savefig(target_path)
         plt.close()
+
+
+# def

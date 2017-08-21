@@ -98,7 +98,7 @@ class Parameter:
 
     def __str__(self) -> str:
         """
-        Creates string with parameter infos.
+        Creates string with parameter info.
         :return: info string
         """
         res = "name: {}".format(self.name)
@@ -117,7 +117,7 @@ class ParameterSet:
         """
         Constructor.
 
-        :param name: optinal label for parameter set
+        :param name: optional label for parameter set
         :param params: initial list of parameters, deep copy is done
         """
         self.name = name
@@ -132,7 +132,7 @@ class ParameterSet:
         """
         Return the length of the parameter set.
 
-        :return: lenght of parameter set.
+        :return: length of parameter set.
         """
         return len(self.parameters)
 
@@ -339,6 +339,7 @@ class SimulationSetup:
                  model_parameter: ParameterSet = ParameterSet(),
                  model_executable: os.path = None,
                  execution_dir: os.path = None,
+                 best_dir: os.path = os.path.join('./best_para'),
                  relations: List[Relation] = None):
         """
         Constructor.
@@ -350,7 +351,9 @@ class SimulationSetup:
         :param model_parameter: parameter set needed for this setup
         :param model_executable: call to invoke the model
         :param execution_dir: directory where the model execution will be
-            caried out, mostly in temporally created directories
+            carried out, mostly in temporally created directories
+        :param best_dir: directory for performing simulation(s) with the best
+            parameter set
         :param relations: relations between experimental and model data
         """
 
@@ -361,6 +364,7 @@ class SimulationSetup:
         self.model_parameter = model_parameter
         self.model_executable = model_executable
         self.execution_dir = execution_dir
+        self.best_dir = best_dir
 
         # if relations are set, check if a list is passed, otherwise create
         # a single element list
