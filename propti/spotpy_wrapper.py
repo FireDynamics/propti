@@ -12,6 +12,7 @@ from .data_structures import Parameter, ParameterSet, SimulationSetup, \
 from .basic_functions import create_input_file, run_simulations, \
     extract_simulation_data
 
+
 ####################
 # SPOTPY SETUP CLASS
 class SpotpySetup(object):
@@ -45,7 +46,9 @@ class SpotpySetup(object):
                                               maxbound=p.max_value)
                 self.spotpy_parameter.append(cp)
             else:
-                logging.error('parameter distribution function unknown: {}'.format(p.distribution))
+                logging.error(
+                    'parameter distribution function unknown: {}'.format(
+                        p.distribution))
 
     def parameters(self):
         return spotpy.parameter.generate(self.spotpy_parameter)
@@ -82,7 +85,7 @@ class SpotpySetup(object):
         for s in self.setups:
             for r in s.relations:
                 n = r.map_to_def(len_only=True)
-                res[index:index+n] = r.map_to_def()
+                res[index:index + n] = r.map_to_def()
                 index += n
 
         for s in self.setups:
@@ -116,14 +119,17 @@ class SpotpySetup(object):
 def run_optimisation(params: ParameterSet,
                      setups: SimulationSetupSet,
                      opt: OptimiserProperties) -> ParameterSet:
-
     spot = SpotpySetup(params, setups, opt)
 
     if opt.algorithm == 'sceua':
+        parallel = 'seq'
+        if opt.mpi:
+            parallel = 'mpi'
         sampler = spotpy.algorithms.sceua(spot,
-                                      dbname=opt.db_name,
-                                      dbformat=opt.db_type,
-                                      alt_objfun='rmse')
+                                          dbname=opt.db_name,
+                                          dbformat=opt.db_type,
+                                          alt_objfun='rmse',
+                                          parallel=parallel)
 
         ngs = opt.ngs
         if not ngs:
@@ -143,8 +149,8 @@ def run_optimisation(params: ParameterSet,
 
     return params
 
-def test_spotpy_setup():
 
+def test_spotpy_setup():
     p1 = Parameter("density", "RHO", min_value=1.0, max_value=2.4,
                    distribution='uniform')
     p2 = Parameter("cp", place_holder="CP", min_value=4.0, max_value=7.2,
@@ -159,8 +165,10 @@ def test_spotpy_setup():
     for p in spot.parameter:
         print(p.name, p.rndargs)
 
+
 def test_spotpy_run():
-    p1 = Parameter("ambient temperature", place_holder="TMPA", min_value=0, max_value=100,
+    p1 = Parameter("ambient temperature", place_holder="TMPA", min_value=0,
+                   max_value=100,
                    distribution='uniform', value=0)
 
     ps = ParameterSet()
@@ -193,6 +201,7 @@ def test_spotpy_run():
         if not os.path.exists(s.work_dir): os.mkdir(s.work_dir)
 
     run_optimisation(ps, setups)
+
 
 if __name__ == "__main__":
     # test_spotpy_setup()

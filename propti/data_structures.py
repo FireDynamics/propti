@@ -23,7 +23,8 @@ class OptimiserProperties:
                  ngs: int = None,  # default set to len(ops)
                  db_name: str = 'propti_db',
                  db_type: str = 'csv',
-                 num_subprocesses: int = 1):
+                 num_subprocesses: int = 1,
+                 mpi: bool = False):
         """
         Constructor.
 
@@ -49,6 +50,8 @@ class OptimiserProperties:
         self.execution_mode = 'serial'
         if num_subprocesses > 1:
             self.execution_mode = 'multi-processing'
+
+        self.mpi = mpi
 
     def __str__(self) -> str:
         """
