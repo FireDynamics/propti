@@ -103,7 +103,9 @@ def run_simulations(setups: SimulationSetupSet,
     Executes each given SimulationSetup.
 
     :param setups: set of simulation setups
-    :param mode: execution mode, default: serial, range: [serial, mp]
+    :param num_subprocesses: determines how many sub-processes are to be used
+        to perform the calculation, should be more than or equal to 1,
+        default: 1, range: [integers >= 1]
     :return: None
     """
     if num_subprocesses == 1:
@@ -115,7 +117,6 @@ def run_simulations(setups: SimulationSetupSet,
     else:
         logging.info('multi process execution started')
         run_simulation_mp(setups, num_subprocesses)
-
 
 
 def run_simulation_serial(setup: SimulationSetup):
@@ -140,6 +141,7 @@ def run_simulation_serial(setup: SimulationSetup):
     log_file.close()
 
     # os.chdir(old_cwd)
+
 
 def run_simulation_mp(setups: SimulationSetupSet, num_threads:int = 1):
 
@@ -173,6 +175,7 @@ def run_simulation_mp(setups: SimulationSetupSet, num_threads:int = 1):
         q.put(None)
     for t in threads:
         t.join()
+
 
 def test_execute_fds():
     wd = 'tmp'
