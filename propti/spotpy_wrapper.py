@@ -9,13 +9,15 @@ import spotpy
 from .data_structures import Parameter, ParameterSet, SimulationSetup, \
     SimulationSetupSet, Relation, OptimiserProperties
 
-from .basic_functions import create_input_file, run_simulation, \
+from .basic_functions import create_input_file, run_simulations, \
     extract_simulation_data
 
-
-
+####################
+# SPOTPY SETUP CLASS
 class SpotpySetup(object):
-    def __init__(self, params: ParameterSet, setups: SimulationSetupSet):
+    def __init__(self,
+                 params: ParameterSet,
+                 setups: SimulationSetupSet):
 
         self.setups = setups
         self.params = params
@@ -60,7 +62,10 @@ class SpotpySetup(object):
 
         for s in self.setups:
             create_input_file(s)
-            run_simulation(s)
+
+        run_simulations(self.setups)
+
+        for s in self.setups:
             extract_simulation_data(s)
 
         # determine the length of all data sets

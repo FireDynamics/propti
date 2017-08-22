@@ -95,21 +95,36 @@ def test_missing_template():
     s.model_template = os.path.join('.', 'templates', 'notexists_basic_01.fds')
     create_input_file(s)
 
+
 #################
 # MODEL EXECUTION
 
-def run_simulation(setup: SimulationSetup, mode: str = 'serial'):
 
+def run_simulations(setups: SimulationSetupSet,
+                    mode: str = 'serial'):
+    """
+    Executes each given SimulationSetup.
+
+    :param setups: set of simulation setups
+    :param mode: execution mode, default: serial, range: [serial, mp]
+    :return: None
+    """
     if mode == 'serial':
-        run_simulation_serial(setup)
+        logging.info('serial model execution started')
+        for s in setups:
+            logging.info('start execution of simulation setup: {}'
+                         .format(s.name))
+            run_simulation_serial(s)
+        return
+    if mode == 'mp':
+        logging.info('multi process execution started')
         return
 
     logging.error("no valid execution mode specified: {}".format(mode))
 
 
 def run_simulation_serial(setup: SimulationSetup):
-
-    #TODO: check return status of execution
+    # TODO: check return status of execution
     old_cwd = os.getcwd()
 
     os.chdir(setup.work_dir)
