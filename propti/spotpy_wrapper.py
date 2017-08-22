@@ -17,10 +17,12 @@ from .basic_functions import create_input_file, run_simulations, \
 class SpotpySetup(object):
     def __init__(self,
                  params: ParameterSet,
-                 setups: SimulationSetupSet):
+                 setups: SimulationSetupSet,
+                 optimiser: OptimiserProperties):
 
         self.setups = setups
         self.params = params
+        self.optimiser = optimiser
 
         self.spotpy_parameter = []
 
@@ -63,9 +65,10 @@ class SpotpySetup(object):
         for s in self.setups:
             create_input_file(s)
 
-        run_simulations(self.setups)
+        run_simulations(self.setups, self.optimiser.num_subprocesses)
 
         for s in self.setups:
+            logging.debug("start data extraction")
             extract_simulation_data(s)
 
         # determine the length of all data sets
@@ -114,7 +117,7 @@ def run_optimisation(params: ParameterSet,
                      setups: SimulationSetupSet,
                      opt: OptimiserProperties) -> ParameterSet:
 
-    spot = SpotpySetup(params, setups)
+    spot = SpotpySetup(params, setups, opt)
 
     if opt.algorithm == 'sceua':
         sampler = spotpy.algorithms.sceua(spot,
