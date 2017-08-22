@@ -143,16 +143,16 @@ def run_simulation_serial(setup: SimulationSetup):
 
 def run_simulation_mp(setups: SimulationSetupSet, num_threads:int = 1):
 
-    def do_work(item: SimulationSetup):
-        print("processing {}".format(item.name))
-        run_simulation_serial(item)
+    def do_work(work_item: SimulationSetup):
+        print("processing {}".format(work_item.name))
+        run_simulation_serial(work_item)
 
     def worker():
         while True:
-            item = q.get()
-            if item is None:
+            work_item = q.get()
+            if work_item is None:
                 break
-            do_work(item)
+            do_work(work_item)
             q.task_done()
 
     q = queue.Queue()
