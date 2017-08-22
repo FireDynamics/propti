@@ -16,12 +16,14 @@ class OptimiserProperties:
     """
     Stores optimiser parameter.
     """
+
     def __init__(self,
                  algorithm: str = 'sceua',
                  repetitions: int = 1,
                  ngs: int = None,  # default set to len(ops)
                  db_name: str = 'propti_db',
-                 db_type: str = 'csv'):
+                 db_type: str = 'csv',
+                 num_subprocesses: int = 1):
         """
         Constructor.
 
@@ -39,6 +41,15 @@ class OptimiserProperties:
         self.db_name = db_name
         self.db_type = db_type
 
+        self.num_subprocesses = num_subprocesses
+        if num_subprocesses < 1:
+            logging.critical("number of sub processes should be at least"
+                             " one, set to: {}".format(self.num_subprocesses))
+            sys.exit()
+        self.execution_mode = 'serial'
+        if num_subprocesses > 1:
+            self.execution_mode = 'multi-processing'
+
     def __str__(self) -> str:
         """
         Pretty print of (major) class values
@@ -47,11 +58,15 @@ class OptimiserProperties:
         return "\noptimiser properties\n" \
                "--------------------\n" \
                "alg: {}\nrep: {}\nngs: {}" \
-               "\ndb_name: {}\ndb_type: {}\n".format(self.algorithm,
-                                                     self.repetitions,
-                                                     self.ngs,
-                                                     self.db_name,
-                                                     self.db_type)
+               "\ndb_name: {}\ndb_type: {}" \
+               "\nexecution mode: {}" \
+               "\nnumber of sub-processes: {}\n".format(self.algorithm,
+                                                        self.repetitions,
+                                                        self.ngs,
+                                                        self.db_name,
+                                                        self.db_type,
+                                                        self.execution_mode,
+                                                        self.num_subprocesses)
 
 
 #################
@@ -60,6 +75,7 @@ class Parameter:
     """
     Stores general parameter values and meta data.
     """
+
     def __init__(self, name: str,
                  units: str = None,
                  place_holder: str = None,
@@ -119,6 +135,7 @@ class ParameterSet:
     """
     Container type for Parameter objects.
     """
+
     def __init__(self, name: str = None, params: List[Parameter] = None):
         """
         Constructor.
@@ -195,6 +212,7 @@ class DataSource:
     Container for data and meta data of a data source, i.e. model or
     experimental data.
     """
+
     # TODO: add arguments to constructor
     # TODO: move read data to this class
     # TODO: allow for column index definition as alternative to labels
@@ -216,6 +234,7 @@ class Relation:
     Class representing a single relation between an experimental and model data
     set.
     """
+
     def __init__(self,
                  x_def: np.ndarray = None,
                  model: DataSource = DataSource(),
@@ -404,6 +423,7 @@ class SimulationSetupSet:
     """
     Cointainer class for SimulationSetup objects.
     """
+
     def __init__(self,
                  name: str = None,
                  setups: List[SimulationSetup] = None):

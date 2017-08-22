@@ -6,6 +6,8 @@ import copy
 import sys
 import subprocess
 import logging
+import queue
+import threading
 import numpy as np
 
 from .data_structures import Parameter, ParameterSet, SimulationSetup, \
@@ -96,7 +98,7 @@ def test_missing_template():
 
 
 def run_simulations(setups: SimulationSetupSet,
-                    mode: str = 'serial'):
+                    num_subprocesses:int = 1):
     """
     Executes each given SimulationSetup.
 
@@ -104,39 +106,73 @@ def run_simulations(setups: SimulationSetupSet,
     :param mode: execution mode, default: serial, range: [serial, mp]
     :return: None
     """
-    if mode == 'serial':
+    if num_subprocesses == 1:
         logging.info('serial model execution started')
         for s in setups:
             logging.info('start execution of simulation setup: {}'
                          .format(s.name))
             run_simulation_serial(s)
-        return
-    if mode == 'mp':
+    else:
         logging.info('multi process execution started')
-        return
+        run_simulation_mp(setups, num_subprocesses)
 
-    logging.error("no valid execution mode specified: {}".format(mode))
 
 
 def run_simulation_serial(setup: SimulationSetup):
     # TODO: check return status of execution
     old_cwd = os.getcwd()
 
-    os.chdir(setup.work_dir)
+    # os.chdir(setup.work_dir)
 
-    setup.execution_dir = tempfile.mkdtemp(prefix='rundir_', dir=os.getcwd())
+    setup.execution_dir = tempfile.mkdtemp(prefix='rundir_',
+                                           dir=os.path.join(os.getcwd(),
+                                                            setup.work_dir))
 
-    os.chdir(setup.execution_dir)
+    # os.chdir(setup.execution_dir)
 
     exec_file = setup.model_executable
-    in_file = os.path.join('..', setup.model_input_file)
-    log_file = open("execution.log", "w")
-    subprocess.check_call(exec_file + " " + in_file, shell=True,
+    in_file = os.path.join("..", setup.model_input_file)
+    log_file = open(os.path.join(setup.execution_dir, "execution.log"), "w")
+    cmd = 'cd {}; {} {}'.format(setup.execution_dir, exec_file, in_file)
+    logging.debug("executing command: {}".format(cmd))
+    subprocess.check_call(cmd, shell=True,
                           stdout=log_file, stderr=log_file)
     log_file.close()
 
-    os.chdir(old_cwd)
+    # os.chdir(old_cwd)
 
+def run_simulation_mp(setups: SimulationSetupSet, num_threads:int = 1):
+
+    def do_work(item: SimulationSetup):
+        print("processing {}".format(item.name))
+        run_simulation_serial(item)
+
+    def worker():
+        while True:
+            item = q.get()
+            if item is None:
+                break
+            do_work(item)
+            q.task_done()
+
+    q = queue.Queue()
+    threads = []
+    for i in range(num_threads):
+        t = threading.Thread(target=worker)
+        t.start()
+        threads.append(t)
+
+    for item in setups:
+        q.put(item)
+
+    # block until all tasks are done
+    q.join()
+
+    # stop workers
+    for i in range(num_threads):
+        q.put(None)
+    for t in threads:
+        t.join()
 
 def test_execute_fds():
     wd = 'tmp'
