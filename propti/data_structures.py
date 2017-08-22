@@ -4,6 +4,9 @@ import logging
 import copy
 import numpy as np
 import pandas as pd
+
+import spotpy
+
 from typing import List
 
 
@@ -95,6 +98,9 @@ class Parameter:
         self.max_value = max_value
         self.distribution = distribution
         self.max_increment = max_increment
+
+    def create_spotpy_parameter(self):
+        pass
 
     def __str__(self) -> str:
         """

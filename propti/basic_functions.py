@@ -2,12 +2,10 @@
 
 import os
 import tempfile
-import shutil
 import copy
 import sys
 import subprocess
 import logging
-import pandas as pd
 import numpy as np
 
 from .data_structures import Parameter, ParameterSet, SimulationSetup, \
@@ -19,7 +17,6 @@ from .data_structures import Parameter, ParameterSet, SimulationSetup, \
 
 
 def create_input_file(setup: SimulationSetup):
-
     in_fn = setup.model_template
     template_content = read_template(in_fn)
 
@@ -61,7 +58,6 @@ def fill_place_holder(tc: str, paras: ParameterSet) -> str:
 
 
 def read_template(filename: os.path) -> str:
-
     try:
         infile = open(filename, 'r')
     except OSError as err:
@@ -73,7 +69,6 @@ def read_template(filename: os.path) -> str:
 
 
 def test_read_replace_template():
-
     wd = 'tmp'
     if not os.path.exists(wd): os.mkdir(wd)
     s = SimulationSetup("reader test", work_dir=wd)
@@ -95,21 +90,36 @@ def test_missing_template():
     s.model_template = os.path.join('.', 'templates', 'notexists_basic_01.fds')
     create_input_file(s)
 
+
 #################
 # MODEL EXECUTION
 
-def run_simulation(setup: SimulationSetup, mode: str = 'serial'):
 
+def run_simulations(setups: SimulationSetupSet,
+                    mode: str = 'serial'):
+    """
+    Executes each given SimulationSetup.
+
+    :param setups: set of simulation setups
+    :param mode: execution mode, default: serial, range: [serial, mp]
+    :return: None
+    """
     if mode == 'serial':
-        run_simulation_serial(setup)
+        logging.info('serial model execution started')
+        for s in setups:
+            logging.info('start execution of simulation setup: {}'
+                         .format(s.name))
+            run_simulation_serial(s)
+        return
+    if mode == 'mp':
+        logging.info('multi process execution started')
         return
 
     logging.error("no valid execution mode specified: {}".format(mode))
 
 
 def run_simulation_serial(setup: SimulationSetup):
-
-    #TODO: check return status of execution
+    # TODO: check return status of execution
     old_cwd = os.getcwd()
 
     os.chdir(setup.work_dir)
@@ -129,7 +139,6 @@ def run_simulation_serial(setup: SimulationSetup):
 
 
 def test_execute_fds():
-
     wd = 'tmp'
     if not os.path.exists(wd): os.mkdir(wd)
     s = SimulationSetup(name='exec test', work_dir=wd, model_executable='fds',
@@ -142,7 +151,6 @@ def test_execute_fds():
 # ANALYSE SIMULATION OUTPUT
 
 def extract_simulation_data(setup: SimulationSetup):
-
     # TODO: this is not general, but specific for FDS, i.e. first
     # TODO: line contains units, second the quantities names
 
@@ -155,8 +163,8 @@ def extract_simulation_data(setup: SimulationSetup):
 def map_data(x_def, x, y):
     return np.interp(x_def, x, y)
 
-def test_prepare_run_extract():
 
+def test_prepare_run_extract():
     r1 = Relation()
     r1.model_x_label = "Time"
     r1.model_y_label = "VELO"
@@ -165,12 +173,11 @@ def test_prepare_run_extract():
     r2 = copy.deepcopy(r1)
     r2.model_y_label = "TEMP"
 
-    relations = [ r1, r2 ]
+    relations = [r1, r2]
 
     paras = ParameterSet()
     paras.append(Parameter('ambient temperature', place_holder='TMPA'))
     paras.append(Parameter('density', place_holder='RHO'))
-
 
     s0 = SimulationSetup(name='ambient run',
                          work_dir='setup',
@@ -207,13 +214,12 @@ def test_prepare_run_extract():
             print(r.x_def, r.model_y)
 
 
-
 def test_extract_data():
     s = SimulationSetup('test read data')
     s.model_output_file = os.path.join('test_data', 'TEST_devc.csv')
 
-    r1 = ['VELO', ["none", "none"] ]
-    r2 = ['TEMP', ["none", "none"] ]
+    r1 = ['VELO', ["none", "none"]]
+    r2 = ['TEMP', ["none", "none"]]
 
     s.relations = [r1, r2]
 
@@ -221,6 +227,7 @@ def test_extract_data():
 
     for r in res:
         print(r)
+
 
 ######
 # MAIN
