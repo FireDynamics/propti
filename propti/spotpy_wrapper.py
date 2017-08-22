@@ -41,7 +41,7 @@ class SpotpySetup(object):
                                               maxbound=p.max_value)
                 self.spotpy_parameter.append(cp)
             else:
-                logging.error('parameter distribution function unkown: {}'.format(p.distribution))
+                logging.error('parameter distribution function unknown: {}'.format(p.distribution))
 
     def parameters(self):
         return spotpy.parameter.generate(self.spotpy_parameter)
