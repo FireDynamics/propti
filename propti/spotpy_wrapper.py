@@ -13,7 +13,6 @@ from .basic_functions import create_input_file, run_simulation, \
     extract_simulation_data
 
 
-
 class SpotpySetup(object):
     def __init__(self, params: ParameterSet, setups: SimulationSetupSet):
 
@@ -41,7 +40,8 @@ class SpotpySetup(object):
                                               maxbound=p.max_value)
                 self.spotpy_parameter.append(cp)
             else:
-                logging.error('parameter distribution function unkown: {}'.format(p.distribution))
+                logging.error('parameter distribution '
+                              'function unkown: {}'.format(p.distribution))
 
     def parameters(self):
         return spotpy.parameter.generate(self.spotpy_parameter)
@@ -57,7 +57,7 @@ class SpotpySetup(object):
                 for pp in self.params:
                     if p.name == pp.name:
                         p.value = pp.value
-
+        # for all setups
         for s in self.setups:
             create_input_file(s)
             run_simulation(s)
@@ -113,13 +113,16 @@ def run_optimisation(params: ParameterSet,
 
     if opt.algorithm == 'sceua':
         sampler = spotpy.algorithms.sceua(spot,
-                                      dbname=opt.db_name,
-                                      dbformat=opt.db_type,
-                                      alt_objfun='rmse')
+                                          dbname=opt.db_name,
+                                          dbformat=opt.db_type,
+                                          alt_objfun='rmse')
 
         ngs = opt.ngs
         if not ngs:
             ngs = len(params)
+
+            # Set amount of parameters as default for number of complexes
+            # if not explicitly specified.
             opt.ngs = ngs
 
         sampler.sample(opt.repetitions, ngs=ngs)
@@ -134,6 +137,7 @@ def run_optimisation(params: ParameterSet,
         params[i].value = sampler.status.params[i]
 
     return params
+
 
 def test_spotpy_setup():
 
@@ -151,9 +155,10 @@ def test_spotpy_setup():
     for p in spot.parameter:
         print(p.name, p.rndargs)
 
+
 def test_spotpy_run():
-    p1 = Parameter("ambient temperature", place_holder="TMPA", min_value=0, max_value=100,
-                   distribution='uniform', value=0)
+    p1 = Parameter("ambient temperature", place_holder="TMPA", min_value=0,
+                   max_value=100, distribution='uniform', value=0)
 
     ps = ParameterSet()
     ps.append(p1)
@@ -182,7 +187,8 @@ def test_spotpy_run():
     setups.append(s0)
 
     for s in setups:
-        if not os.path.exists(s.work_dir): os.mkdir(s.work_dir)
+        if not os.path.exists(s.work_dir):
+            os.mkdir(s.work_dir)
 
     run_optimisation(ps, setups)
 

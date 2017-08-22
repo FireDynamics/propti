@@ -18,7 +18,16 @@ from .data_structures import Parameter, ParameterSet, SimulationSetup, \
 # INPUT FILE HANDLING
 
 
-def create_input_file(setup: SimulationSetup):
+def create_input_file(setup: SimulationSetup, work_dir='work'):
+    #
+    # small test
+    if work_dir == 'work':
+        wd = setup.work_dir
+    elif work_dir == 'best':
+        wd = setup.best_dir
+    #
+    #
+
 
     in_fn = setup.model_template
     template_content = read_template(in_fn)
@@ -30,7 +39,7 @@ def create_input_file(setup: SimulationSetup):
 
     logging.debug(input_content)
 
-    out_fn = os.path.join(setup.work_dir, setup.model_input_file)
+    out_fn = os.path.join(wd, setup.model_input_file)
     write_input_file(input_content, out_fn)
 
 
@@ -45,7 +54,7 @@ def write_input_file(content: str, filename: os.path):
 
 
 def fill_place_holder(tc: str, paras: ParameterSet) -> str:
-    # TODO: check for place holder doublicates
+    # TODO: check for place holder duplicates
     res = tc
     if paras is not None:
         for p in paras:
@@ -55,7 +64,7 @@ def fill_place_holder(tc: str, paras: ParameterSet) -> str:
             else:
                 res = res.replace("#" + p.place_holder + "#", str(p.value))
     else:
-        logging.warning("using empyt parameter set for place holder filling")
+        logging.warning("using empty parameter set for place holder filling")
 
     return res
 
@@ -75,7 +84,8 @@ def read_template(filename: os.path) -> str:
 def test_read_replace_template():
 
     wd = 'tmp'
-    if not os.path.exists(wd): os.mkdir(wd)
+    if not os.path.exists(wd):
+        os.mkdir(wd)
     s = SimulationSetup("reader test", work_dir=wd)
     s.model_template = os.path.join('.', 'templates', 'basic_01.fds')
     s.model_input_file = "filled_basic_01.fds"
@@ -95,6 +105,7 @@ def test_missing_template():
     s.model_template = os.path.join('.', 'templates', 'notexists_basic_01.fds')
     create_input_file(s)
 
+
 #################
 # MODEL EXECUTION
 
@@ -109,7 +120,7 @@ def run_simulation(setup: SimulationSetup, mode: str = 'serial'):
 
 def run_simulation_serial(setup: SimulationSetup):
 
-    #TODO: check return status of execution
+    # TODO: check return status of execution
     old_cwd = os.getcwd()
 
     os.chdir(setup.work_dir)
@@ -131,7 +142,8 @@ def run_simulation_serial(setup: SimulationSetup):
 def test_execute_fds():
 
     wd = 'tmp'
-    if not os.path.exists(wd): os.mkdir(wd)
+    if not os.path.exists(wd):
+        os.mkdir(wd)
     s = SimulationSetup(name='exec test', work_dir=wd, model_executable='fds',
                         model_input_file=os.path.join('..', 'templates',
                                                       'basic_02.fds'))
@@ -155,6 +167,7 @@ def extract_simulation_data(setup: SimulationSetup):
 def map_data(x_def, x, y):
     return np.interp(x_def, x, y)
 
+
 def test_prepare_run_extract():
 
     r1 = Relation()
@@ -170,7 +183,6 @@ def test_prepare_run_extract():
     paras = ParameterSet()
     paras.append(Parameter('ambient temperature', place_holder='TMPA'))
     paras.append(Parameter('density', place_holder='RHO'))
-
 
     s0 = SimulationSetup(name='ambient run',
                          work_dir='setup',
@@ -207,7 +219,6 @@ def test_prepare_run_extract():
             print(r.x_def, r.model_y)
 
 
-
 def test_extract_data():
     s = SimulationSetup('test read data')
     s.model_output_file = os.path.join('test_data', 'TEST_devc.csv')
@@ -232,4 +243,3 @@ if __name__ == "__main__":
     # test_missing_template()
     # test_extract_data()
     test_prepare_run_extract()
-    pass

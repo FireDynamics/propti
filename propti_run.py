@@ -40,4 +40,3 @@ print(ops)
 out_file = open('propti.pickle.finished', 'wb')
 pickle.dump((setups, ops, optimiser), out_file)
 out_file.close()
-

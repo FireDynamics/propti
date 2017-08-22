@@ -62,3 +62,4 @@ if cmdl_args.plot_like_values:
     # Box plot to visualise generations
     pm.plot_box_rmse(data, 'RMSE', len(ops), optimiser.ngs, 'Fitness values')
 
+    pr.run_best_para(setups, ops, optimiser)

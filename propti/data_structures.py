@@ -16,7 +16,8 @@ class OptimiserProperties:
     def __init__(self,
                  algorithm: str = 'sceua',
                  repetitions: int = 1,
-                 ngs: int = None,  # default set to len(ops)
+                 ngs: int = None,  # will be set to len(ops) during
+                                   # propti_prepare, if no value is provided
                  db_name: str = 'propti_db',
                  db_type: str = 'csv'):
         """

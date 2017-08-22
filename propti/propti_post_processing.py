@@ -12,6 +12,7 @@ import shutil as sh
 import logging
 
 import propti as pr
+
 import numpy as np
 import pandas as pd
 import scipy.signal as sign
@@ -22,7 +23,6 @@ mpl.use('pdf')
 
 
 import matplotlib.pyplot as plt
-
 
 
 import argparse
@@ -45,10 +45,10 @@ input_file = cmdl_args.input_file
 input_file_directory = os.path.dirname(input_file)
 
 
-def run_best_para(setups, ops, optimiser):
-    print(setups, ops, optimiser)
+def run_best_para(setups_bp, ops_bp, optimiser_bp):
+    print(setups_bp, ops_bp, optimiser_bp)
 
-    for s in setups:
+    for s in setups_bp:
 
         cdir = os.path.join(cmdl_args.root_dir, s.best_dir)
 
@@ -71,7 +71,7 @@ def run_best_para(setups, ops, optimiser):
 
     # check for potential non-unique model input files
     in_file_list = []
-    for s in setups:
+    for s in setups_bp:
         tpath = os.path.join(s.work_dir, s.model_input_file)
         logging.debug("check if {} is in {}".format(tpath, in_file_list))
         if tpath in in_file_list:
@@ -79,8 +79,10 @@ def run_best_para(setups, ops, optimiser):
             sys.exit()
         in_file_list.append(tpath)
 
-    res = pr.run_optimisation(ops, setups, optimiser)
+    for s in setups_bp:
+        pr.create_input_file(s, work_dir='best')
 
+        pr.run_simulation(s)
     pass
 
 
