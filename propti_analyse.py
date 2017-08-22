@@ -49,17 +49,17 @@ if cmdl_args.plot_like_values:
 
     # Scatter plots of parameter development
     for c in cols[2:]:
-        pm.plot_scatter(c, data, 'Parameter development', c)
+        pr.plot_scatter(c, data, 'Parameter development', c)
 
     # Histogram plots of parameters
     for c in cols[2:]:
-        ppm.plot_hist(c, data, 'histogram', y_label=None)
+        pr.plot_hist(c, data, 'histogram', y_label=None)
 
     # Scatter plot of RMSE development
-    pm.plot_scatter('like1', data, 'RMSE', 'Fitness values',
+    pr.plot_scatter('like1', data, 'RMSE', 'Fitness values',
                     'Root Mean Square Error (RMSE)')
 
     # Box plot to visualise generations
-    pm.plot_box_rmse(data, 'RMSE', len(ops), optimiser.ngs, 'Fitness values')
+    pr.plot_box_rmse(data, 'RMSE', len(ops), optimiser.ngs, 'Fitness values')
 
-    pr.run_best_para(setups, ops, optimiser)
+    #pr.run_best_para(setups, ops, optimiser)
