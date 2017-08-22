@@ -63,13 +63,15 @@ class OptimiserProperties:
                "alg: {}\nrep: {}\nngs: {}" \
                "\ndb_name: {}\ndb_type: {}" \
                "\nexecution mode: {}" \
-               "\nnumber of sub-processes: {}\n".format(self.algorithm,
-                                                        self.repetitions,
-                                                        self.ngs,
-                                                        self.db_name,
-                                                        self.db_type,
-                                                        self.execution_mode,
-                                                        self.num_subprocesses)
+               "\nnumber of sub-processes: {}" \
+               "\nmpi mode: {}\n".format(self.algorithm,
+                                         self.repetitions,
+                                         self.ngs,
+                                         self.db_name,
+                                         self.db_type,
+                                         self.execution_mode,
+                                         self.num_subprocesses,
+                                         self.mpi)
 
 
 #################
