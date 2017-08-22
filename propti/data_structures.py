@@ -369,6 +369,7 @@ class SimulationSetup:
                  model_parameter: ParameterSet = ParameterSet(),
                  model_executable: os.path = None,
                  execution_dir: os.path = None,
+                 execution_dir_prefix: os.path = None,
                  best_dir: os.path = os.path.join('./best_para'),
                  relations: List[Relation] = None):
         """
@@ -394,6 +395,7 @@ class SimulationSetup:
         self.model_parameter = model_parameter
         self.model_executable = model_executable
         self.execution_dir = execution_dir
+        self.execution_dir_prefix = execution_dir_prefix
         self.best_dir = best_dir
 
         # if relations are set, check if a list is passed, otherwise create

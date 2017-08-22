@@ -121,26 +121,24 @@ def run_simulations(setups: SimulationSetupSet,
 
 def run_simulation_serial(setup: SimulationSetup):
     # TODO: check return status of execution
-    old_cwd = os.getcwd()
 
-    # os.chdir(setup.work_dir)
-
-    setup.execution_dir = tempfile.mkdtemp(prefix='rundir_',
-                                           dir=os.path.join(os.getcwd(),
-                                                            setup.work_dir))
-
-    # os.chdir(setup.execution_dir)
+    if setup.execution_dir_prefix:
+        tmp_dir_root = setup.execution_dir_prefix
+    else:
+        tmp_dir_root = os.path.join(os.getcwd(), setup.work_dir)
+    setup.execution_dir = tempfile.mkdtemp(prefix='rundir_', dir=tmp_dir_root)
 
     exec_file = setup.model_executable
     in_file = os.path.join("..", setup.model_input_file)
     log_file = open(os.path.join(setup.execution_dir, "execution.log"), "w")
+
     cmd = 'cd {}; {} {}'.format(setup.execution_dir, exec_file, in_file)
     logging.debug("executing command: {}".format(cmd))
+
     subprocess.check_call(cmd, shell=True,
                           stdout=log_file, stderr=log_file)
     log_file.close()
 
-    # os.chdir(old_cwd)
 
 
 def run_simulation_mp(setups: SimulationSetupSet, num_threads:int = 1):
