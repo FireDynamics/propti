@@ -9,6 +9,12 @@ import propti as pr
 CHID = 'TGA_analysis_01'
 TEND = 9360
 
+
+# use default values for optimiser
+optimiser = pr.OptimiserProperties(algorithm='sceua',
+                                   repetitions=100)
+#ngs=4,
+
 # define the optimisation parameter
 op1 = pr.Parameter(name='ref_temp_comp_01',
                    place_holder='rtc01',
@@ -59,6 +65,3 @@ s = pr.SimulationSetup(name='tga_analysis_01',
 # append above object to simulation setup set
 setups.append(s)
 
-# use default values for optimiser
-optimiser = pr.OptimiserProperties(algorithm='sceua',
-                                   repetitions=1000)

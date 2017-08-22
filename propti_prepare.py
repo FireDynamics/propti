@@ -22,15 +22,15 @@ parser.add_argument("--prepare_init_inputs",
                     action="store_true")
 cmdl_args = parser.parse_args()
 
-setups = None # type: pr.SimulationSetupSet
-ops = None
-optimiser = None
+setups = None  # type: pr.SimulationSetupSet
+ops = None  # type: pr.ParameterSet
+optimiser = None  # type: pr.OptimiserProperties
 
 input_file = cmdl_args.input_file
 
 logging.info("reading input file: {}".format(input_file))
 exec(open(input_file).read(), globals())
-#TODO: check for correct execution
+# TODO: check for correct execution
 
 if ops is None:
     logging.critical("optimisation parameter are not defined")
@@ -42,19 +42,22 @@ if optimiser is None:
 input_file_directory = os.path.dirname(input_file)
 logging.info("input file directory: {}".format(input_file_directory))
 
+
+# TODO: put the following lines into a general function (basic_functions.py)?
 for s in setups:
 
     cdir = os.path.join(cmdl_args.root_dir, s.work_dir)
 
     # create work directories
-    if not os.path.exists(cdir): os.mkdir(cdir)
+    if not os.path.exists(cdir):
+        os.mkdir(cdir)
 
     # copy model template
     sh.copy(os.path.join(input_file_directory, s.model_template), cdir)
 
     s.model_template = os.path.join(cdir, os.path.basename(s.model_template))
 
-    # copy all exerimental data
+    # copy all experimental data
     for r in s.relations:
         sh.copy(os.path.join(input_file_directory, r.experiment.file_name),
                 cdir)
