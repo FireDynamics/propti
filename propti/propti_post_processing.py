@@ -25,18 +25,6 @@ mpl.use('pdf')
 import matplotlib.pyplot as plt
 
 
-import argparse
-parser = argparse.ArgumentParser()
-parser.add_argument("input_file", type=str,
-                    help="python input file containing parameter and "
-                         "simulation setups")
-parser.add_argument("--root_dir", type=str,
-                    help="root directory for optimization process", default='.')
-parser.add_argument("--prepare_init_inputs",
-                    help="prepare input files with initial values",
-                    action="store_true")
-cmdl_args = parser.parse_args()
-
 setups = None  # type: pr.SimulationSetupSet
 ops = None  # type: pr.ParameterSet
 optimiser = None  # type: pr.OptimiserProperties
