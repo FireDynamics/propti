@@ -3,6 +3,7 @@ import sys
 import os
 import shutil
 import numpy as np
+import tempfile
 
 import spotpy
 
@@ -66,6 +67,12 @@ class SpotpySetup(object):
                         p.value = pp.value
 
         for s in self.setups:
+            if s.execution_dir_prefix:
+                tmp_dir_root = s.execution_dir_prefix
+            else:
+                tmp_dir_root = os.path.join(os.getcwd(), s.work_dir)
+            s.execution_dir = tempfile.mkdtemp(prefix='rundir_',
+                                               dir=tmp_dir_root)
             create_input_file(s)
 
         run_simulations(self.setups, self.optimiser.num_subprocesses)

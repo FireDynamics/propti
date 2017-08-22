@@ -29,7 +29,7 @@ def create_input_file(setup: SimulationSetup):
 
     logging.debug(input_content)
 
-    out_fn = os.path.join(setup.work_dir, setup.model_input_file)
+    out_fn = os.path.join(setup.execution_dir, setup.model_input_file)
     write_input_file(input_content, out_fn)
 
 
@@ -122,14 +122,8 @@ def run_simulations(setups: SimulationSetupSet,
 def run_simulation_serial(setup: SimulationSetup):
     # TODO: check return status of execution
 
-    if setup.execution_dir_prefix:
-        tmp_dir_root = setup.execution_dir_prefix
-    else:
-        tmp_dir_root = os.path.join(os.getcwd(), setup.work_dir)
-    setup.execution_dir = tempfile.mkdtemp(prefix='rundir_', dir=tmp_dir_root)
-
     exec_file = setup.model_executable
-    in_file = os.path.join("..", setup.model_input_file)
+    in_file = setup.model_input_file
     log_file = open(os.path.join(setup.execution_dir, "execution.log"), "w")
 
     cmd = 'cd {}; {} {}'.format(setup.execution_dir, exec_file, in_file)
