@@ -82,7 +82,7 @@ def run_best_para(setups_bp, ops_bp, optimiser_bp, pickle_object):
         pr.create_input_file(s, work_dir='best')
         #s.model_input_file()
 
-        pr.run_simulations(s)
+    pr.run_simulations(setups_bp, best_para_run=True)
     pass
 
 

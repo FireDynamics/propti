@@ -113,7 +113,8 @@ def test_missing_template():
 
 
 def run_simulations(setups: SimulationSetupSet,
-                    num_subprocesses:int = 1):
+                    num_subprocesses: int = 1,
+                    best_para_run: bool=False):
     """
     Executes each given SimulationSetup.
 
@@ -121,6 +122,7 @@ def run_simulations(setups: SimulationSetupSet,
     :param num_subprocesses: determines how many sub-processes are to be used
         to perform the calculation, should be more than or equal to 1,
         default: 1, range: [integers >= 1]
+    :param best_para_run: flag to switch to simulating the best parameter set
     :return: None
     """
     if num_subprocesses == 1:
@@ -128,20 +130,27 @@ def run_simulations(setups: SimulationSetupSet,
         for s in setups:
             logging.info('start execution of simulation setup: {}'
                          .format(s.name))
-            run_simulation_serial(s)
+            run_simulation_serial(s, best_para_run)
     else:
         logging.info('multi process execution started')
         run_simulation_mp(setups, num_subprocesses)
 
 
-def run_simulation_serial(setup: SimulationSetup):
+def run_simulation_serial(setup: SimulationSetup,
+                          best_para_run: bool = False):
+
     # TODO: check return status of execution
+
+    if best_para_run is False:
+        new_dir = setup.execution_dir
+    else:
+        new_dir = setup.best_dir
 
     exec_file = setup.model_executable
     in_file = setup.model_input_file
-    log_file = open(os.path.join(setup.execution_dir, "execution.log"), "w")
+    log_file = open(os.path.join(new_dir, "execution.log"), "w")
 
-    cmd = 'cd {}; {} {}'.format(setup.execution_dir, exec_file, in_file)
+    cmd = 'cd {}; {} {}'.format(new_dir, exec_file, in_file)
     logging.debug("executing command: {}".format(cmd))
 
     subprocess.check_call(cmd, shell=True,
