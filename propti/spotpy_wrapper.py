@@ -3,21 +3,30 @@ import sys
 import os
 import shutil
 import numpy as np
+import tempfile
 
 import spotpy
 
 from .data_structures import Parameter, ParameterSet, SimulationSetup, \
     SimulationSetupSet, Relation, OptimiserProperties
 
-from .basic_functions import create_input_file, run_simulation, \
+from .basic_functions import create_input_file, run_simulations, \
     extract_simulation_data
 
 
+
+####################
+# SPOTPY SETUP CLASS
+
 class SpotpySetup(object):
-    def __init__(self, params: ParameterSet, setups: SimulationSetupSet):
+    def __init__(self,
+                 params: ParameterSet,
+                 setups: SimulationSetupSet,
+                 optimiser: OptimiserProperties):
 
         self.setups = setups
         self.params = params
+        self.optimiser = optimiser
 
         self.spotpy_parameter = []
 
@@ -40,8 +49,11 @@ class SpotpySetup(object):
                                               maxbound=p.max_value)
                 self.spotpy_parameter.append(cp)
             else:
-                logging.error('parameter distribution '
-                              'function unkown: {}'.format(p.distribution))
+
+                logging.error(
+                    'parameter distribution function unknown: {}'.format(
+                        p.distribution))
+
 
     def parameters(self):
         return spotpy.parameter.generate(self.spotpy_parameter)
@@ -59,8 +71,18 @@ class SpotpySetup(object):
                         p.value = pp.value
         # for all setups
         for s in self.setups:
+            if s.execution_dir_prefix:
+                tmp_dir_root = s.execution_dir_prefix
+            else:
+                tmp_dir_root = os.path.join(os.getcwd(), s.work_dir)
+            s.execution_dir = tempfile.mkdtemp(prefix='rundir_',
+                                               dir=tmp_dir_root)
             create_input_file(s)
-            run_simulation(s)
+
+        run_simulations(self.setups, self.optimiser.num_subprocesses)
+
+        for s in self.setups:
+            logging.debug("start data extraction")
             extract_simulation_data(s)
 
         # determine the length of all data sets
@@ -74,7 +96,7 @@ class SpotpySetup(object):
         for s in self.setups:
             for r in s.relations:
                 n = r.map_to_def(len_only=True)
-                res[index:index+n] = r.map_to_def()
+                res[index:index + n] = r.map_to_def()
                 index += n
 
         for s in self.setups:
@@ -108,14 +130,18 @@ class SpotpySetup(object):
 def run_optimisation(params: ParameterSet,
                      setups: SimulationSetupSet,
                      opt: OptimiserProperties) -> ParameterSet:
-
-    spot = SpotpySetup(params, setups)
+    spot = SpotpySetup(params, setups, opt)
 
     if opt.algorithm == 'sceua':
+        parallel = 'seq'
+        if opt.mpi:
+            parallel = 'mpi'
         sampler = spotpy.algorithms.sceua(spot,
                                           dbname=opt.db_name,
                                           dbformat=opt.db_type,
-                                          alt_objfun='rmse')
+                                          alt_objfun='rmse',
+                                          parallel=parallel)
+
 
         ngs = opt.ngs
         if not ngs:
@@ -140,7 +166,6 @@ def run_optimisation(params: ParameterSet,
 
 
 def test_spotpy_setup():
-
     p1 = Parameter("density", "RHO", min_value=1.0, max_value=2.4,
                    distribution='uniform')
     p2 = Parameter("cp", place_holder="CP", min_value=4.0, max_value=7.2,
@@ -158,7 +183,8 @@ def test_spotpy_setup():
 
 def test_spotpy_run():
     p1 = Parameter("ambient temperature", place_holder="TMPA", min_value=0,
-                   max_value=100, distribution='uniform', value=0)
+                   max_value=100,
+                   distribution='uniform', value=0)
 
     ps = ParameterSet()
     ps.append(p1)
@@ -191,6 +217,7 @@ def test_spotpy_run():
             os.mkdir(s.work_dir)
 
     run_optimisation(ps, setups)
+
 
 if __name__ == "__main__":
     # test_spotpy_setup()

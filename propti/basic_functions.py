@@ -2,12 +2,12 @@
 
 import os
 import tempfile
-import shutil
 import copy
 import sys
 import subprocess
 import logging
-import pandas as pd
+import queue
+import threading
 import numpy as np
 
 from .data_structures import Parameter, ParameterSet, SimulationSetup, \
@@ -17,24 +17,7 @@ from .data_structures import Parameter, ParameterSet, SimulationSetup, \
 #####################
 # INPUT FILE HANDLING
 
-
-def create_input_file(setup: SimulationSetup, work_dir='work'):
-    #
-    # small test
-    if work_dir == 'work':
-        wd = setup.work_dir
-        fn = setup.model_input_file
-    elif work_dir == 'best':
-        wd = setup.best_dir
-        fn_intermediate = setup.model_input_file.split('.')[-2] + '_best.file'
-        print('**  ** ', fn_intermediate)
-        print('* * * ', type(setup.model_input_file), setup.model_input_file)
-        setup.model_input_file(fn_intermediate)
-        print('* * * * ', setup.model_input_file)
-        fn = setup.model_input_file
-    #
-    #
-
+def create_input_file(setup: SimulationSetup):
 
     in_fn = setup.model_template
     template_content = read_template(in_fn)
@@ -46,7 +29,8 @@ def create_input_file(setup: SimulationSetup, work_dir='work'):
 
     logging.debug(input_content)
 
-    out_fn = os.path.join(wd, fn)
+    out_fn = os.path.join(setup.execution_dir, setup.model_input_file)
+
     write_input_file(input_content, out_fn)
 
 
@@ -77,7 +61,6 @@ def fill_place_holder(tc: str, paras: ParameterSet) -> str:
 
 
 def read_template(filename: os.path) -> str:
-
     try:
         infile = open(filename, 'r')
     except OSError as err:
@@ -89,7 +72,6 @@ def read_template(filename: os.path) -> str:
 
 
 def test_read_replace_template():
-
     wd = 'tmp'
     if not os.path.exists(wd):
         os.mkdir(wd)
@@ -116,38 +98,80 @@ def test_missing_template():
 #################
 # MODEL EXECUTION
 
-def run_simulation(setup: SimulationSetup, mode: str = 'serial'):
 
-    if mode == 'serial':
-        run_simulation_serial(setup)
-        return
+def run_simulations(setups: SimulationSetupSet,
+                    num_subprocesses:int = 1):
+    """
+    Executes each given SimulationSetup.
 
-    logging.error("no valid execution mode specified: {}".format(mode))
+    :param setups: set of simulation setups
+    :param num_subprocesses: determines how many sub-processes are to be used
+        to perform the calculation, should be more than or equal to 1,
+        default: 1, range: [integers >= 1]
+    :return: None
+    """
+    if num_subprocesses == 1:
+        logging.info('serial model execution started')
+        for s in setups:
+            logging.info('start execution of simulation setup: {}'
+                         .format(s.name))
+            run_simulation_serial(s)
+    else:
+        logging.info('multi process execution started')
+        run_simulation_mp(setups, num_subprocesses)
 
 
 def run_simulation_serial(setup: SimulationSetup):
-
     # TODO: check return status of execution
-    old_cwd = os.getcwd()
-
-    os.chdir(setup.work_dir)
-
-    setup.execution_dir = tempfile.mkdtemp(prefix='rundir_', dir=os.getcwd())
-
-    os.chdir(setup.execution_dir)
 
     exec_file = setup.model_executable
-    in_file = os.path.join('..', setup.model_input_file)
-    log_file = open("execution.log", "w")
-    subprocess.check_call(exec_file + " " + in_file, shell=True,
+    in_file = setup.model_input_file
+    log_file = open(os.path.join(setup.execution_dir, "execution.log"), "w")
+
+    cmd = 'cd {}; {} {}'.format(setup.execution_dir, exec_file, in_file)
+    logging.debug("executing command: {}".format(cmd))
+
+    subprocess.check_call(cmd, shell=True,
                           stdout=log_file, stderr=log_file)
     log_file.close()
 
-    os.chdir(old_cwd)
+
+
+def run_simulation_mp(setups: SimulationSetupSet, num_threads:int = 1):
+
+    def do_work(work_item: SimulationSetup):
+        print("processing {}".format(work_item.name))
+        run_simulation_serial(work_item)
+
+    def worker():
+        while True:
+            work_item = q.get()
+            if work_item is None:
+                break
+            do_work(work_item)
+            q.task_done()
+
+    q = queue.Queue()
+    threads = []
+    for i in range(num_threads):
+        t = threading.Thread(target=worker)
+        t.start()
+        threads.append(t)
+
+    for item in setups:
+        q.put(item)
+
+    # block until all tasks are done
+    q.join()
+
+    # stop workers
+    for i in range(num_threads):
+        q.put(None)
+    for t in threads:
+        t.join()
 
 
 def test_execute_fds():
-
     wd = 'tmp'
     if not os.path.exists(wd):
         os.mkdir(wd)
@@ -161,7 +185,6 @@ def test_execute_fds():
 # ANALYSE SIMULATION OUTPUT
 
 def extract_simulation_data(setup: SimulationSetup):
-
     # TODO: this is not general, but specific for FDS, i.e. first
     # TODO: line contains units, second the quantities names
 
@@ -176,7 +199,6 @@ def map_data(x_def, x, y):
 
 
 def test_prepare_run_extract():
-
     r1 = Relation()
     r1.model_x_label = "Time"
     r1.model_y_label = "VELO"
@@ -185,7 +207,7 @@ def test_prepare_run_extract():
     r2 = copy.deepcopy(r1)
     r2.model_y_label = "TEMP"
 
-    relations = [ r1, r2 ]
+    relations = [r1, r2]
 
     paras = ParameterSet()
     paras.append(Parameter('ambient temperature', place_holder='TMPA'))
@@ -218,7 +240,7 @@ def test_prepare_run_extract():
         create_input_file(s)
 
     for s in setups:
-        run_simulation(s)
+        run_simulations(s)
 
     for s in setups:
         extract_simulation_data(s)
@@ -230,8 +252,8 @@ def test_extract_data():
     s = SimulationSetup('test read data')
     s.model_output_file = os.path.join('test_data', 'TEST_devc.csv')
 
-    r1 = ['VELO', ["none", "none"] ]
-    r2 = ['TEMP', ["none", "none"] ]
+    r1 = ['VELO', ["none", "none"]]
+    r2 = ['TEMP', ["none", "none"]]
 
     s.relations = [r1, r2]
 
@@ -239,6 +261,7 @@ def test_extract_data():
 
     for r in res:
         print(r)
+
 
 ######
 # MAIN
@@ -250,3 +273,4 @@ if __name__ == "__main__":
     # test_missing_template()
     # test_extract_data()
     test_prepare_run_extract()
+    pass

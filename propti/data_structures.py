@@ -4,6 +4,9 @@ import logging
 import copy
 import numpy as np
 import pandas as pd
+
+import spotpy
+
 from typing import List
 
 
@@ -13,13 +16,16 @@ class OptimiserProperties:
     """
     Stores optimiser parameter.
     """
+
     def __init__(self,
                  algorithm: str = 'sceua',
                  repetitions: int = 1,
                  ngs: int = None,  # will be set to len(ops) during
                                    # propti_prepare, if no value is provided
                  db_name: str = 'propti_db',
-                 db_type: str = 'csv'):
+                 db_type: str = 'csv',
+                 num_subprocesses: int = 1,
+                 mpi: bool = False):
         """
         Constructor.
 
@@ -37,6 +43,17 @@ class OptimiserProperties:
         self.db_name = db_name
         self.db_type = db_type
 
+        self.num_subprocesses = num_subprocesses
+        if num_subprocesses < 1:
+            logging.critical("number of sub processes should be at least"
+                             " one, set to: {}".format(self.num_subprocesses))
+            sys.exit()
+        self.execution_mode = 'serial'
+        if num_subprocesses > 1:
+            self.execution_mode = 'multi-processing'
+
+        self.mpi = mpi
+
     def __str__(self) -> str:
         """
         Pretty print of (major) class values
@@ -45,11 +62,17 @@ class OptimiserProperties:
         return "\noptimiser properties\n" \
                "--------------------\n" \
                "alg: {}\nrep: {}\nngs: {}" \
-               "\ndb_name: {}\ndb_type: {}\n".format(self.algorithm,
-                                                     self.repetitions,
-                                                     self.ngs,
-                                                     self.db_name,
-                                                     self.db_type)
+               "\ndb_name: {}\ndb_type: {}" \
+               "\nexecution mode: {}" \
+               "\nnumber of sub-processes: {}" \
+               "\nmpi mode: {}\n".format(self.algorithm,
+                                         self.repetitions,
+                                         self.ngs,
+                                         self.db_name,
+                                         self.db_type,
+                                         self.execution_mode,
+                                         self.num_subprocesses,
+                                         self.mpi)
 
 
 #################
@@ -58,6 +81,7 @@ class Parameter:
     """
     Stores general parameter values and meta data.
     """
+
     def __init__(self, name: str,
                  units: str = None,
                  place_holder: str = None,
@@ -97,6 +121,9 @@ class Parameter:
         self.distribution = distribution
         self.max_increment = max_increment
 
+    def create_spotpy_parameter(self):
+        pass
+
     def __str__(self) -> str:
         """
         Creates string with parameter info.
@@ -114,6 +141,7 @@ class ParameterSet:
     """
     Container type for Parameter objects.
     """
+
     def __init__(self, name: str = None, params: List[Parameter] = None):
         """
         Constructor.
@@ -190,6 +218,7 @@ class DataSource:
     Container for data and meta data of a data source, i.e. model or
     experimental data.
     """
+
     # TODO: add arguments to constructor
     # TODO: move read data to this class
     # TODO: allow for column index definition as alternative to labels
@@ -211,6 +240,7 @@ class Relation:
     Class representing a single relation between an experimental and model data
     set.
     """
+
     def __init__(self,
                  x_def: np.ndarray = None,
                  model: DataSource = DataSource(),
@@ -340,6 +370,7 @@ class SimulationSetup:
                  model_parameter: ParameterSet = ParameterSet(),
                  model_executable: os.path = None,
                  execution_dir: os.path = None,
+                 execution_dir_prefix: os.path = None,
                  best_dir: os.path = 'best_para',
                  relations: List[Relation] = None):
         """
@@ -365,6 +396,7 @@ class SimulationSetup:
         self.model_parameter = model_parameter
         self.model_executable = model_executable
         self.execution_dir = execution_dir
+        self.execution_dir_prefix = execution_dir_prefix
         self.best_dir = best_dir
 
         # if relations are set, check if a list is passed, otherwise create
@@ -399,6 +431,7 @@ class SimulationSetupSet:
     """
     Cointainer class for SimulationSetup objects.
     """
+
     def __init__(self,
                  name: str = None,
                  setups: List[SimulationSetup] = None):
