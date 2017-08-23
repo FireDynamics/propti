@@ -17,7 +17,20 @@ from .data_structures import Parameter, ParameterSet, SimulationSetup, \
 #####################
 # INPUT FILE HANDLING
 
-def create_input_file(setup: SimulationSetup):
+def create_input_file(setup: SimulationSetup, work_dir='execution'):
+    #
+    # small test
+    if work_dir == 'execution':
+        wd = setup.execution_dir
+    elif work_dir == 'best':
+        wd = setup.best_dir
+    #
+    #
+
+    print('** working dir: ', wd)
+
+    # Log the set working directory
+    logging.debug(wd)
 
     in_fn = setup.model_template
     template_content = read_template(in_fn)
@@ -29,7 +42,7 @@ def create_input_file(setup: SimulationSetup):
 
     logging.debug(input_content)
 
-    out_fn = os.path.join(setup.execution_dir, setup.model_input_file)
+    out_fn = os.path.join(wd, setup.model_input_file)
 
     write_input_file(input_content, out_fn)
 

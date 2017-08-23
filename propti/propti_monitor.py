@@ -200,6 +200,7 @@ def plot_box_rmse(df_name, plot_title,
         print("* Individuals do not fill a whole generation for task:")
         print("* {}".format(file_name))
         print("* Task of plotting generation data stopped.")
+        return
     #continue
 
     # Prepare list of lists to take the data for multiple boxplots, based
