@@ -29,33 +29,44 @@ setups = None  # type: pr.SimulationSetupSet
 ops = None  # type: pr.ParameterSet
 optimiser = None  # type: pr.OptimiserProperties
 
-input_file = cmdl_args.input_file
-input_file_directory = os.path.dirname(input_file)
+#input_file = cmdl_args.input_file
 
 
-def run_best_para(setups_bp, ops_bp, optimiser_bp):
+def run_best_para(setups_bp, ops_bp, optimiser_bp, pickle_object):
     print(setups_bp, ops_bp, optimiser_bp)
 
     for s in setups_bp:
 
-        cdir = os.path.join(cmdl_args.root_dir, s.best_dir)
+        input_file_directory = s.work_dir
+        #cdir = os.path.join(cmdl_args.root_dir, s.best_dir)
+        root_dir = os.path.dirname(os.path.abspath(pickle_object))
+        print('** path root dir', root_dir)
+        cdir = os.path.join(root_dir, s.best_dir)
+        print('** path cdir', cdir)
 
         # create best parameter simulation directories
         if not os.path.exists(cdir):
             os.mkdir(cdir)
 
         # copy model template
-        sh.copy(os.path.join(input_file_directory, s.model_template), cdir)
+        pt = os.path.abspath(input_file_directory)
+        print('**** ', pt)
+        print(s.model_template.split('/')[-1])
+        print('** ', os.path.join(pt, s.model_input_file))
+        sh.copy(os.path.join(pt, s.model_template.split('/')[-1]), cdir)
 
         s.model_template = os.path.join(cdir,
                                         os.path.basename(s.model_template))
 
         # copy all experimental data
         for r in s.relations:
-            sh.copy(os.path.join(input_file_directory, r.experiment.file_name),
+            print('** ', r.experiment.file_name)
+            sh.copy(os.path.join(pt, r.experiment.file_name.split('/')[-1]),
                     cdir)
             r.experiment.file_name = \
-                os.path.join(cdir, os.path.basename(r.experiment.file_name))
+                os.path.join(cdir,
+                             os.path.basename(
+                                 r.experiment.file_name.split('/')[-1]))
 
     # check for potential non-unique model input files
     in_file_list = []
@@ -69,6 +80,7 @@ def run_best_para(setups_bp, ops_bp, optimiser_bp):
 
     for s in setups_bp:
         pr.create_input_file(s, work_dir='best')
+        s.model_input_file()
 
         pr.run_simulation(s)
     pass

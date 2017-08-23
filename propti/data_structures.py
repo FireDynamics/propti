@@ -340,7 +340,7 @@ class SimulationSetup:
                  model_parameter: ParameterSet = ParameterSet(),
                  model_executable: os.path = None,
                  execution_dir: os.path = None,
-                 best_dir: os.path = os.path.join('./best_para'),
+                 best_dir: os.path = 'best_para',
                  relations: List[Relation] = None):
         """
         Constructor.

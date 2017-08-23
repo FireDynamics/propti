@@ -23,8 +23,15 @@ def create_input_file(setup: SimulationSetup, work_dir='work'):
     # small test
     if work_dir == 'work':
         wd = setup.work_dir
+        fn = setup.model_input_file
     elif work_dir == 'best':
         wd = setup.best_dir
+        fn_intermediate = setup.model_input_file.split('.')[-2] + '_best.file'
+        print('**  ** ', fn_intermediate)
+        print('* * * ', type(setup.model_input_file), setup.model_input_file)
+        setup.model_input_file(fn_intermediate)
+        print('* * * * ', setup.model_input_file)
+        fn = setup.model_input_file
     #
     #
 
@@ -39,7 +46,7 @@ def create_input_file(setup: SimulationSetup, work_dir='work'):
 
     logging.debug(input_content)
 
-    out_fn = os.path.join(wd, setup.model_input_file)
+    out_fn = os.path.join(wd, fn)
     write_input_file(input_content, out_fn)
 
 

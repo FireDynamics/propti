@@ -12,7 +12,7 @@ TEND = 9360
 
 # use default values for optimiser
 optimiser = pr.OptimiserProperties(algorithm='sceua',
-                                   repetitions=100)
+                                   repetitions=10)
 #ngs=4,
 
 # define the optimisation parameter

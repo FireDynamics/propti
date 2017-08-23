@@ -23,20 +23,25 @@ setups = None  # type: pr.SimulationSetupSet
 ops = None  # type: pr.ParameterSet
 optimiser = None  # type: pr.OptimiserProperties
 
-in_file = open(os.path.join(cmdl_args.root_dir, 'propti.pickle.finished'), 'rb')
+pickle_finished = os.path.join(cmdl_args.root_dir, 'propti.pickle.finished')
+
+in_file = open(pickle_finished, 'rb')
 setups, ops, optimiser = pickle.load(in_file)
 in_file.close()
 
-if ops is None:
-    logging.critical("optimisation parameter are not defined")
 if setups is None:
     logging.critical("simulation setups are not defined")
+
+if ops is None:
+    logging.critical("optimisation parameter are not defined")
 
 print(setups, ops, optimiser)
 
 # TODO: define spotpy db file name in optimiser properties
 # TODO: use placeholder as name? or other way round?
 
+
+# Scatter plot of RMSE development
 if cmdl_args.plot_like_values:
     print("- plot likes and values")
     db_file_name = os.path.join(cmdl_args.root_dir,
@@ -54,12 +59,11 @@ if cmdl_args.plot_like_values:
     # Histogram plots of parameters
     for c in cols[2:]:
         pr.plot_hist(c, data, 'histogram', y_label=None)
-
-    # Scatter plot of RMSE development
     pr.plot_scatter('like1', data, 'RMSE', 'Fitness values',
                     'Root Mean Square Error (RMSE)')
 
     # Box plot to visualise generations
     pr.plot_box_rmse(data, 'RMSE', len(ops), optimiser.ngs, 'Fitness values')
 
-    #pr.run_best_para(setups, ops, optimiser)
+    pr.run_best_para(setups, ops, optimiser, pickle_finished)
+
