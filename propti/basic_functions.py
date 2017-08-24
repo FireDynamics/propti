@@ -18,6 +18,16 @@ from .data_structures import Parameter, ParameterSet, SimulationSetup, \
 # INPUT FILE HANDLING
 
 def create_input_file(setup: SimulationSetup, work_dir='execution'):
+
+    """
+
+    :param setup: specification of  SimulationSetup on which to base the
+        simulation run
+    :param work_dir: flag to indicate if the regular execution of the function
+        (in the sense of inverse modeling) is wanted or if only a simulation
+        of the best parameter set is desired, range:['execution', 'best']
+    :return: Saves a file that is read by the simulation software as input file
+    """
     #
     # small test
     if work_dir == 'execution':
@@ -26,8 +36,6 @@ def create_input_file(setup: SimulationSetup, work_dir='execution'):
         wd = setup.best_dir
     #
     #
-
-    print('** working dir: ', wd)
 
     # Log the set working directory
     logging.debug(wd)

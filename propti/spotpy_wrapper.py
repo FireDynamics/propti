@@ -14,7 +14,6 @@ from .basic_functions import create_input_file, run_simulations, \
     extract_simulation_data
 
 
-
 ####################
 # SPOTPY SETUP CLASS
 
@@ -53,7 +52,6 @@ class SpotpySetup(object):
                 logging.error(
                     'parameter distribution function unknown: {}'.format(
                         p.distribution))
-
 
     def parameters(self):
         return spotpy.parameter.generate(self.spotpy_parameter)
@@ -141,7 +139,6 @@ def run_optimisation(params: ParameterSet,
                                           dbformat=opt.db_type,
                                           alt_objfun='rmse',
                                           parallel=parallel)
-
 
         ngs = opt.ngs
         if not ngs:
