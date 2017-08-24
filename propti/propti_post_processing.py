@@ -107,4 +107,105 @@ def plot_hist(data_label, data_frame, file_name, bin_num=100, y_label=None):
         plt.close()
 
 
-# def
+'''
+def descriptive_statistics(complete_sample, offset, data_label, n=1,
+                           skip_zero=False):
+
+    # work in progress
+
+    # Determine how much a given parameter changes during an optimisation
+    # run. For small changes set parameter to a fixed value, which is the
+    # mean of the sample (descriptive statistics) without the first n
+    # generations.
+    #
+    # It calculates and returns a couple of descriptive statistics:
+    # mean, standard deviation, skewness, mode,
+    #
+    # CompleteSample is supposed to be an array-like (Pandas data frame
+    # column).
+    # Offset is supposed to be an integer which will exclude the first n
+    # individuals from the analysis. It is meant to be a number which
+    # represents the first n generations, to exclude strong fluctuations
+    # during the beginning of the optimisation process.
+    #
+
+    # Prepare data for plot.
+    sub_set = complete_sample[offset:].tolist()
+
+    # Cut away the burn-in (generation 0).
+    if skip_zero is True:
+        complete_sample = complete_sample[GenerationSize:].tolist()
+
+    # Some descriptive statistics on the data set, for the whole data
+    # set and the subset:
+    #
+    # Prepare list for statistic data.
+    statistic_data = []
+
+    # Calculate mean (mu) and standard deviation (std) of both, the
+    # complete sample, as well as the subset.
+    mu_complete, std_complete = norm.fit(complete_sample)
+    mu_sub_set, std_sub_set = norm.fit(sub_set)
+    # fit = norm.pdf(sub_set, mu_sub_set, std_sub_set)
+    statistic_data.append(mu_complete)
+    statistic_data.append(std_complete)
+    statistic_data.append(mu_sub_set)
+    statistic_data.append(std_sub_set)
+
+    # Calculate skewness.
+    skew_complete = stats.skew(complete_sample, axis=0, bias=True)
+    skew_sub_set = stats.skew(sub_set, axis=0, bias=True)
+    statistic_data.append(skew_complete)
+    statistic_data.append(skew_sub_set)
+
+    # Calculate kurtosis.
+    kurt_complete = stats.kurtosis(complete_sample, axis=0, fisher=True,
+                                   bias=True)
+    kurt_sub_set = stats.kurtosis(sub_set, axis=0, fisher=True, bias=True)
+    statistic_data.append(kurt_complete)
+    statistic_data.append(kurt_sub_set)
+
+    # Calculate mode.
+    mode_complete = stats.mode(complete_sample, axis=0)
+    mode_sub_set = stats.mode(sub_set, axis=0)
+    statistic_data.append(mode_complete)
+    statistic_data.append(mode_sub_set)
+
+    print("Parameter: ", data_label)
+
+    # Calculate range of n standard deviations around the mean value of
+    # the subset.
+    high = mu_sub_set + n * std_sub_set
+    low = mu_sub_set - n * std_sub_set
+    print("High subset: ", high)
+    print("Mean complete: ", mu_complete)
+    print("Low subset: ", low)
+    print("Mean complete: ", statistic_data[0])
+    print("Mean subset: ", statistic_data[1])
+    print("Std deviation complete: ", statistic_data[2])
+    print("Std deviation subset: ", statistic_data[3])
+    print("Skewness complete: ", statistic_data[4])
+    print("Skewness subset: ", statistic_data[5])
+    print("Kurtosis complete: ", statistic_data[6])
+    print("Kurtosis subset: ", statistic_data[7])
+    print("Mode complete: ", statistic_data[8][0])
+    print("Mode subset: ", statistic_data[9][0])
+
+    return reduced, rejected, rejectedParaName, \
+           rejectedParaValue, reducedParaName, reducedParaValue, \
+           statistic_data
+
+
+def calc_mode():
+    # Calculate mode.
+    mode_complete = stats.mode(complete_sample, axis=0)
+    mode_sub_set = stats.mode(sub_set, axis=0)
+    statistic_data.append(mode_complete)
+    statistic_data.append(mode_sub_set)
+    pass
+
+'''
+
+
+def calc_pearson_coefficent():
+    np.corrcoef(x)
