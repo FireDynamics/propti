@@ -156,6 +156,19 @@ class ParameterSet:
             for p in params:
                 self.parameters.append(copy.deepcopy(p))
 
+    def update(self, other: 'ParameterSet'):
+        """
+        Updates parameter set with given other set.
+
+        :param other: set used for update
+        :return:
+        """
+
+        for ot in other.parameters:
+            for my in self.parameters:
+                if my.name == ot.name:
+                    my.value = ot.value
+
     def __len__(self) -> int:
         """
         Return the length of the parameter set.

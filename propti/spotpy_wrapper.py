@@ -57,15 +57,15 @@ class SpotpySetup(object):
     def simulation(self, vector):
         logging.debug("current spotpy simulation vector: {}".format(vector))
 
+        # copyt spotpy parameter vector to parameter set
         for i in range(len(vector)):
             self.params[i].value = vector[i]
 
+        # update all simulation setup parameter sets
         for s in self.setups:
-            for p in s.model_parameter:
-                for pp in self.params:
-                    if p.name == pp.name:
-                        p.value = pp.value
+            s.model_parameter.update(self.params)
 
+        # create run directories for all simulation setups
         for s in self.setups:
             if s.execution_dir_prefix:
                 tmp_dir_root = s.execution_dir_prefix
@@ -75,8 +75,10 @@ class SpotpySetup(object):
                                                dir=tmp_dir_root)
             create_input_file(s)
 
+        # run all simulatons
         run_simulations(self.setups, self.optimiser.num_subprocesses)
 
+        # gather simulation data
         for s in self.setups:
             logging.debug("start data extraction")
             extract_simulation_data(s)
@@ -153,6 +155,9 @@ def run_optimisation(params: ParameterSet,
 
     for i in range(len(params)):
         params[i].value = sampler.status.params[i]
+
+    for s in setups:
+        s.model_parameter.update(params)
 
     return params
 
