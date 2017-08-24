@@ -207,5 +207,6 @@ def calc_mode():
 '''
 
 
-def calc_pearson_coefficent():
-    np.corrcoef(x)
+def calc_pearson_coefficent(data_series):
+    np.corrcoef(data_series)
+    pass
