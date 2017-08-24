@@ -6,7 +6,8 @@ from .basic_functions import run_simulations
 from .propti_post_processing import run_best_para
 
 from .propti_monitor import plot_scatter, plot_box_rmse
-from .propti_post_processing import run_best_para, plot_hist
+from .propti_post_processing import run_best_para, plot_hist, \
+    calc_pearson_coefficient
 
 import logging
 

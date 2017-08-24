@@ -372,6 +372,7 @@ class SimulationSetup:
                  execution_dir: os.path = None,
                  execution_dir_prefix: os.path = None,
                  best_dir: os.path = 'best_para',
+                 analyser_input_file: os.path = 'input_analyser.py',
                  relations: List[Relation] = None):
         """
         Constructor.
@@ -386,6 +387,7 @@ class SimulationSetup:
             carried out, mostly in temporally created directories
         :param best_dir: directory for performing simulation(s) with the best
             parameter set
+        :param analyser_input_file: name for analyser input file
         :param relations: relations between experimental and model data
         """
 
@@ -398,6 +400,7 @@ class SimulationSetup:
         self.execution_dir = execution_dir
         self.execution_dir_prefix = execution_dir_prefix
         self.best_dir = best_dir
+        self.analyser_input_file = analyser_input_file
 
         # if relations are set, check if a list is passed, otherwise create
         # a single element list

@@ -17,6 +17,9 @@ parser.add_argument("root_dir", type=str,
                     help="optimisation root directory")
 parser.add_argument("--plot_like_values",
                     help="plot like and values", action="store_true")
+parser.add_argument("--calc_stat",
+                    help="calculate statistics", action="store_true")
+
 cmdl_args = parser.parse_args()
 
 setups = None  # type: pr.SimulationSetupSet
@@ -40,30 +43,64 @@ print(setups, ops, optimiser)
 # TODO: define spotpy db file name in optimiser properties
 # TODO: use placeholder as name? or other way round?
 
-
-# Scatter plot of RMSE development
-if cmdl_args.plot_like_values:
-    print("- plot likes and values")
+if cmdl_args.calc_stat:
+    print("- calculate statistics")
+    print("----------------------")
     db_file_name = os.path.join(cmdl_args.root_dir,
                                 '{}.{}'.format(optimiser.db_name,
                                                optimiser.db_type))
-    cols = ['like1', 'chain']
-    for p in ops:
-        cols.append("par{}".format(p.place_holder))
-    data = pd.read_csv(db_file_name, usecols=cols)
 
-    # Scatter plots of parameter development
-    for c in cols[2:]:
-        pr.plot_scatter(c, data, 'Parameter development', c)
+    for s in setups:
+        cols = []
+        for p in ops:
+            cols.append("par{}".format(p.place_holder))
+        data_raw = pd.read_csv(db_file_name, usecols=cols)
 
-    # Histogram plots of parameters
-    for c in cols[2:]:
-        pr.plot_hist(c, data, 'histogram', y_label=None)
-    pr.plot_scatter('like1', data, 'RMSE', 'Fitness values',
-                    'Root Mean Square Error (RMSE)')
+        data = []
+        for i in cols:
 
-    # Box plot to visualise generations
-    pr.plot_box_rmse(data, 'RMSE', len(ops), optimiser.ngs, 'Fitness values')
+            data.append(data_raw[i])
 
-    pr.run_best_para(setups, ops, optimiser, pickle_finished)
+        fname = s.analyser_input_file
+
+        with open(fname) as f:
+            content = f.readlines()
+
+        for line in content:
+
+            if 'pearson_coeff' in line:
+                pear_coeff = True
+
+    if pear_coeff is True:
+        mat = pr.calc_pearson_coefficient(data)
+        print('Pearson coefficient matrix:')
+        print('')
+        print(mat)
+        print('')
+
+# # Scatter plot of RMSE development
+# if cmdl_args.plot_like_values:
+#     print("- plot likes and values")
+#     db_file_name = os.path.join(cmdl_args.root_dir,
+#                                 '{}.{}'.format(optimiser.db_name,
+#                                                optimiser.db_type))
+#     cols = ['like1', 'chain']
+#     for p in ops:
+#         cols.append("par{}".format(p.place_holder))
+#     data = pd.read_csv(db_file_name, usecols=cols)
+#
+#     # Scatter plots of parameter development
+#     for c in cols[2:]:
+#         pr.plot_scatter(c, data, 'Parameter development', c)
+#
+#     # Histogram plots of parameters
+#     for c in cols[2:]:
+#         pr.plot_hist(c, data, 'histogram', y_label=None)
+#     pr.plot_scatter('like1', data, 'RMSE', 'Fitness values',
+#                     'Root Mean Square Error (RMSE)')
+#
+#     # Box plot to visualise generations
+#     pr.plot_box_rmse(data, 'RMSE', len(ops), optimiser.ngs, 'Fitness values')
+#
+#     pr.run_best_para(setups, ops, optimiser, pickle_finished)
 
