@@ -43,40 +43,6 @@ print(setups, ops, optimiser)
 # TODO: define spotpy db file name in optimiser properties
 # TODO: use placeholder as name? or other way round?
 
-if cmdl_args.calc_stat:
-    print("- calculate statistics")
-    print("----------------------")
-    db_file_name = os.path.join(cmdl_args.root_dir,
-                                '{}.{}'.format(optimiser.db_name,
-                                               optimiser.db_type))
-
-    for s in setups:
-        cols = []
-        for p in ops:
-            cols.append("par{}".format(p.place_holder))
-        data_raw = pd.read_csv(db_file_name, usecols=cols)
-
-        data = []
-        for i in cols:
-
-            data.append(data_raw[i])
-
-        fname = s.analyser_input_file
-
-        with open(fname) as f:
-            content = f.readlines()
-
-        for line in content:
-
-            if 'pearson_coeff' in line:
-                pear_coeff = True
-
-    if pear_coeff is True:
-        mat = pr.calc_pearson_coefficient(data)
-        print('Pearson coefficient matrix:')
-        print('')
-        print(mat)
-        print('')
 
 # # Scatter plot of RMSE development
 # if cmdl_args.plot_like_values:
@@ -104,3 +70,50 @@ if cmdl_args.calc_stat:
 #
 #     pr.run_best_para(setups, ops, optimiser, pickle_finished)
 
+
+# TODO: write statistics data to file
+
+if cmdl_args.calc_stat:
+    print("- calculate statistics")
+    print("----------------------")
+    db_file_name = os.path.join(cmdl_args.root_dir,
+                                '{}.{}'.format(optimiser.db_name,
+                                               optimiser.db_type))
+
+    for s in setups:
+        cols = []
+        lab = ['like1']
+        for p in ops:
+            cols.append("par{}".format(p.place_holder))
+            lab.append("par{}".format(p.place_holder))
+
+        data_raw = pd.read_csv(db_file_name, usecols=cols)
+
+        data = []
+        for i in cols:
+            data.append(data_raw[i])
+
+        fname = s.analyser_input_file
+        with open(fname) as f:
+            content = f.readlines()
+
+        for line in content:
+            if 'pearson_coeff' in line:
+                pear_coeff = True
+
+    if pear_coeff is True:
+        mat = pr.calc_pearson_coefficient(data)
+        print('Pearson coefficient matrix:')
+        print('')
+        print(mat)
+        print('')
+
+    data_fit = pd.read_csv(db_file_name, usecols=lab)
+    # print(data_fit.head())
+    # print('')
+    data_fit['like1'].tolist()
+    t = pr.collect_best_para_multi(db_file_name, lab)
+    print(t)
+
+    print("")
+    print("")

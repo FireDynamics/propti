@@ -107,6 +107,8 @@ def plot_hist(data_label, data_frame, file_name, bin_num=100, y_label=None):
         plt.close()
 
 
+# TODO: decouple the calculation of descriptive statistics
+# TODO: create function to call specific calculation methods
 '''
 def descriptive_statistics(complete_sample, offset, data_label, n=1,
                            skip_zero=False):
@@ -210,4 +212,104 @@ def calc_mode():
 def calc_pearson_coefficient(data_series):
     corr_mat = np.corrcoef(data_series)
     return corr_mat
+
+
+def collect_best_para_multi(data_file, label_list, distance=0.5e-4):
+    """
+
+    :param data_file: Assumed to be a CSV-file and containing the data base
+        information provided by SPOTPY
+    :param label_list: List of labels (string) which are indexing the columns
+        of the shape:
+        [fitness values, parameter_1, parameter_2, ..., parameter_n]
+    :param distance: Half of the range in which to look for parameter sets
+        around the best fitness value
+    :return: para_collection: Pandas DataFrame with the collected parameter
+        sets and their respective fitness values
+    """
+
+    # Read Pandas DataFrame and convert the content of one column into
+    #  a numpy array.
+    fit_vals_raw = pd.read_csv(data_file, usecols=label_list)
+    fit_vals = fit_vals_raw[label_list[0]].values
+
+    # Find max value in the array.
+    fit_max = max(fit_vals)
+
+    # Calculate the range in which to collect the samples.
+    upper = fit_max + distance
+    lower = fit_max - distance
+    print(upper)
+    print(lower)
+
+    print('Start comparison:')
+
+    # Collect indices and values.
+    multi_fit = []
+    row_indices = []
+    for num_i in range(len(fit_vals)):
+        new_element = []
+        print(fit_vals[num_i])
+        if lower <= fit_vals[num_i] <= upper:
+            new_element.append(num_i)
+            row_indices.append(num_i)
+            new_element.append(fit_vals[num_i])
+            print(fit_vals[num_i])
+            multi_fit.append(new_element)
+        else:
+            print("False")
+
+    print('')
+    print('-------------')
+    print('Range around the best fitness value')
+    print('Best fitness: {}'.format(fit_max))
+    print('Distance: {}'.format(distance))
+    print('Upper bound: {}'.format(upper))
+    print('Lower bound: {}'.format(lower))
+    print('')
+    for i in range(len(multi_fit)):
+        print('    ', fit_vals_raw.loc[multi_fit[i][0], 'like1'])
+        print(multi_fit[i])
+        print('')
+    print('-------------')
+
+    # Create a Pandas DataFrame with the samples which are
+    # within the range.
+    para_collection = fit_vals_raw.loc[row_indices, label_list]
+
+    return para_collection
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
