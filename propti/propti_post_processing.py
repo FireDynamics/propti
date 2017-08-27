@@ -77,6 +77,56 @@ def run_best_para(setups_bp, ops_bp, optimiser_bp, pickle_object):
     pass
 
 
+def plot_template(exp_data, sim_data, legend_labels=None,
+                  plot_labels=None, pdf_name='Plot name', n_colors=10):
+
+    if plot_labels is None:
+        print('* Specify plot_labels=[x-label, y-label, title], all as string.')
+        plot_labels = ['x-label', 'y-label', 'title']
+
+    if legend_labels is None:
+        print('* Specify legend_labels as list of strings.')
+        legend_labels = ['dummy label']
+
+    # Prepare plotting of multiple plots in one diagram.
+    multi_plot = plt.figure()
+
+    # Call the subplots.
+    ax = multi_plot.add_subplot(111)
+
+    # Set default color map to viridis.
+    # https://www.youtube.com/watch?v=xAoljeRJ3lU&feature=youtu.be
+    colormap = plt.get_cmap('viridis')
+    ax.set_color_cycle([colormap(k) for k in np.linspace(0, 1, n_colors)])
+    # ax.set_prop_cycle('viridis', plt.cm.spectral(np.linspace(0, 1, 30)))
+
+    for i in range(len(exp_data)):
+        # Create multiple plots
+        ax.plot(exp_data[i][0],
+                exp_data[i][1],
+                linestyle='-.',
+                color=colormap(i))
+
+        ax.plot(sim_data[i][0],
+                sim_data[i][1],
+                linestyle='-',
+                color=colormap(i))
+
+    ax.legend(legend_labels)
+
+    plt.xlabel(plot_labels[0])
+    plt.ylabel(plot_labels[1])
+    # Create plot title from file name.
+    plt.title(plot_labels[2])
+    plt.grid()
+
+    plt.savefig(pdf_name + '.pdf')
+    plt.close(multi_plot)
+    print('Plot saved.')
+    print('')
+    pass
+
+
 def plot_hist(data_label, data_frame, file_name, bin_num=100, y_label=None):
 
     """
@@ -291,53 +341,42 @@ def plot_best_sim_exp(setup_plot, pickle_object):
         print('* Hint: Use run_best_para method for that simulation.')
         return
 
-    # copy all experimental data
+    # Show relation information.
     for r in setup_plot.relations:
         print(r)
 
+    # Determine amount of relations to give every plot its own color
+    # without duplicates.
+    lr = len(setup_plot.relations)
 
+    # Extract data from simulation and experiment to be plotted.
+    model_data = []
+    experimental_data = []
+    for r in setup_plot.relations:
 
-# pr.Relation.read_data()
+        mod_file = os.path.join(cdir, r.model.file_name)
+        model_data_raw = pd.read_csv(mod_file,
+                                     header=r.model.header_line,
+                                     usecols=[r.model.label_x,
+                                              r.model.label_y])
 
+        experimental_data_raw = pd.read_csv(r.experiment.file_name,
+                                            header=r.experiment.header_line,
+                                            usecols=[r.experiment.label_x,
+                                                     r.experiment.label_y])
 
+        md_interm = [model_data_raw[r.model.label_x].tolist(),
+                     model_data_raw[r.model.label_y].tolist()]
 
+        ed_interm = [experimental_data_raw[r.experiment.label_x].tolist(),
+                     experimental_data_raw[r.experiment.label_y].tolist()]
 
-'''
+        model_data.append(md_interm)
+        experimental_data.append(ed_interm)
 
-    # Prepare plotting of multiple plots in one diagram.
-    multiPlot = plt.figure()
-    # Call the subplots.
-    ax = multiPlot.add_subplot(111)
-    for i in range(len(Results)):
-        # Create multiple plots
-        ax.plot(Results[i][0], Results[i][1])#, color=colors[i])
-
-    for i in range(len(DirNames)):
-        ax.plot(ExpResponse[ExpCols[i][0]],
-                ExpResponse[ExpCols[i][1]],
-                color=colors[i],
-                linestyle='-.')
-
-    ax.legend(labels)
-
-    plt.xlabel('Time, in s')
-    plt.ylabel('Energy release rate, in kW/m2')
-    # Create plot title from file name.
-    plt.title('Best parameter set for three incident heat fluxes (5cm)')
-    plt.grid()
-
-    plt.savefig('CompBestParaExp_5cm_C219.pdf')
-    plt.close(multiPlot)
-    print('Plot saved.')
-    print('')
-    pass
-
-
-'''
-
-
-
-
+    leg_lab = ['experiment', 'simulation']
+    plot_template(experimental_data, model_data,legend_labels=leg_lab,
+                  n_colors=lr)
 
 
 

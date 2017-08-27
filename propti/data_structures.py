@@ -349,14 +349,15 @@ class Relation:
               "experiment file: {},\n" \
               "experiment header: {},\n" \
               "experiment x-label: {},\n" \
-              "experiment y-label: {}".format(self.model.file_name,
-                                              self.model.header_line,
-                                              self.model.label_x,
-                                              self.model.label_y,
-                                              self.experiment.file_name,
-                                              self.experiment.header_line,
-                                              self.experiment.label_x,
-                                              self.experiment.label_y)
+              "experiment y-label: {}\n" \
+              "".format(self.model.file_name,
+                        self.model.header_line,
+                        self.model.label_x,
+                        self.model.label_y,
+                        self.experiment.file_name,
+                        self.experiment.header_line,
+                        self.experiment.label_x,
+                        self.experiment.label_y)
 
         return res
 
