@@ -280,10 +280,60 @@ def collect_best_para_multi(data_file, label_list, distance=0.5e-4):
     return para_collection
 
 
+def plot_best_sim_exp(setup_plot, pickle_object):
+
+    root_dir = os.path.dirname(os.path.abspath(pickle_object))
+    cdir = os.path.join(root_dir, setup_plot.best_dir)
+
+    # Check if best parameter simulation directories exist
+    if not os.path.exists(cdir):
+        print('* No directory of best parameter simulation found.')
+        print('* Hint: Use run_best_para method for that simulation.')
+        return
+
+    # copy all experimental data
+    for r in setup_plot.relations:
+        print(r)
+
+
+
+# pr.Relation.read_data()
 
 
 
 
+'''
+
+    # Prepare plotting of multiple plots in one diagram.
+    multiPlot = plt.figure()
+    # Call the subplots.
+    ax = multiPlot.add_subplot(111)
+    for i in range(len(Results)):
+        # Create multiple plots
+        ax.plot(Results[i][0], Results[i][1])#, color=colors[i])
+
+    for i in range(len(DirNames)):
+        ax.plot(ExpResponse[ExpCols[i][0]],
+                ExpResponse[ExpCols[i][1]],
+                color=colors[i],
+                linestyle='-.')
+
+    ax.legend(labels)
+
+    plt.xlabel('Time, in s')
+    plt.ylabel('Energy release rate, in kW/m2')
+    # Create plot title from file name.
+    plt.title('Best parameter set for three incident heat fluxes (5cm)')
+    plt.grid()
+
+    plt.savefig('CompBestParaExp_5cm_C219.pdf')
+    plt.close(multiPlot)
+    print('Plot saved.')
+    print('')
+    pass
+
+
+'''
 
 
 

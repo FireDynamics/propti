@@ -336,8 +336,31 @@ class Relation:
         logging.error("wrong data mapping mode: {}".format(mode))
         sys.exit()
 
+    def __str__(self) -> str:
+        """
+        Creates a string with the major relation information.
 
-# test for data readin
+        :return: information string
+        """
+        res = "model file: {},\n" \
+              "model header: {},\n" \
+              "model x-label: {},\n" \
+              "model y-label: {},\n" \
+              "experiment file: {},\n" \
+              "experiment header: {},\n" \
+              "experiment x-label: {},\n" \
+              "experiment y-label: {}".format(self.model.file_name,
+                                              self.model.header_line,
+                                              self.model.label_x,
+                                              self.model.label_y,
+                                              self.experiment.file_name,
+                                              self.experiment.header_line,
+                                              self.experiment.label_x,
+                                              self.experiment.label_y)
+
+        return res
+
+# test for data read-in
 def test_read_map_data():
     r = Relation()
     ds = r.model
