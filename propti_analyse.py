@@ -15,18 +15,21 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("root_dir", type=str,
                     help="optimisation root directory")
+
 parser.add_argument("--run_best",
                     help="run simulation(s) with best parameter set",
                     action="store_true")
+
 parser.add_argument("--plot_like_values",
                     help="plot like and values", action="store_true")
+
 parser.add_argument("--calc_stat",
                     help="calculate statistics", action="store_true")
+
 parser.add_argument("--plot_best_sim_exp",
                     help="plot results of the simulation of the best parameter "
                          "set and the experimental data to be compared with",
                     action="store_true")
-
 cmdl_args = parser.parse_args()
 
 setups = None  # type: pr.SimulationSetupSet
@@ -64,31 +67,37 @@ if cmdl_args.run_best:
     print("")
 
 
+# Scatter plot of RMSE development
+if cmdl_args.plot_like_values:
+    print("")
+    print("- plot likes and values")
+    print("----------------------")
+    db_file_name = os.path.join(cmdl_args.root_dir,
+                                '{}.{}'.format(optimiser.db_name,
+                                               optimiser.db_type))
 
-# # Scatter plot of RMSE development
-# if cmdl_args.plot_like_values:
-#     print("- plot likes and values")
-#     db_file_name = os.path.join(cmdl_args.root_dir,
-#                                 '{}.{}'.format(optimiser.db_name,
-#                                                optimiser.db_type))
-#     cols = ['like1', 'chain']
-#     for p in ops:
-#         cols.append("par{}".format(p.place_holder))
-#     data = pd.read_csv(db_file_name, usecols=cols)
-#
-#     # Scatter plots of parameter development
-#     for c in cols[2:]:
-#         pr.plot_scatter(c, data, 'Parameter development', c)
-#
-#     # Histogram plots of parameters
-#     for c in cols[2:]:
-#         pr.plot_hist(c, data, 'histogram', y_label=None)
-#     pr.plot_scatter('like1', data, 'RMSE', 'Fitness values',
-#                     'Root Mean Square Error (RMSE)')
-#
-#     # Box plot to visualise generations
-#     pr.plot_box_rmse(data, 'RMSE', len(ops), optimiser.ngs, 'Fitness values')
-#
+    # Extract data to be plotted.
+    cols = ['like1', 'chain']
+    for p in ops:
+        cols.append("par{}".format(p.place_holder))
+    data = pd.read_csv(db_file_name, usecols=cols)
+
+    # Scatter plots of parameter development over the whole run.
+    for c in cols[2:]:
+        pr.plot_scatter(c, data, 'Parameter development', c)
+
+    # Histogram plots of parameters
+    for c in cols[2:]:
+        pr.plot_hist(c, data, 'histogram', y_label=None)
+    pr.plot_scatter('like1', data, 'RMSE', 'Fitness values',
+                    'Root Mean Square Error (RMSE)')
+
+    # Box plot to visualise steps (generations).
+    pr.plot_box_rmse(data, 'RMSE', len(ops), optimiser.ngs, 'Fitness values')
+
+    print("Plots have been created.")
+    print("")
+    print("")
 
 
 if cmdl_args.calc_stat:
@@ -123,10 +132,8 @@ if cmdl_args.calc_stat:
                 pear_coeff = True
 
     if pear_coeff is True:
+        print('Pearson coefficient matrix for the whole run:')
         mat = pr.calc_pearson_coefficient(data)
-        print('Pearson coefficient matrix:')
-        print('')
-        print(mat)
         print('')
 
     data_fit = pd.read_csv(db_file_name, usecols=lab)
@@ -134,10 +141,17 @@ if cmdl_args.calc_stat:
     # print('')
     data_fit['like1'].tolist()
     t = pr.collect_best_para_multi(db_file_name, lab)
-    print(t)
+    # print(t)
+    print('')
 
-    print("")
-    print("")
+    best_para_sets = []
+    for i in cols:
+        best_para_sets.append(t[i])
+
+    print('Pearson coefficient matrix for the best parameter collection:')
+    mat_best_collection = pr.calc_pearson_coefficient(best_para_sets)
+    print('')
+
 
 
 if cmdl_args.plot_best_sim_exp:

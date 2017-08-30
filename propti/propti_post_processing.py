@@ -261,10 +261,18 @@ def calc_mode():
 
 def calc_pearson_coefficient(data_series):
     corr_mat = np.corrcoef(data_series)
+
+    print('')
+    print('----')
+    print('Pearson coefficient matrix:')
+    print(corr_mat)
+    print('----')
+    print('')
+
     return corr_mat
 
 
-def collect_best_para_multi(data_file, label_list, distance=0.5e-4):
+def collect_best_para_multi(data_file, label_list, distance=0.8e-4):
     """
 
     :param data_file: Assumed to be a CSV-file and containing the data base
@@ -289,34 +297,27 @@ def collect_best_para_multi(data_file, label_list, distance=0.5e-4):
     # Calculate the range in which to collect the samples.
     upper = fit_max + distance
     lower = fit_max - distance
-    print(upper)
-    print(lower)
-
-    print('Start comparison:')
 
     # Collect indices and values.
     multi_fit = []
     row_indices = []
     for num_i in range(len(fit_vals)):
         new_element = []
-        print(fit_vals[num_i])
         if lower <= fit_vals[num_i] <= upper:
             new_element.append(num_i)
             row_indices.append(num_i)
             new_element.append(fit_vals[num_i])
-            print(fit_vals[num_i])
             multi_fit.append(new_element)
-        else:
-            print("False")
 
-    print('')
     print('-------------')
     print('Range around the best fitness value')
+    print('----')
     print('Best fitness: {}'.format(fit_max))
     print('Distance: {}'.format(distance))
     print('Upper bound: {}'.format(upper))
     print('Lower bound: {}'.format(lower))
     print('')
+
     for i in range(len(multi_fit)):
         print('    ', fit_vals_raw.loc[multi_fit[i][0], 'like1'])
         print(multi_fit[i])
