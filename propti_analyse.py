@@ -153,7 +153,6 @@ if cmdl_args.calc_stat:
     print('')
 
 
-
 if cmdl_args.plot_best_sim_exp:
     # TODO: write statistics data to file
 
@@ -168,3 +167,4 @@ if cmdl_args.plot_best_sim_exp:
         pr.plot_best_sim_exp(s, pickle_finished)
     print("")
     print("")
+
