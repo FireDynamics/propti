@@ -1,2 +1,5 @@
 *.pyc
 *.pyo
+.idea/codeStyleSettings.xml
+.idea/misc.xml
+.idea/vcs.xml

@@ -58,6 +58,8 @@ for s in setups:
     s.model_template = os.path.join(cdir, os.path.basename(s.model_template))
 
     # copy all experimental data
+    # TODO: Re-think the copy behaviour. If file is identical, just keep one
+    # instance?
     for r in s.relations:
         sh.copy(os.path.join(input_file_directory, r.experiment.file_name),
                 cdir)
