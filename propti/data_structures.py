@@ -256,8 +256,8 @@ class Relation:
 
     def __init__(self,
                  x_def: np.ndarray = None,
-                 model: DataSource = DataSource(),
-                 experiment: DataSource = DataSource()):
+                 model: DataSource = None,
+                 experiment: DataSource = None):
         """
         Set up a relation between the model and experiment data sources.
 
@@ -265,8 +265,9 @@ class Relation:
         :param model: model data source
         :param experiment: experiment data source
         """
-        self.model = model
-        self.experiment = experiment
+
+        self.model = model if model else DataSource()
+        self.experiment = experiment if experiment else DataSource()
         self.x_def = x_def
 
     def read_data(self, wd: os.path, target: str = 'model'):
