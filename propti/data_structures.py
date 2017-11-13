@@ -247,6 +247,19 @@ class DataSource:
         self.factor = 1.0
         self.offset = 0.0
 
+        """
+        :param file_name: file name which contains the information
+        :param header_line: row that containts the labels (pandas data frames) 
+        :param label_x: label of the row which contains the information of the 
+            x-axis (pandas data frames)
+        :param label_y:label of the row which contains the information of the 
+            y-axis (pandas data frames)
+        :param x: data of the x-axis (based on above label)
+        :param y: data of the y-axis (based on above label)
+        :param factor:
+        :param offset:
+        """
+
 
 class Relation:
     """
