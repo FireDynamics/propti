@@ -4,7 +4,8 @@ import os
 import shutil
 import numpy as np
 import tempfile
-
+import os.path
+from pathlib import Path
 import spotpy
 
 from .data_structures import Parameter, ParameterSet, SimulationSetup, \
@@ -26,7 +27,6 @@ class SpotpySetup(object):
         self.setups = setups
         self.params = params
         self.optimiser = optimiser
-
         self.spotpy_parameter = []
 
         for p in params:
@@ -131,7 +131,16 @@ def run_optimisation(params: ParameterSet,
                      setups: SimulationSetupSet,
                      opt: OptimiserProperties) -> ParameterSet:
     spot = SpotpySetup(params, setups, opt)
+    # Check if a break file exists for restarting.
+    break_file_name = Path('{}.break'.format(opt.db_name))
+    try:
+        break_file_path = break_file_name.resolve()
+    except FileNotFoundError:
+        break_point = 'write'
+    else:
+        break_point = 'read'
 
+    
     if opt.algorithm == 'sceua':
         parallel = 'seq'
         if opt.mpi:
@@ -140,7 +149,7 @@ def run_optimisation(params: ParameterSet,
                                           dbname=opt.db_name,
                                           dbformat=opt.db_type,
                                           alt_objfun='rmse',
-                                          parallel=parallel)
+                                          parallel=parallel, breakpoint=break_point)
 
         ngs = opt.ngs
         if not ngs:
@@ -151,7 +160,6 @@ def run_optimisation(params: ParameterSet,
             opt.ngs = ngs
 
         sampler.sample(opt.repetitions, ngs=ngs)
-
         print(sampler.status.params)
 
     else:
