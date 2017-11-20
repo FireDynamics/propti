@@ -139,34 +139,31 @@ def run_optimisation(params: ParameterSet,
     # Call the required algorithm
     try:
         call_this_algorit = getattr(spotpy.algorithms, opt.algorithm)
+        parallel = 'seq'
+        if opt.mpi:
+            parallel = 'mpi'
+        sampler = call_this_algorit(spot, dbname=opt.db_name,
+                                dbformat=opt.db_type, alt_objfun='rmse',
+                                parallel=parallel, breakpoint=break_point)
+        # Issue #11
+        # TODO: OptimizerProperties must provide data if no ngs value has been set 
+        # by user
+        ngs = opt.ngs
+        if not ngs:
+            ngs = len(params)
+            # Set amount of parameters as default for number of complexes
+            # if not explicitly specified.
+            opt.ngs = ngs
+        sampler.sample(opt.repetitions, ngs=ngs)
+        print(sampler.status.params)
+
+        for i in range(len(params)):
+            params[i].value = sampler.status.params[i]
+        for s in setups:
+            s.model_parameter.update(params)
     except AttributeError:
         logging.critical("unknown algorithm set: {}".format(opt.algorithm))
         sys.exit()
-
-    parallel = 'seq'
-    if opt.mpi:
-        parallel = 'mpi'
-    sampler = spotpy.algorithms.sceua(spot, dbname=opt.db_name,
-                            dbformat=opt.db_type, alt_objfun='rmse',
-                            parallel=parallel, breakpoint=break_point)
-    # Issue #11
-    # TODO: OptimizerProperties must provide data if no ngs value has been set 
-    # by user
-    ngs = opt.ngs
-    if not ngs:
-        ngs = len(params)
-        # Set amount of parameters as default for number of complexes
-        # if not explicitly specified.
-        opt.ngs = ngs
-
-    sampler.sample(opt.repetitions, ngs=ngs)
-    print(sampler.status.params)
-
-    for i in range(len(params)):
-        params[i].value = sampler.status.params[i]
-
-    for s in setups:
-        s.model_parameter.update(params)
 
     return params
 
