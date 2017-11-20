@@ -133,38 +133,34 @@ def run_optimisation(params: ParameterSet,
     spot = SpotpySetup(params, setups, opt)
     # Check if a break file exists for restarting.
     break_file_name = Path('{}.break'.format(opt.db_name))
-    try:
-        break_file_path = break_file_name.resolve()
-    except FileNotFoundError:
-        break_point = 'write'
-    else:
+    break_point = 'write'
+    if break_file_name.is_file():
         break_point = 'read'
-
-    
-    if opt.algorithm == 'sceua':
-        parallel = 'seq'
-        if opt.mpi:
-            parallel = 'mpi'
-        sampler = spotpy.algorithms.sceua(spot,
-                                          dbname=opt.db_name,
-                                          dbformat=opt.db_type,
-                                          alt_objfun='rmse',
-                                          parallel=parallel, breakpoint=break_point)
-
-        ngs = opt.ngs
-        if not ngs:
-            ngs = len(params)
-
-            # Set amount of parameters as default for number of complexes
-            # if not explicitly specified.
-            opt.ngs = ngs
-
-        sampler.sample(opt.repetitions, ngs=ngs)
-        print(sampler.status.params)
-
-    else:
+    # Call the required algorithm
+    try:
+        call_this_algorit = getattr(spotpy.algorithms, opt.algorithm)
+    except AttributeError:
         logging.critical("unknown algorithm set: {}".format(opt.algorithm))
         sys.exit()
+
+    parallel = 'seq'
+    if opt.mpi:
+        parallel = 'mpi'
+    sampler = spotpy.algorithms.sceua(spot, dbname=opt.db_name,
+                            dbformat=opt.db_type, alt_objfun='rmse',
+                            parallel=parallel, breakpoint=break_point)
+    # Issue #11
+    # TODO: OptimizerProperties must provide data if no ngs value has been set 
+    # by user
+    ngs = opt.ngs
+    if not ngs:
+        ngs = len(params)
+        # Set amount of parameters as default for number of complexes
+        # if not explicitly specified.
+        opt.ngs = ngs
+
+    sampler.sample(opt.repetitions, ngs=ngs)
+    print(sampler.status.params)
 
     for i in range(len(params)):
         params[i].value = sampler.status.params[i]
