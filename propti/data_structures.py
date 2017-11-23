@@ -91,8 +91,13 @@ class OptimiserProperties:
 # PARAMETER CLASS
 class Parameter:
     """
-    Stores general parameter values and meta data. These parameters are the
-    ones the optimisation algorithm shall work with.
+    Stores general parameter values and meta data.
+
+    This class is used for the parameters that the optimisation algorithm
+    shall work with.
+    Furthermore, it is used for meta data that could, for instance, describe
+    the simulation environment (experimental conditions) but ARE NOT
+    parameters that are optimised.
     """
 
     def __init__(self, name: str,
