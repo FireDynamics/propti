@@ -36,6 +36,17 @@ class OptimiserProperties:
             default: None
         :param db_name: name of spotpy database file, default: propti_db
         :param db_type: type of database, default: csv, range: [csv]
+        :param num_subprocesses: Used to set the number of sub processes
+            that need to be run for each task.
+            For example, when three experiments with different
+            conditions have been performed, for the same material, each one
+            would require one subprocess -> num_subprocesses = 3.
+            Default: 1
+        :param mpi: Parameter that gets provided to SPOTPY,
+            via spotpy_wrapper.py (run_optimisation), to the _algorithm
+            parameter 'parallel'. If set to True 'parallel' is set to 'mpi'
+            otherwise it is set to 'seq' (use one core).
+            Default: False
         """
         self.algorithm = algorithm
         self.repetitions = repetitions
