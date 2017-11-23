@@ -14,7 +14,8 @@ from typing import List
 # OPTIMISER CLASS
 class OptimiserProperties:
     """
-    Stores optimiser parameter.
+    Stores optimiser parameter. They describe parameters that are used by the
+    optimiser, e.g. SPOTPY.
     """
 
     def __init__(self,
@@ -90,7 +91,8 @@ class OptimiserProperties:
 # PARAMETER CLASS
 class Parameter:
     """
-    Stores general parameter values and meta data.
+    Stores general parameter values and meta data. These parameters are the
+    ones the optimisation algorithm shall work with.
     """
 
     def __init__(self, name: str,
@@ -424,6 +426,12 @@ def test_read_map_data():
 # SIMULATION SETUP CLASS
 
 class SimulationSetup:
+    """
+    A simulation setup is a collection of information to perform one
+    optimisation run. Suppose you have three experiments, you would set up
+    three simulation setups.
+    They are collected later in a SimulationSetupSet.
+    """
     def __init__(self,
                  name: str,
                  work_dir: os.path = os.path.join('.'),
