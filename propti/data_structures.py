@@ -437,7 +437,7 @@ class SimulationSetup:
                  work_dir: os.path = os.path.join('.'),
                  model_template: os.path = None,
                  model_input_file: os.path = 'model_input.file',
-                 model_parameter: ParameterSet = ParameterSet(),
+                 model_parameter: ParameterSet = None,
                  model_executable: os.path = None,
                  execution_dir: os.path = None,
                  execution_dir_prefix: os.path = None,
@@ -466,6 +466,10 @@ class SimulationSetup:
         self.model_template = model_template
         self.model_input_file = model_input_file
         self.model_parameter = model_parameter
+        if model_parameter is None:
+            self.model_parameter = ParameterSet()
+        else:
+            self.model_parameter = model_parameter
         self.model_executable = model_executable
         self.execution_dir = execution_dir
         self.execution_dir_prefix = execution_dir_prefix
