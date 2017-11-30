@@ -56,10 +56,17 @@ set_of_parameters = [op1, op2, op3, op4]
 ops = pr.ParameterSet(params=set_of_parameters)
 
 
-# define general model parameter, including optimisation parameter
-mps0 = pr.ParameterSet(params=set_of_parameters)
-mps0.append(pr.Parameter(name='heating rate', place_holder='hr', value=10))
-mps0.append(pr.Parameter(name='chid', place_holder='CHID', value=CHID))
+# # define general model parameter, including optimisation parameter
+# mps0 = pr.ParameterSet(params=set_of_parameters)
+# mps0.append(pr.Parameter(name='heating rate',
+#                          place_holder='hr',
+#                          value=10))
+#
+# for i in range(len(HeatingRatesTGA)):
+#     mps0.append(pr.Parameter(name='chid',
+#                              place_holder='CHID',
+#                              value='{}_{}K'.format(CHID, str(HeatingRatesTGA[
+#                                                              i]))))
 
 
 # Function to provide basic parameters for one simulation setup.
@@ -75,7 +82,7 @@ def create_mod_par_setup(para_set):
 
     # Add individual character ID to distinguish the simulation data.
     ps.append(pr.Parameter(name='chid',
-                           place_holder='chid',
+                           place_holder='CHID',
                            value='{}_{}K'.format(CHID,
                                                  str(HeatingRatesTGA[
                                                          para_set]))))
@@ -118,30 +125,23 @@ for i in range(len(HeatingRatesTGA)):
     r.append(relation)
 
 
-# Create simulation setups by joining all the necessary information:
-# parameters, working directory, template file , relations and simulation
-# software executable.
-ssetups = []
-for i in range(len(HeatingRatesTGA)):
-    s = pr.SimulationSetup(name='tga_analysis_02',
-                           work_dir=
-                           "{}_{}K_tga.csv".format(CHID, str(HeatingRatesTGA[
-                                                                 i])),
-                           model_template=template_file,
-                           model_parameter=mps0,
-                           model_executable='fds653',
-                           relations=r)
-
-    ssetups.append(s)
-
-
 # Initialise empty simulation setup sets.
 setups = pr.SimulationSetupSet()
 
-
-# Append above objects to simulation setup set.
+# Create simulation setups by joining all the necessary information:
+# parameters, working directory, template file , relations and simulation
+# software executable.
 for i in range(len(HeatingRatesTGA)):
-    setups.append(ssetups[i])
+    s = pr.SimulationSetup(name='tga_analysis_02',
+                           work_dir=
+                           "{}_{}K".format(CHID, str(HeatingRatesTGA[
+                                                                 i])),
+                           model_template=template_file,
+                           model_parameter=model_parameter_setups[i],
+                           model_executable='fds653',
+                           relations=r[i])
+
+    setups.append(s)
 
 
 print('** setups generated')
@@ -150,49 +150,11 @@ print('** setups generated')
 # Provide values for optimiser.
 optimiser = pr.OptimiserProperties(algorithm='sceua',
                                    repetitions=150,
-                                   ngs=4,
-                                   # Sub-processes would be used for
-                                   # repetitions of an experiment.
-                                   num_subprocesses=1,
+                                   ngs=len(set_of_parameters),
+                                   # Sub-processes are used here for multiple
+                                   # experimental conditions.
+                                   num_subprocesses=len(HeatingRatesTGA),
                                    mpi=False)
 
 
 print('** input file processed')
-
-
-
-
-
-
-# define empty simulation setup set
-setups = pr.SimulationSetupSet()
-
-# define model-experiment data relation
-r = pr.Relation()
-r.model.file_name = "{}_tga.csv".format(CHID, f)
-r.model.label_x = 'Time'
-r.model.label_y = 'MLR'
-r.model.header_line = 1
-r.experiment.file_name = "tga_experimental_data.csv"
-r.experiment.label_x = 'Time'
-r.experiment.label_y = 'MassLossRate'
-r.experiment.header_line = 0
-
-# define definition set for data comparison
-r.x_def = np.arange(0., TEND, 12)
-
-# create simulation setup object
-template_file = "tga_analysis_01.fds"
-s = pr.SimulationSetup(name='tga_analysis_01',
-                       work_dir='tga_analysis_run_01',
-                       model_template=template_file,
-                       model_parameter=mps0,
-                       model_executable='fds',
-                       relations=r)
-
-# append above object to simulation setup set
-setups.append(s)
-
-# use default values for optimiser
-optimiser = pr.OptimiserProperties(algorithm='sceua',
-                                   repetitions=1000)
