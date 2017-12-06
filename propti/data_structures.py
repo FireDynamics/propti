@@ -4,7 +4,7 @@ import logging
 import copy
 import numpy as np
 import pandas as pd
-
+import subprocess
 import spotpy
 
 from typing import List
@@ -580,6 +580,66 @@ class SimulationSetupSet:
             res += str(s) + "\n"
         res += "\n"
         return res
+
+
+class Version:
+    '''
+      Version class to determine the current version of propti and simulation
+      software in use.
+      TODO : Think whether repr is the correct thing to code instead of str,i.e
+      even though the class rep of the output variable is a 'Version' it does not
+      represent a method by which the class could be initialized.
+    '''
+    def __init__(self):
+        self.flag_propti = 0
+        self.ver_propti = self.propti_versionCall()
+        self.ver_fds = self.fds_versionCall()
+
+    def propti_versionCall(self) -> str:
+        ''' Look for propti-version and print a human readable representation.
+            Print git hash value if no git is present.
+        '''
+        try:
+            ver = subprocess.check_output(["git describe --always"
+                                        ], shell=True).strip().decode("utf-8")
+        except subprocess.CalledProcessError as e:
+            output = e.output
+            self.flag_propti = e.returncode
+        # if git command doesn't exist
+        if self.flag_propti != 0:  # TODO: This is a little hard coded(?)
+            with open('../../.git/refs/heads/master', 'r') as f:
+                ver = f.readline()[:7]
+            f.close()
+        ver = 'PROPTI-' + ver
+        return ver
+
+    def fds_versionCall(self) -> str:  # TODO: must capture errors of any kind ?
+        ''' Look for fds revision by calling fds without parameters
+            and return its revision in use.
+        '''
+        proc = subprocess.Popen(['fds'], shell=True, stdout=subprocess.PIPE,
+                                stderr=subprocess.STDOUT)
+        while True:
+            line = proc.stdout.readline().decode("utf-8")
+            if line[1:9] == 'Revision':
+                ver = line[line.index(':')+2:]
+                break
+        return ver
+
+    def __repr__(self) -> str:
+        string = self.ver_propti + ', ' + self.ver_fds
+        return ('%r') % string
+
+    def __str__(self) -> str:
+        """
+        Pretty print of class values
+        :return: string
+        """
+        return "\nversion\n" \
+               "--------------------\n" \
+               "Propti Version: {}" \
+               "\nFDS Version: {}\n".format(self.ver_propti,
+                                            self.ver_fds)
 
 
 def test_simulation_setup_setup():

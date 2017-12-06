@@ -5,12 +5,12 @@ Created on Wed Nov 30 15:39:13 2016
 @author: thehnen; based on a script from belt
 """
 
-
+import propti as pr
 import numpy as np
 import pandas as pd
 import scipy.signal as sign
 import matplotlib as mpl
-
+from textwrap import wrap
 import matplotlib.pyplot as plt
 
 import re
@@ -36,8 +36,8 @@ mpl.rcParams['text.latex.preamble'] = [r'\usepackage{siunitx}',
 #%%
 
 
-def plot_scatter(data_label, data_frame, plot_title,
-                      file_name=None, y_label=None, skip_lines=1):
+def plot_scatter(data_label, data_frame, plot_title, plot_text,
+                 file_name=None, y_label=None, skip_lines=1):
 
     """
     :param data_label: column label for Pandas data frame
@@ -64,7 +64,6 @@ def plot_scatter(data_label, data_frame, plot_title,
     # Plot the RMSE values.
     fig = plt.figure()
     plt.plot(rmse_values, color='black', marker='.', linestyle='None')
-
     # Finish the plot
     #pl.rcParams['figure.figsize'] = 16, 12
     plt.xlabel('Individuals')
@@ -74,7 +73,10 @@ def plot_scatter(data_label, data_frame, plot_title,
     else:
         plt.ylabel(y_label)
     # Create plot title from file name.
+    #print(type(repr(plot_text)))
     plt.title(plot_title + ' ' + file_name)
+    plt.figtext(0.6, 0.95, repr(plot_text))
+    # plt.title(pr.Version().ver_propti + pr.Version().ver_fds, fontsize=6)
     plt.grid()
 
     # Check if a file name is provided, if it is a file will be
