@@ -110,11 +110,21 @@ for i in range(len(HeatingRatesTGA)):
     relation.model.label_y = 'MLR'
     relation.model.header_line = 1
 
+    # The following parameters are the default values, which have no effect.
+    relation.model.factor = 1  # Allows basic computation, could be used to
+    # calculate heat release rate pr unit area.
+    relation.model.offset = 0  # Add or substract number to shift the data.
+
     # Information on experimental data.
     relation.experiment.file_name = experimental_data_file_list[i]
     relation.experiment.label_x = 'Time'
     relation.experiment.label_y = 'MassLossRate'
     relation.experiment.header_line = 0
+    
+    # The following parameters are the default values, which have no effect.
+    relation.experiment.factor = 1  # Allows basic computation, could be used to
+    # calculate heat release rate pr unit area.
+    relation.experiment.offset = 0  # Add or substract number to shift the data.
 
     # Define definition set for data comparison. Basically providing the
     # amount and position of data points in x-axis, by determining the range
