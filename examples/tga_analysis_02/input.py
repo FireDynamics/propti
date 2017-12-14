@@ -7,6 +7,7 @@
 # taking multiple experiments into account. Thus, multiple simulation setups
 # need to be created.
 
+import numpy as np
 
 # Import just for IDE convenience.
 import propti as pr
@@ -120,7 +121,7 @@ for i in range(len(HeatingRatesTGA)):
     relation.experiment.label_x = 'Time'
     relation.experiment.label_y = 'MassLossRate'
     relation.experiment.header_line = 0
-    
+
     # The following parameters are the default values, which have no effect.
     relation.experiment.factor = 1  # Allows basic computation, could be used to
     # calculate heat release rate pr unit area.
