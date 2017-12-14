@@ -126,6 +126,10 @@ class SpotpySetup(object):
 
         return res
 
+    def objectivefunction(self, simulation, evaluation):
+        objectivefunction = -spotpy.objectivefunctions.rmse(evaluation, simulation)
+        return objectivefunction
+
 
 def run_optimisation(params: ParameterSet,
                      setups: SimulationSetupSet,
@@ -136,15 +140,17 @@ def run_optimisation(params: ParameterSet,
     break_point = 'write'
     if break_file_name.is_file():
         break_point = 'read'
-    # Call the required algorithm
-    try:
-        call_this_algorit = getattr(spotpy.algorithms, opt.algorithm)
-        parallel = 'seq'
-        if opt.mpi:
-            parallel = 'mpi'
-        sampler = call_this_algorit(spot, dbname=opt.db_name,
-                                dbformat=opt.db_type, alt_objfun='rmse',
-                                parallel=parallel, breakpoint=break_point)
+
+    parallel = 'seq'
+    if opt.mpi:
+        parallel = 'mpi'
+    if opt.algorithm == 'sceua':
+        sampler = spotpy.algorithms.sceua(spot,
+                                          dbname=opt.db_name,
+                                          dbformat=opt.db_type,
+                                          alt_objfun='rmse',
+                                          parallel=parallel,
+                                          breakpoint=break_point)
         # Issue #11
         # TODO: OptimizerProperties must provide data if no ngs value has been set 
         # by user
@@ -161,11 +167,15 @@ def run_optimisation(params: ParameterSet,
             params[i].value = sampler.status.params[i]
         for s in setups:
             s.model_parameter.update(params)
-    except AttributeError:
-        logging.critical("unknown algorithm set: {}".format(opt.algorithm))
-        sys.exit()
-
-    return params
+        return params
+    elif opt.algorithm == 'fast':
+        sampler = spotpy.algorithms.fast(spot,
+                                         dbname=opt.db_name,
+                                         dbformat='csv',
+                                         parallel=parallel)
+                                         # alt_objfun='rmse',
+                                         # breakpoint=break_point)
+        results = sampler.sample(opt.repetitions)
 
 
 def test_spotpy_setup():
