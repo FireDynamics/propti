@@ -7,6 +7,7 @@
 # taking multiple experiments into account. Thus, multiple simulation setups
 # need to be created.
 
+import numpy as np
 
 # Import just for IDE convenience.
 import propti as pr

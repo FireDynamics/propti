@@ -1,26 +1,27 @@
 import os
 import pandas as pd
 import pickle
+import logging
+import argparse
+import sys
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 import propti as pr
 import propti.propti_monitor as pm
 import propti.propti_post_processing as ppm
-import logging
-
-import argparse
 
 
 parser = argparse.ArgumentParser()
 parser.add_argument("root_dir", type=str,
-                    help="optimisation root directory")
+                    help="optimisation root directory",
+                    default='.')
 
 parser.add_argument("--run_best",
                     help="run simulation(s) with best parameter set",
                     action="store_true")
 
-parser.add_argument("--plot_like_values",
+parser.add_argument("--plot_fitness_development",
                     help="plot like and values", action="store_true")
 
 parser.add_argument("--calc_stat",
@@ -36,9 +37,19 @@ setups = None  # type: pr.SimulationSetupSet
 ops = None  # type: pr.ParameterSet
 optimiser = None  # type: pr.OptimiserProperties
 
-pickle_finished = os.path.join(cmdl_args.root_dir, 'propti.pickle.finished')
 
-in_file = open(pickle_finished, 'rb')
+# Check if `propti.pickle.finish` exists, else use `propti.pickle.init`.
+# if os.path.isfile(os.path.join(cmdl_args.root_dir, 'propti.pickle.finished')):
+#     pickle_file = os.path.join(cmdl_args.root_dir, 'propti.pickle.finished')
+# elif os.path.isfile(os.path.join(cmdl_args.root_dir, 'propti.pickle.init')):
+#     pickle_file = os.path.join(cmdl_args.root_dir, 'propti.pickle.init')
+# else:
+#     sys.exit("Neither 'propti.pickle.finished' nor 'propti.pickle.init' "
+#              "detected. Script execution stopped.")
+
+pickle_file = os.path.join(cmdl_args.root_dir, 'propti.pickle.init')
+
+in_file = open(pickle_file, 'rb')
 setups, ops, optimiser = pickle.load(in_file)
 in_file.close()
 
@@ -62,13 +73,46 @@ if cmdl_args.run_best:
     print("")
     print("- run simulation(s) of best parameter set")
     print("----------------------")
-    pr.run_best_para(setups, ops, optimiser, pickle_finished)
+    pr.run_best_para(setups, ops, optimiser, pickle_file)
     print("")
     print("")
 
 
 # Scatter plot of RMSE development
-if cmdl_args.plot_like_values:
+if cmdl_args.plot_fitness_development:
+    print("")
+    print("- plot likes and values")
+    print("----------------------")
+    db_file_name = os.path.join(cmdl_args.root_dir,
+                                '{}.{}'.format(optimiser.db_name,
+                                               optimiser.db_type))
+
+    # Extract data to be plotted.
+    cols = ['like1', 'chain']
+    for p in ops:
+        cols.append("par{}".format(p.place_holder))
+    data = pd.read_csv(db_file_name, usecols=cols)
+
+    # Scatter plots of parameter development over the whole run.
+    for c in cols[2:]:
+        pr.plot_scatter(c, data, 'Parameter development', c)
+
+    # Histogram plots of parameters
+    for c in cols[2:]:
+        pr.plot_hist(c, data, 'histogram', y_label=None)
+    pr.plot_scatter('like1', data, 'RMSE', 'Fitness values',
+                    'Root Mean Square Error (RMSE)')
+
+    # Box plot to visualise steps (generations).
+    pr.plot_box_rmse(data, 'RMSE', len(ops), optimiser.ngs, 'Fitness values')
+
+    print("Plots have been created.")
+    print("")
+    print("")
+
+
+# Scatter plot of RMSE development
+if cmdl_args.plot_para_values:
     print("")
     print("- plot likes and values")
     print("----------------------")
@@ -164,7 +208,7 @@ if cmdl_args.plot_best_sim_exp:
                                                optimiser.db_type))
 
     for s in setups:
-        pr.plot_best_sim_exp(s, pickle_finished)
+        pr.plot_best_sim_exp(s, pickle_file)
     print("")
     print("")
 
