@@ -125,10 +125,11 @@ class SpotpySetup(object):
                 index += n
 
         return res
-
+    '''
     def objectivefunction(self, simulation, evaluation):
         objectivefunction = -spotpy.objectivefunctions.rmse(evaluation, simulation)
         return objectivefunction
+    '''
 
 
 def run_optimisation(params: ParameterSet,
@@ -171,9 +172,9 @@ def run_optimisation(params: ParameterSet,
         sampler = spotpy.algorithms.fast(spot,
                                          dbname=opt.db_name,
                                          dbformat='csv',
-                                         parallel=parallel)
-                                         # alt_objfun='rmse',
-                                         # breakpoint=break_point)
+                                         parallel=parallel,
+                                         alt_objfun='rmse',
+                                         breakpoint=break_point)
         results = sampler.sample(opt.repetitions)
 
 
