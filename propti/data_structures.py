@@ -34,6 +34,8 @@ class OptimiserProperties:
         :param algorithm: choose spotpy algorithm, default: sceua,
             range: [sceua]
         :param repetitions: number of sampling repetitions, default: 1
+        :param backup_every: How many repetitions before backup is performed,
+            default: 100
         :param ngs: number of complexes, if None then set to len(para),
             default: None
         :param db_name: name of spotpy database file, default: propti_db
