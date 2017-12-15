@@ -150,7 +150,8 @@ def run_optimisation(params: ParameterSet,
                                           dbformat=opt.db_type,
                                           alt_objfun='rmse',
                                           parallel=parallel,
-                                          breakpoint=break_point)
+                                          breakpoint=break_point,
+                                          backup_every_rep=opt.backup_every)
         # Issue #11
         # TODO: OptimizerProperties must provide data if no ngs value has been 
         # set by user
@@ -174,7 +175,8 @@ def run_optimisation(params: ParameterSet,
                                          dbformat='csv',
                                          parallel=parallel,
                                          alt_objfun='rmse',
-                                         breakpoint=break_point)
+                                         breakpoint=break_point,
+                                         backup_every_rep=opt.backup_every)
         results = sampler.sample(opt.repetitions)
 
 
