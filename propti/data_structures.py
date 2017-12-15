@@ -21,6 +21,7 @@ class OptimiserProperties:
     def __init__(self,
                  algorithm: str = 'sceua',
                  repetitions: int = 1,
+                 backup_every: int = 100,
                  ngs: int = None,  # will be set to len(ops) during
                                    # propti_prepare, if no value is provided
                  db_name: str = 'propti_db',
@@ -51,6 +52,7 @@ class OptimiserProperties:
         """
         self.algorithm = algorithm
         self.repetitions = repetitions
+        self.backup_every = backup_every
         self.ngs = ngs
         self.db_name = db_name
         self.db_type = db_type
@@ -73,12 +75,13 @@ class OptimiserProperties:
         """
         return "\noptimiser properties\n" \
                "--------------------\n" \
-               "alg: {}\nrep: {}\nngs: {}" \
+               "alg: {}\nrep: {}\nrep_backup: {}\nngs: {}" \
                "\ndb_name: {}\ndb_type: {}" \
                "\nexecution mode: {}" \
                "\nnumber of sub-processes: {}" \
                "\nmpi mode: {}\n".format(self.algorithm,
                                          self.repetitions,
+                                         self.backup_every,
                                          self.ngs,
                                          self.db_name,
                                          self.db_type,
