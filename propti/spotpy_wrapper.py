@@ -145,7 +145,7 @@ def run_optimisation(params: ParameterSet,
         sampler = call_this_algorit(spot, 
                                 dbname=opt.db_name,
                                 dbformat=opt.db_type,
-                                db_precision=np.float64,
+                                db_precision=opt.db_precision,
                                 alt_objfun='rmse',
                                 parallel=parallel, 
                                 breakpoint=break_point)
