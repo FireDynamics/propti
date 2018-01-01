@@ -9,28 +9,28 @@ Created on Wed Nov 30 15:39:13 2016
 import numpy as np
 import pandas as pd
 import scipy.signal as sign
-import matplotlib as mpl
+# import matplotlib as mpl
 
 import matplotlib.pyplot as plt
 
 import re
 import os
 
-mpl.use('pdf')
+# mpl.use('pdf')
 
 
 #%%
-
-# Set parameters for the plot which work when the plot is used in a
-# LaTeX document. It is used to provide correct font size and type used
-# in the document.
-mpl.rcParams['text.usetex']=True
-mpl.rcParams['font.size'] = 9
-mpl.rcParams['font.family'] = 'lmodern'
-mpl.rcParams['text.latex.unicode']=True
-mpl.rcParams['text.latex.preamble'] = [r'\usepackage{siunitx}',
-                                       r'\usepackage[T1]{fontenc}',
-                                       r'\usepackage{mathptmx}']
+#
+# # Set parameters for the plot which work when the plot is used in a
+# # LaTeX document. It is used to provide correct font size and type used
+# # in the document.
+# mpl.rcParams['text.usetex']=True
+# mpl.rcParams['font.size'] = 9
+# mpl.rcParams['font.family'] = 'lmodern'
+# mpl.rcParams['text.latex.unicode']=True
+# mpl.rcParams['text.latex.preamble'] = [r'\usepackage{siunitx}',
+#                                        r'\usepackage[T1]{fontenc}',
+#                                        r'\usepackage{mathptmx}']
 
 
 #%%
