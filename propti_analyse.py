@@ -22,6 +22,9 @@ parser.add_argument("--run_best",
                     action="store_true")
 
 parser.add_argument("--plot_fitness_development",
+                    help="Scatter plot of fitness values", action="store_true")
+
+parser.add_argument("--plot_para_values",
                     help="plot like and values", action="store_true")
 
 parser.add_argument("--calc_stat",
