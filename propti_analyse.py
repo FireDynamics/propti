@@ -78,35 +78,28 @@ if cmdl_args.run_best:
     print("")
 
 
-# Scatter plot of RMSE development
 if cmdl_args.plot_fitness_development:
+
+    """
+    Scatter plot of fitness value (RMSE) development. It reads the propti data 
+    base file, based on information stored in the pickle file.
+    """
+
     print("")
-    print("- plot likes and values")
+    print("* Plot fitness values.")
     print("----------------------")
     db_file_name = os.path.join(cmdl_args.root_dir,
                                 '{}.{}'.format(optimiser.db_name,
                                                optimiser.db_type))
 
     # Extract data to be plotted.
-    cols = ['like1', 'chain']
-    for p in ops:
-        cols.append("par{}".format(p.place_holder))
+    cols = ['like1']
     data = pd.read_csv(db_file_name, usecols=cols)
 
     # Scatter plots of parameter development over the whole run.
-    for c in cols[2:]:
-        pr.plot_scatter(c, data, 'Parameter development', c)
+    pr.plot_scatter(cols[0], data, 'Fitness development', cols[0])
 
-    # Histogram plots of parameters
-    for c in cols[2:]:
-        pr.plot_hist(c, data, 'histogram', y_label=None)
-    pr.plot_scatter('like1', data, 'RMSE', 'Fitness values',
-                    'Root Mean Square Error (RMSE)')
-
-    # Box plot to visualise steps (generations).
-    pr.plot_box_rmse(data, 'RMSE', len(ops), optimiser.ngs, 'Fitness values')
-
-    print("Plots have been created.")
+    print("Plot(s) have been created.")
     print("")
     print("")
 
