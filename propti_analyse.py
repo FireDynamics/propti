@@ -118,6 +118,16 @@ if cmdl_args.create_best_input:
     print("Best fitness index: line {}".format(best_fitness_index))
     print("Best fitness value: {}".format(best_fitness_value))
 
+    # Extract the parameter values of the best set.
+    parameter_values = pd.read_csv(db_file_name, usecols=cols)
+    best_parameter_values = []
+    for i in range(len(cols)):
+        new_para_value = parameter_values.at[best_fitness_index, cols[i]]
+        print("{}: {}".format(cols[i], new_para_value))
+        best_parameter_values.append(new_para_value)
+
+
+
     print("")
     print("")
 
