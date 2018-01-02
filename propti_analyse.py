@@ -98,6 +98,7 @@ if cmdl_args.create_best_input:
     print("* Create input file with best parameter set")
     print("----------------------")
     print("Read data base file, please wait.")
+    print("")
 
     # Read data base file name from the pickle file.
     db_file_name = os.path.join(cmdl_args.root_dir,
@@ -126,8 +127,10 @@ if cmdl_args.create_best_input:
         print("{}: {}".format(cols[i], new_para_value))
         best_parameter_values.append(new_para_value)
 
+    template_file = setups[0].model_template
+    print(template_file)
 
-
+    print("Task finished.")
     print("")
     print("")
 
