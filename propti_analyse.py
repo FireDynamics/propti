@@ -94,6 +94,11 @@ if cmdl_args.create_best_input:
     This functionality is focused on the usage of SPOTPY.
     """
 
+    print("")
+    print("* Create input file with best parameter set")
+    print("----------------------")
+    print("Read data base file.")
+
     # Read data base file name from the pickle file.
     db_file_name = os.path.join(cmdl_args.root_dir,
                                 '{}.{}'.format(optimiser.db_name,
@@ -106,12 +111,10 @@ if cmdl_args.create_best_input:
         cols.append("par{}".format(p.place_holder))
 
     # Determine the best fitness value and its position.
-    best_fitness_index = pd.read_csv(db_file_name, usecols=['like1']).idxmax()
-    best_fitness_value = pd.read_csv(db_file_name, usecols=['like1']).max()
+    fitness_values = pd.read_csv(db_file_name, usecols=['like1'])
+    best_fitness_index = fitness_values.idxmax().iloc[0]
+    best_fitness_value = fitness_values.max().iloc[1]
 
-    print("")
-    print("* Create input file with best parameter set")
-    print("----------------------")
     print("Best fitness index: line {}".format(best_fitness_index))
     print("Best fitness value: {}".format(best_fitness_value))
 
