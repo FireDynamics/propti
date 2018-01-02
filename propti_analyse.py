@@ -97,7 +97,7 @@ if cmdl_args.create_best_input:
     print("")
     print("* Create input file with best parameter set")
     print("----------------------")
-    print("Read data base file.")
+    print("Read data base file, please wait.")
 
     # Read data base file name from the pickle file.
     db_file_name = os.path.join(cmdl_args.root_dir,
@@ -113,7 +113,7 @@ if cmdl_args.create_best_input:
     # Determine the best fitness value and its position.
     fitness_values = pd.read_csv(db_file_name, usecols=['like1'])
     best_fitness_index = fitness_values.idxmax().iloc[0]
-    best_fitness_value = fitness_values.max().iloc[1]
+    best_fitness_value = fitness_values.max().iloc[0]
 
     print("Best fitness index: line {}".format(best_fitness_index))
     print("Best fitness value: {}".format(best_fitness_value))
