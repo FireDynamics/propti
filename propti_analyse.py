@@ -17,6 +17,11 @@ parser.add_argument("root_dir", type=str,
                     help="optimisation root directory",
                     default='.')
 
+parser.add_argument("--create_best_input",
+                    help="Creates simulation input file  with "
+                         "best parameter set",
+                    action="store_true")
+
 parser.add_argument("--run_best",
                     help="run simulation(s) with best parameter set",
                     action="store_true")
@@ -62,7 +67,7 @@ if setups is None:
 if ops is None:
     logging.critical("optimisation parameter are not defined")
 
-print(setups, ops, optimiser)
+# print(setups, ops, optimiser)
 
 # TODO: define spotpy db file name in optimiser properties
 # TODO: use placeholder as name? or other way round?
@@ -81,11 +86,45 @@ if cmdl_args.run_best:
     print("")
 
 
+if cmdl_args.create_best_input:
+    """
+    Takes the (up to now) best parameter set from the optimiser data base and 
+    reads the corresponding parameter values. The parameter values are written 
+    into the simulation input file and saved as *_bestpara.file-type.
+    This functionality is focused on the usage of SPOTPY.
+    """
+
+    # Read data base file name from the pickle file.
+    db_file_name = os.path.join(cmdl_args.root_dir,
+                                '{}.{}'.format(optimiser.db_name,
+                                               optimiser.db_type))
+
+    # Collect the parameter names. Change format to match column headers, based
+    # on SPOTPY definition. Store headers in a list.
+    cols = []
+    for p in ops:
+        cols.append("par{}".format(p.place_holder))
+
+    # Determine the best fitness value and its position.
+    best_fitness_index = pd.read_csv(db_file_name, usecols=['like1']).idxmax()
+    best_fitness_value = pd.read_csv(db_file_name, usecols=['like1']).max()
+
+    print("")
+    print("* Create input file with best parameter set")
+    print("----------------------")
+    print("Best fitness index: line {}".format(best_fitness_index))
+    print("Best fitness value: {}".format(best_fitness_value))
+
+    print("")
+    print("")
+
+
 if cmdl_args.plot_fitness_development:
 
     """
     Scatter plot of fitness value (RMSE) development. It reads the propti data 
-    base file, based on information stored in the pickle file.
+    base file, based on information stored in the pickle file. 
+    This functionality is focused on the usage of SPOTPY.
     """
 
     print("")
