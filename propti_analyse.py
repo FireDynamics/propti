@@ -192,13 +192,13 @@ if cmdl_args.plot_para_values:
 
     # Extract data to be plotted.
     # cols = ['like1', 'chain']
-    cols = []
+    cols = ['chain']
     for p in ops:
         cols.append("par{}".format(p.place_holder))
     data = pd.read_csv(db_file_name, usecols=cols)
 
     # Scatter plots of parameter development over the whole run.
-    for c in cols:
+    for c in cols[0:]:
         # Scatter plots of parameter development over the whole run.
         pr.plot_scatter(c, data, 'Parameter development', c)
 
