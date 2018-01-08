@@ -46,6 +46,11 @@ ops = None  # type: pr.ParameterSet
 optimiser = None  # type: pr.OptimiserProperties
 
 
+print("")
+print("* Loading information of the optimisation process.")
+print("----------------------")
+
+
 # Check if `propti.pickle.finish` exists, else use `propti.pickle.init`.
 # if os.path.isfile(os.path.join(cmdl_args.root_dir, 'propti.pickle.finished')):
 #     pickle_file = os.path.join(cmdl_args.root_dir, 'propti.pickle.finished')
@@ -60,6 +65,10 @@ pickle_file = os.path.join(cmdl_args.root_dir, 'propti.pickle.init')
 in_file = open(pickle_file, 'rb')
 setups, ops, optimiser = pickle.load(in_file)
 in_file.close()
+
+
+print("Loading complete.")
+
 
 if setups is None:
     logging.critical("simulation setups are not defined")
@@ -155,7 +164,10 @@ if cmdl_args.plot_fitness_development:
     data = pd.read_csv(db_file_name, usecols=cols)
 
     # Scatter plots of parameter development over the whole run.
-    pr.plot_scatter(cols[0], data, 'Fitness development', cols[0])
+    pr.plot_scatter(cols[0],
+                    data,
+                    'Fitness development',
+                    'FitnessDevelopment')
 
     print("Plot(s) have been created.")
     print("")
@@ -164,6 +176,13 @@ if cmdl_args.plot_fitness_development:
 
 # Scatter plot of RMSE development
 if cmdl_args.plot_para_values:
+    """
+    Creates scatter plots of the development of each parameter over the 
+    optimisation process. It reads the propti data 
+    base file, based on information stored in the pickle file. 
+    This functionality is focused on the usage of SPOTPY.
+    """
+
     print("")
     print("- plot likes and values")
     print("----------------------")
@@ -172,20 +191,26 @@ if cmdl_args.plot_para_values:
                                                optimiser.db_type))
 
     # Extract data to be plotted.
-    cols = ['like1', 'chain']
+    # cols = ['like1', 'chain']
+    cols = []
     for p in ops:
         cols.append("par{}".format(p.place_holder))
     data = pd.read_csv(db_file_name, usecols=cols)
 
     # Scatter plots of parameter development over the whole run.
-    for c in cols[2:]:
+    for c in cols:
+        # Scatter plots of parameter development over the whole run.
         pr.plot_scatter(c, data, 'Parameter development', c)
 
-    # Histogram plots of parameters
-    for c in cols[2:]:
+        # Histogram plots of parameters
         pr.plot_hist(c, data, 'histogram', y_label=None)
-    pr.plot_scatter('like1', data, 'RMSE', 'Fitness values',
-                    'Root Mean Square Error (RMSE)')
+
+
+    # Histogram plots of parameters
+    # for c in cols:
+    #     pass
+    # pr.plot_scatter('like1', data, 'RMSE', 'Fitness values',
+    #                 'Root Mean Square Error (RMSE)')
 
     # Box plot to visualise steps (generations).
     pr.plot_box_rmse(data, 'RMSE', len(ops), optimiser.ngs, 'Fitness values')
