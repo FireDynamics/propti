@@ -191,26 +191,24 @@ if cmdl_args.plot_para_values:
                                                optimiser.db_type))
 
     # Extract data to be plotted.
-    # cols = ['like1', 'chain']
-    cols = ['chain']
+    cols = ['like1', 'chain']
     for p in ops:
         cols.append("par{}".format(p.place_holder))
     data = pd.read_csv(db_file_name, usecols=cols)
 
     # Scatter plots of parameter development over the whole run.
-    for c in cols[0:]:
+    for c in cols[2:]:
         # Scatter plots of parameter development over the whole run.
         pr.plot_scatter(c, data, 'Parameter development', c)
 
         # Histogram plots of parameters
+        # TODO: adjust declaration, filename not necessary
         pr.plot_hist(c, data, 'histogram', y_label=None)
 
+    # Scatter plot of fitness values.
+    pr.plot_scatter('like1', data, 'RMSE', 'Fitness values',
+                    'Root Mean Square Error (RMSE)')
 
-    # Histogram plots of parameters
-    # for c in cols:
-    #     pass
-    # pr.plot_scatter('like1', data, 'RMSE', 'Fitness values',
-    #                 'Root Mean Square Error (RMSE)')
 
     # Box plot to visualise steps (generations).
     pr.plot_box_rmse(data, 'RMSE', len(ops), optimiser.ngs, 'Fitness values')
