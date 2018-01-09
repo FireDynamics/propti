@@ -11,6 +11,7 @@ import propti as pr
 import propti.propti_monitor as pm
 import propti.propti_post_processing as ppm
 
+# TODO: Create subdirectory for process analysis and plots automatically.
 
 parser = argparse.ArgumentParser()
 parser.add_argument("root_dir", type=str,
@@ -202,8 +203,7 @@ if cmdl_args.plot_para_values:
         pr.plot_scatter(c, data, 'Parameter development', c)
 
         # Histogram plots of parameters
-        # TODO: adjust declaration, filename not necessary
-        pr.plot_hist(c, data, 'histogram', y_label=None)
+        pr.plot_hist(c, data, y_label=None)
 
     # Scatter plot of fitness values.
     pr.plot_scatter('like1', data, 'RMSE', 'Fitness values',
