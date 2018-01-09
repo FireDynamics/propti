@@ -5,6 +5,8 @@ import logging
 import argparse
 import sys
 
+import propti.basic_functions as pbf
+
 # import matplotlib.pyplot as plt
 
 import propti as pr
@@ -51,7 +53,6 @@ print("")
 print("* Loading information of the optimisation process.")
 print("----------------------")
 
-
 # Check if `propti.pickle.finish` exists, else use `propti.pickle.init`.
 # if os.path.isfile(os.path.join(cmdl_args.root_dir, 'propti.pickle.finished')):
 #     pickle_file = os.path.join(cmdl_args.root_dir, 'propti.pickle.finished')
@@ -66,7 +67,6 @@ pickle_file = os.path.join(cmdl_args.root_dir, 'propti.pickle.init')
 in_file = open(pickle_file, 'rb')
 setups, ops, optimiser = pickle.load(in_file)
 in_file.close()
-
 
 print("Loading complete.")
 
@@ -139,6 +139,9 @@ if cmdl_args.create_best_input:
 
     template_file = setups[0].model_template
     print(template_file)
+
+    pbf.write_input_file(template_file, 'best_para.fds')
+    print("Simulation input file with best parameter set written.")
 
     print("Task finished.")
     print("")

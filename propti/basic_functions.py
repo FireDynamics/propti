@@ -56,6 +56,13 @@ def create_input_file(setup: SimulationSetup, work_dir='execution'):
 
 
 def write_input_file(content: str, filename: os.path):
+    """
+
+    :param content: Information that shall be written into a file, expected
+        to be string.
+    :param filename: File name of the new file.
+    :return: File written to specified location.
+    """
     try:
         outfile = open(filename, 'w')
     except OSError as err:
