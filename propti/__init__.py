@@ -1,15 +1,3 @@
-from .spotpy_wrapper import run_optimisation, create_input_file
-from .data_structures import Parameter, ParameterSet, \
-    SimulationSetupSet, SimulationSetup, Relation, DataSource, \
-    OptimiserProperties, Version
-from .basic_functions import run_simulations
-from .propti_post_processing import run_best_para
-
-from .propti_monitor import plot_scatter, plot_box_rmse
-from .propti_post_processing import run_best_para, plot_hist, \
-    calc_pearson_coefficient, collect_best_para_multi, plot_best_sim_exp
-from .propti_pre_processing import interpolate_lists
-
 import logging
 
 #########
@@ -33,6 +21,21 @@ console.setFormatter(formatter)
 
 # add the handler to the root logger
 logging.getLogger('').addHandler(console)
+
+########
+# PROPTI AND SPOTPY
+
+from .spotpy_wrapper import run_optimisation, create_input_file
+from .data_structures import Parameter, ParameterSet, \
+    SimulationSetupSet, SimulationSetup, Relation, DataSource, \
+    OptimiserProperties
+from .basic_functions import run_simulations
+from .propti_post_processing import run_best_para
+
+from .propti_monitor import plot_scatter, plot_box_rmse
+from .propti_post_processing import run_best_para, plot_hist, \
+    calc_pearson_coefficient, collect_best_para_multi, plot_best_sim_exp
+from .propti_pre_processing import interpolate_lists
 
 ###########
 # CONSTANTS
