@@ -25,6 +25,7 @@ class OptimiserProperties:
                                    # propti_prepare, if no value is provided
                  db_name: str = 'propti_db',
                  db_type: str = 'csv',
+                 db_precision = np.float64,
                  num_subprocesses: int = 1,
                  mpi: bool = False):
         """
@@ -37,6 +38,8 @@ class OptimiserProperties:
             default: None
         :param db_name: name of spotpy database file, default: propti_db
         :param db_type: type of database, default: csv, range: [csv]
+        :param db_precision: desired precision of the values to be written into 
+            the data base, default: np.float64
         :param num_subprocesses: Used to set the number of sub processes
             that need to be run for each task.
             For example, when three experiments with different
@@ -54,6 +57,7 @@ class OptimiserProperties:
         self.ngs = ngs
         self.db_name = db_name
         self.db_type = db_type
+        self.db_precision = db_precision
 
         self.num_subprocesses = num_subprocesses
         if num_subprocesses < 1:
@@ -87,6 +91,7 @@ class OptimiserProperties:
                "--------------------\n" \
                "alg: {}\nrep: {}\nngs: {}" \
                "\ndb_name: {}\ndb_type: {}" \
+               "\ndb_precision: {}" \
                "\nexecution mode: {}" \
                "\nnumber of sub-processes: {}" \
                "\nmpi mode: {}\n".format(self.algorithm,
@@ -94,6 +99,7 @@ class OptimiserProperties:
                                          self.ngs,
                                          self.db_name,
                                          self.db_type,
+                                         self.db_precision,
                                          self.execution_mode,
                                          self.num_subprocesses,
                                          self.mpi)
