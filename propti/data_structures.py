@@ -71,15 +71,15 @@ class OptimiserProperties:
         self.mpi = mpi
 
     def upgrade(self) -> List:
-        """ Upgrade method updates object if pickle file is of older version.
-        Returns list of missing parameters.
+        """ Upgrade method updates object instance with default values,
+            if pickle file is of older version.
+            Returns list of missing parameters.
         """
-        missing_attr = [x for x in OptimiserProperties().__dict__.keys()
+        default_constr = OptimiserProperties()
+        missing_attr = [x for x in default_constr.__dict__.keys()
                         if x not in self.__dict__.keys()]
-        print(missing_attr)
-        new_constr = OptimiserProperties()
         for x in missing_attr:
-            self.__dict__[x] = new_constr.__dict__[x]
+            self.__dict__[x] = default_constr.__dict__[x]
         return missing_attr
 
     def __str__(self) -> str:
@@ -161,10 +161,16 @@ class Parameter:
         pass
 
     def upgrade(self) -> List:
-        """ Upgrade method updates object if pickle file is of older version.
+        """ Upgrade method updates object instance with default values,
+            if pickle file is of older version.
             Returns list of missing parameters.
         """
-        return []
+        default_constr = Parameter()
+        missing_attr = [x for x in default_constr.__dict__.keys()
+                        if x not in self.__dict__.keys()]
+        for x in missing_attr:
+            self.__dict__[x] = default_constr.__dict__[x]
+        return missing_attr
 
     def __str__(self) -> str:
         """
@@ -200,10 +206,18 @@ class ParameterSet:
                 self.parameters.append(copy.deepcopy(p))
 
     def upgrade(self) -> List:
-        """ Upgrade method updates object if pickle file is of older version
-        Returns list of missing parameters.
+        """ Upgrade method updates object instance with default values,
+            if pickle file is of older version.
+            Returns list of missing parameters.
+            !! CAREFUL !! Since lists like params will be init as [],
+            it may not cause unrecognised consequences.
         """
-        return []
+        default_constr = ParameterSet()
+        missing_attr = [x for x in default_constr.__dict__.keys()
+                        if x not in self.__dict__.keys()]
+        for x in missing_attr:
+            self.__dict__[x] = default_constr.__dict__[x]
+        return missing_attr
 
     def update(self, other: 'ParameterSet'):
         """
@@ -525,10 +539,16 @@ class SimulationSetup:
         self.id = None
 
     def upgrade(self) -> List:
-        """ Upgrade method updates object if pickle file is of older version.
-        Returns list of missing parameters.
+        """ Upgrade method updates object instance with default values,
+            if pickle file is of older version.
+            Returns list of missing parameters.
         """
-        return []
+        default_constr = SimulationSetup()
+        missing_attr = [x for x in default_constr.__dict__.keys()
+                        if x not in self.__dict__.keys()]
+        for x in missing_attr:
+            self.__dict__[x] = default_constr.__dict__[x]
+        return missing_attr
 
     def __str__(self) -> str:
         """
@@ -547,7 +567,7 @@ class SimulationSetup:
 
 class SimulationSetupSet:
     """
-    Cointainer class for SimulationSetup objects.
+    Container class for SimulationSetup objects.
     """
 
     def __init__(self,
@@ -572,7 +592,18 @@ class SimulationSetupSet:
         self.next_id = 0
 
     def upgrade(self) -> List:
-        return []
+        """ Upgrade method updates object instance with default values,
+            if pickle file is of older version.
+            Returns list of missing parameters.
+            !! Careful !! Since lists like SimulationSetupc will be init as [],
+            it may cause unrecognised consequences.
+        """
+        default_constr = SimulationSetupSet()
+        missing_attr = [x for x in default_constr.__dict__.keys()
+                        if x not in self.__dict__.keys()]
+        for x in missing_attr:
+            self.__dict__[x] = default_constr.__dict__[x]
+        return missing_attr
 
     def __len__(self) -> int:
         """

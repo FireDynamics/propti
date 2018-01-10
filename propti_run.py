@@ -30,9 +30,9 @@ dict_of_upgrades = {}
 if ver.ver_propti != pr.Version().ver_propti:
     temp = setups.upgrade()
     dict_of_upgrades["setups"] = temp
-    list_of_upgrades += ops.upgrade()
+    temp = ops.upgrade()
     dict_of_upgrades["ops"] = temp
-    list_of_upgrades += optimiser.upgrade()
+    temp = optimiser.upgrade()
     dict_of_upgrades["optimiser"] = temp
     ver = pr.Version()
     logging.warning("Pickle init file is old. Upgrading...")
@@ -41,7 +41,7 @@ if ver.ver_propti != pr.Version().ver_propti:
     # Create new pickle file
     out_file = open('new_propti.pickle.init', 'wb')
     pickle.dump((ver, setups, ops, optimiser), out_file)
-    outfile.close()
+    out_file.close()
 
 if ver.flag_propti != 0:
     logging.warning("No git. Propti version is represented as a hash.")
