@@ -24,6 +24,25 @@ in_file = open('propti.pickle.init', 'rb')
 ver, setups, ops, optimiser = pickle.load(in_file)
 in_file.close()
 
+# check if propti version is same as in pickle file
+# else upgrade files to new values using defaults.
+dict_of_upgrades = {}
+if ver.ver_propti != pr.Version().ver_propti:
+    temp = setups.upgrade()
+    dict_of_upgrades["setups"] = temp
+    list_of_upgrades += ops.upgrade()
+    dict_of_upgrades["ops"] = temp
+    list_of_upgrades += optimiser.upgrade()
+    dict_of_upgrades["optimiser"] = temp
+    ver = pr.Version()
+    logging.warning("Pickle init file is old. Upgrading...")
+    logging.warning("Optimization run with defaults for missing parameters.")
+    logging.warning("Following data was upgraded: " + str(dict_of_upgrades))  # TODO: pPRINT?
+    # Create new pickle file
+    out_file = open('new_propti.pickle.init', 'wb')
+    pickle.dump((ver, setups, ops, optimiser), out_file)
+    outfile.close()
+
 if ver.flag_propti != 0:
     logging.warning("No git. Propti version is represented as a hash.")
 if ops is None:

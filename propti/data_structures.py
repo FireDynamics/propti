@@ -66,6 +66,18 @@ class OptimiserProperties:
 
         self.mpi = mpi
 
+    def upgrade(self) -> List:
+        """ Upgrade method updates object if pickle file is of older version.
+        Returns list of missing parameters.
+        """
+        missing_attr = [x for x in OptimiserProperties().__dict__.keys()
+                        if x not in self.__dict__.keys()]
+        print(missing_attr)
+        new_constr = OptimiserProperties()
+        for x in missing_attr:
+            self.__dict__[x] = new_constr.__dict__[x]
+        return missing_attr
+
     def __str__(self) -> str:
         """
         Pretty print of (major) class values
@@ -142,6 +154,12 @@ class Parameter:
     def create_spotpy_parameter(self):
         pass
 
+    def upgrade(self) -> List:
+        """ Upgrade method updates object if pickle file is of older version.
+            Returns list of missing parameters.
+        """
+        return []
+
     def __str__(self) -> str:
         """
         Creates string with parameter info.
@@ -174,6 +192,12 @@ class ParameterSet:
         if params:
             for p in params:
                 self.parameters.append(copy.deepcopy(p))
+
+    def upgrade(self) -> List:
+        """ Upgrade method updates object if pickle file is of older version
+        Returns list of missing parameters.
+        """
+        return []
 
     def update(self, other: 'ParameterSet'):
         """
@@ -494,6 +518,12 @@ class SimulationSetup:
 
         self.id = None
 
+    def upgrade(self) -> List:
+        """ Upgrade method updates object if pickle file is of older version.
+        Returns list of missing parameters.
+        """
+        return []
+
     def __str__(self) -> str:
         """
         Creates a string with the major simulation setup information.
@@ -534,6 +564,9 @@ class SimulationSetupSet:
         else:
             self.setups = []  # type: List[SimulationSetup]
         self.next_id = 0
+
+    def upgrade(self) -> List:
+        return []
 
     def __len__(self) -> int:
         """
