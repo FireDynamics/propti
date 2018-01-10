@@ -84,7 +84,7 @@ if cmdl_args.plot_like_values:
 
     # Scatter plots of parameter development over the whole run.
     for c in cols[2:]:
-        pr.plot_scatter(c, data, 'Parameter development', file_name=c, plot_text=ver)
+        pr.plot_scatter(c, data, 'Parameter development', file_name=c)
 
     # Histogram plots of parameters
     for c in cols[2:]:
