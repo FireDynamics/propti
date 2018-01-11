@@ -664,6 +664,7 @@ class Version:
         self.flag_propti = 0
         self.ver_propti = self.propti_versionCall()
         self.ver_fds = self.fds_versionCall()
+        self.ver_spotpy = spotpy.__version__
 
     def propti_versionCall(self) -> str:
         ''' Look for propti-version and print a human readable representation.
@@ -707,9 +708,11 @@ class Version:
         """
         return "\nversion\n" \
                "--------------------\n" \
-               "Propti Version: {}" \
-               "\nFDS Version: {}\n".format(self.ver_propti,
-                                            self.ver_fds)
+               "Propti Version: \t{}\n" \
+               "Spotpy Version: \t{}\n"\
+               "FDS Version:\t\t{}".format(self.ver_propti,
+                                             self.ver_spotpy,
+                                             self.ver_fds)
 
 
 def test_simulation_setup_setup():
