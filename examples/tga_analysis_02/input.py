@@ -105,8 +105,7 @@ for i in range(len(HeatingRatesTGA)):
     # Initialise a relation.
     relation = pr.Relation()
     # Information on simulation data.
-    relation.model.file_name = "{}_{}K_tga.csv".format(CHID,
-                                                       str(HeatingRatesTGA[i]))
+    relation.model.file_name = "{}_tga.csv".format(CHID)
     relation.model.label_x = 'Time'
     relation.model.label_y = 'MLR'
     relation.model.header_line = 1
