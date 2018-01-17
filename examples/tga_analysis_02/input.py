@@ -147,7 +147,7 @@ for i in range(len(HeatingRatesTGA)):
 
 print('** setups generated')
 
-"""
+
 # Provide values for optimiser.
 optimiser = pr.OptimiserProperties(algorithm='sceua',
                                    repetitions=150,
@@ -163,7 +163,7 @@ print('** input file processed')
 
 
 
-
+"""
 
 # define empty simulation setup set
 setups = pr.SimulationSetupSet()
