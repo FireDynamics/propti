@@ -126,7 +126,7 @@ ssetups = []
 for i in range(len(HeatingRatesTGA)):
     s = pr.SimulationSetup(name='tga_analysis_02',
                            work_dir=
-                           "{}_{}K_tga.csv".format(CHID, str(HeatingRatesTGA[
+                           "{}_{}K_tga".format(CHID, str(HeatingRatesTGA[
                                                                  i])),
                            model_template=template_file,
                            model_parameter=mps0,
@@ -147,7 +147,7 @@ for i in range(len(HeatingRatesTGA)):
 
 print('** setups generated')
 
-
+"""
 # Provide values for optimiser.
 optimiser = pr.OptimiserProperties(algorithm='sceua',
                                    repetitions=150,
@@ -197,3 +197,4 @@ setups.append(s)
 # use default values for optimiser
 optimiser = pr.OptimiserProperties(algorithm='sceua',
                                    repetitions=1000)
+"""
