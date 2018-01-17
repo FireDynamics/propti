@@ -170,7 +170,7 @@ setups = pr.SimulationSetupSet()
 
 # define model-experiment data relation
 r = pr.Relation()
-r.model.file_name = "{}_tga.csv".format(CHID, f)
+r.model.file_name = "{}_tga.csv".format(CHID)
 r.model.label_x = 'Time'
 r.model.label_y = 'MLR'
 r.model.header_line = 1
@@ -183,9 +183,9 @@ r.experiment.header_line = 0
 r.x_def = np.arange(0., TEND, 12)
 
 # create simulation setup object
-template_file = "tga_analysis_01.fds"
-s = pr.SimulationSetup(name='tga_analysis_01',
-                       work_dir='tga_analysis_run_01',
+template_file = "tga_analysis_02.fds"
+s = pr.SimulationSetup(name='tga_analysis_02',
+                       work_dir='tga_analysis_run_02',
                        model_template=template_file,
                        model_parameter=mps0,
                        model_executable='fds',
