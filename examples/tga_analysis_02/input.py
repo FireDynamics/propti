@@ -98,8 +98,7 @@ for i in range(len(HeatingRatesTGA)):
     # Initialise a relation.
     relation = pr.Relation()
     # Information on simulation data.
-    relation.model.file_name = "{}_{}K_tga.csv".format(CHID,
-                                                       str(HeatingRatesTGA[i]))
+    relation.model.file_name = "{}_tga.csv".format(CHID)
     relation.model.label_x = 'Time'
     relation.model.label_y = 'MLR'
     relation.model.header_line = 1
@@ -159,42 +158,3 @@ optimiser = pr.OptimiserProperties(algorithm='sceua',
 
 
 print('** input file processed')
-
-
-
-
-"""
-
-# define empty simulation setup set
-setups = pr.SimulationSetupSet()
-
-# define model-experiment data relation
-r = pr.Relation()
-r.model.file_name = "{}_tga.csv".format(CHID)
-r.model.label_x = 'Time'
-r.model.label_y = 'MLR'
-r.model.header_line = 1
-r.experiment.file_name = "tga_experimental_data.csv"
-r.experiment.label_x = 'Time'
-r.experiment.label_y = 'MassLossRate'
-r.experiment.header_line = 0
-
-# define definition set for data comparison
-r.x_def = np.arange(0., TEND, 12)
-
-# create simulation setup object
-template_file = "tga_analysis_02.fds"
-s = pr.SimulationSetup(name='tga_analysis_02',
-                       work_dir='tga_analysis_run_02',
-                       model_template=template_file,
-                       model_parameter=mps0,
-                       model_executable='fds',
-                       relations=r)
-
-# append above object to simulation setup set
-setups.append(s)
-
-# use default values for optimiser
-optimiser = pr.OptimiserProperties(algorithm='sceua',
-                                   repetitions=1000)
-"""
