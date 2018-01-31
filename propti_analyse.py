@@ -39,7 +39,7 @@ optimiser = None  # type: pr.OptimiserProperties
 pickle_finished = os.path.join(cmdl_args.root_dir, 'propti.pickle.finished')
 
 in_file = open(pickle_finished, 'rb')
-setups, ops, optimiser = pickle.load(in_file)
+ver, setups, ops, optimiser = pickle.load(in_file)
 in_file.close()
 
 if setups is None:
@@ -48,7 +48,7 @@ if setups is None:
 if ops is None:
     logging.critical("optimisation parameter are not defined")
 
-print(setups, ops, optimiser)
+print(ver, setups, ops, optimiser)
 
 # TODO: define spotpy db file name in optimiser properties
 # TODO: use placeholder as name? or other way round?
@@ -84,7 +84,7 @@ if cmdl_args.plot_like_values:
 
     # Scatter plots of parameter development over the whole run.
     for c in cols[2:]:
-        pr.plot_scatter(c, data, 'Parameter development', c)
+        pr.plot_scatter(c, data, 'Parameter development', file_name=c)
 
     # Histogram plots of parameters
     for c in cols[2:]:

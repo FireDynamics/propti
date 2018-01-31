@@ -142,12 +142,16 @@ def run_optimisation(params: ParameterSet,
         parallel = 'seq'
         if opt.mpi:
             parallel = 'mpi'
-        sampler = call_this_algorit(spot, dbname=opt.db_name,
-                                dbformat=opt.db_type, alt_objfun='rmse',
-                                parallel=parallel, breakpoint=break_point)
+        sampler = call_this_algorit(spot, 
+                                dbname=opt.db_name,
+                                dbformat=opt.db_type,
+                                db_precision=opt.db_precision,
+                                alt_objfun='rmse',
+                                parallel=parallel, 
+                                breakpoint=break_point)
         # Issue #11
-        # TODO: OptimizerProperties must provide data if no ngs value has been set 
-        # by user
+        # TODO: OptimizerProperties must provide data if no ngs value has been 
+        # set by user
         ngs = opt.ngs
         if not ngs:
             ngs = len(params)
@@ -162,7 +166,7 @@ def run_optimisation(params: ParameterSet,
         for s in setups:
             s.model_parameter.update(params)
     except AttributeError:
-        logging.critical("unknown algorithm set: {}".format(opt.algorithm))
+        logging.critical("* Unknown algorithm set: {}".format(opt.algorithm))
         sys.exit()
 
     return params
