@@ -37,13 +37,14 @@ import os
 
 
 def plot_scatter(data_label, data_frame, plot_title,
-                      file_name=None, y_label=None, skip_lines=1):
+                 file_name=None, file_path=None, y_label=None, skip_lines=1):
 
     """
     :param data_label: column label for Pandas data frame
     :param data_frame: name of the Pandas data frame
     :param plot_title: title of the plot
-    :param file_name: name of the created PDF-file
+    :param file_name: name of the PDF-file to be created
+    :param file_path: path to the location where the file shall be written
     :param y_label: label for the y-axis, default: data_label
     :param skip_lines: used to create plots while omitting the first lines
                        of the data frame
@@ -66,22 +67,26 @@ def plot_scatter(data_label, data_frame, plot_title,
     plt.plot(rmse_values, color='black', marker='.', linestyle='None')
 
     # Finish the plot
-    #pl.rcParams['figure.figsize'] = 16, 12
+    # pl.rcParams['figure.figsize'] = 16, 12
     plt.xlabel('Individuals')
 
     if y_label is None:
         plt.ylabel(data_label)
     else:
         plt.ylabel(y_label)
-    # Create plot title from file name.
-    plt.title(plot_title + ' ' + file_name)
+
+    plt.title(plot_title)
+
     plt.grid()
 
     # Check if a file name is provided, if it is a file will be
     # created.
     if file_name is not None:
-        new_path = os.path.join(file_name + '_scatter.pdf')
+        if file_path is not None:
 
+            new_path = os.path.join(file_path, file_name + '_scatter.pdf')
+        else:
+            new_path = os.path.join(file_name + '_scatter.pdf')
         plt.savefig(new_path)
     plt.close(fig)
 
@@ -165,8 +170,22 @@ def plot_scatter(data_label, data_frame, plot_title,
 #     print("")
 
 
-def plot_box_rmse(df_name, plot_title,
-                  para_to_optimise, num_complex, file_name = None):
+def plot_box_rmse(df_name, plot_title, para_to_optimise,
+                  num_complex, file_name=None, file_path=None):
+
+    """
+    Create a collection of box plots, one for each generation of the sceua.
+    Aimed to better visualise the fitness value development over the inverse
+    modelling process (IMP). It is tailored to the SCEUA from the Spotpy package
+    :param df_name: name of the Pandas data frame
+    :param plot_title: title of the plot
+    :param para_to_optimise: number of parameters of the IMP
+    :param num_complex: number of complexes of the IMP, using Spotpy SCEUA
+    :param file_name: name of the PDF-file to be created
+    :param file_path: path to the location where the file shall be written
+    :return: creates a plot and saves it as PDF-file
+    """
+
     # Message to indicate that the plotting process has started.
     n_plots = 1
     print("")
@@ -235,20 +254,18 @@ def plot_box_rmse(df_name, plot_title,
     # Set values for the x-ticks.
     plt.xticks(range(generations + 1),
                x_tick_labels, rotation='horizontal')
-    plt.xlabel('Generations')
+    plt.xlabel('Generations ({} individuals each)'.format(generation_size))
     plt.ylabel('Root Mean Square Error (RMSE)')
     # Create plot title from file name.
-    plt.title(plot_title + ' ' + file_name)
+    plt.title(plot_title)
     plt.grid()
 
-    # Check if a file name is provided, if not a file will be created.
-    if not file_name is None:
-        new_path = os.path.join(file_name + '_boxplot.pdf')
+    if file_name is not None:
+        if file_path is not None:
 
-        # Debugging:
-        #print 'save path:'
-        #print new_path
-        # Save plot.
+            new_path = os.path.join(file_path, file_name + '_boxplot.pdf')
+        else:
+            new_path = os.path.join(file_name + '_boxplot.pdf')
         plt.savefig(new_path)
     plt.close(multi_plot)
 

@@ -127,12 +127,22 @@ def plot_template(exp_data, sim_data, legend_labels=None,
     pass
 
 
-def plot_hist(data_label, data_frame, bin_num=100, y_label=None):
+def plot_hist(data_label, data_frame, plot_title, file_name, file_path,
+              bin_num=100,
+              y_label=None):
 
     """
+    Creates histogram plots for a given data series. Used to create
+    histograms for each parameter over the whole inverse modelling process.
+
+    * This is only a test, to figure out if this procedure helps to gain a
+    * better insight
 
     :param data_label: label of the parameter (column label for pandas)
     :param data_frame: pandas data frame in which to look for the column
+    :param plot_title: title of the plot
+    :param file_name: name of the created PDF-file
+    :param file_path: path to the location where the file shall be written
     :param bin_num: number of bins for the histogram, default: 100
     :param y_label: label for the y-axis, default: data_label
     :return: saves histogram plot as PDF-file
@@ -150,9 +160,15 @@ def plot_hist(data_label, data_frame, bin_num=100, y_label=None):
     else:
         plt.ylabel(y_label)
 
-    # target_path = os.path.join(file_name + '_' + data_label + '.pdf')
-    target_path = os.path.join(data_label + '_histogram.pdf')
-    plt.savefig(target_path)
+    plt.title(plot_title)
+
+    if file_name is not None:
+        if file_path is not None:
+
+            new_path = os.path.join(file_path, file_name + '_histogram.pdf')
+        else:
+            new_path = os.path.join(file_name + '_histogram.pdf')
+        plt.savefig(new_path)
     plt.close()
 
 

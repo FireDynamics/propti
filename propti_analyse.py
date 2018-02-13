@@ -49,6 +49,27 @@ ops = None  # type: pr.ParameterSet
 optimiser = None  # type: pr.OptimiserProperties
 
 
+def check_directory(dir_list):
+    """
+    Take a list of directory names (strings) and attach them to the root
+    path. Check if this path exists, if not create it.
+    :param dir_list: List containing the directory names, as string.
+    :return: New file path, based on files root and user input.
+    """
+
+    # Set up new path.
+    new_dir = os.path.join(cmdl_args.root_dir)
+    for i in dir_list:
+        new_dir = os.path.join(new_dir, i)
+
+    # Check if the new path exists, otherwise create it.
+    if not os.path.exists(new_dir):
+        os.makedirs(new_dir)
+
+    # Return new path for further usage.
+    return new_dir
+
+
 print("")
 print("* Loading information of the optimisation process.")
 print("----------------------")
@@ -163,15 +184,17 @@ if cmdl_args.plot_fitness_development:
                                 '{}.{}'.format(optimiser.db_name,
                                                optimiser.db_type))
 
+    # Check if a directory for the result files exists. If not create it.
+    results_dir = check_directory(['Analysis', 'Plots', 'Scatter'])
+
     # Extract data to be plotted.
     cols = ['like1']
     data = pd.read_csv(db_file_name, usecols=cols)
 
     # Scatter plots of parameter development over the whole run.
-    pr.plot_scatter(cols[0],
-                    data,
-                    'Fitness development',
-                    'FitnessDevelopment')
+    pr.plot_scatter(cols[0], data,
+                    'Fitness value development', 'FitnessDevelopment',
+                    results_dir, 'Root Mean Square Error (RMSE)')
 
     print("Plot(s) have been created.")
     print("")
@@ -188,11 +211,16 @@ if cmdl_args.plot_para_values:
     """
 
     print("")
-    print("- plot likes and values")
+    print("* Plot likes and values.")
     print("----------------------")
     db_file_name = os.path.join(cmdl_args.root_dir,
                                 '{}.{}'.format(optimiser.db_name,
                                                optimiser.db_type))
+
+    # Check if a directory for the result files exists. If not create it.
+    results_dir_scatter = check_directory(['Analysis', 'Plots', 'Scatter'])
+    results_dir_boxplot = check_directory(['Analysis', 'Plots', 'Boxplot'])
+    results_dir_histogram = check_directory(['Analysis', 'Plots', 'Histogram'])
 
     # Extract data to be plotted.
     cols = ['like1', 'chain']
@@ -203,18 +231,23 @@ if cmdl_args.plot_para_values:
     # Scatter plots of parameter development over the whole run.
     for c in cols[2:]:
         # Scatter plots of parameter development over the whole run.
-        pr.plot_scatter(c, data, 'Parameter development', c)
+        pr.plot_scatter(c, data, 'Parameter development: ' + c, c,
+                        results_dir_scatter)
 
         # Histogram plots of parameters
-        pr.plot_hist(c, data, y_label=None)
+        pr.plot_hist(c, data, 'Histogram per generation for: ' + c,
+                     c, results_dir_histogram, y_label=None)
 
     # Scatter plot of fitness values.
-    pr.plot_scatter('like1', data, 'RMSE', 'Fitness values',
+    pr.plot_scatter('like1', data, 'Fitness value development',
+                    'FitnessDevelopment', results_dir_scatter,
                     'Root Mean Square Error (RMSE)')
 
-
     # Box plot to visualise steps (generations).
-    pr.plot_box_rmse(data, 'RMSE', len(ops), optimiser.ngs, 'Fitness values')
+    pr.plot_box_rmse(data, 'Fitness values, histogram per step (generation)',
+                     len(ops),
+                     optimiser.ngs,
+                     'FitnessDevelopment', results_dir_boxplot)
 
     print("Plots have been created.")
     print("")
@@ -288,4 +321,3 @@ if cmdl_args.plot_best_sim_exp:
         pr.plot_best_sim_exp(s, pickle_file)
     print("")
     print("")
-
