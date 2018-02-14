@@ -136,6 +136,9 @@ if cmdl_args.create_best_input:
                                 '{}.{}'.format(optimiser.db_name,
                                                optimiser.db_type))
 
+    # Check if a directory for the result files exists. If not create it.
+    results_dir = check_directory(['Analysis', 'BestParameter'])
+
     # Collect the parameter names. Change format to match column headers, based
     # on SPOTPY definition. Store headers in a list.
     cols = []
@@ -143,25 +146,46 @@ if cmdl_args.create_best_input:
         cols.append("par{}".format(p.place_holder))
 
     # Determine the best fitness value and its position.
+    print("Locate best parameter set:")
+    print("---")
     fitness_values = pd.read_csv(db_file_name, usecols=['like1'])
     best_fitness_index = fitness_values.idxmax().iloc[0]
     best_fitness_value = fitness_values.max().iloc[0]
 
     print("Best fitness index: line {}".format(best_fitness_index))
     print("Best fitness value: {}".format(best_fitness_value))
+    print("")
+
+    # Load template.
+    template_file_path = setups[0].model_template
+    print(template_file_path)
+    temp_raw = pbf.read_template(template_file_path)
+    print(temp_raw)
 
     # Extract the parameter values of the best set.
+    print("* Extract best parameter set")
+    print("----------------------")
+    print("Read data base file, please wait.")
+    print("")
+    print("Parameters:")
+    print("---")
     parameter_values = pd.read_csv(db_file_name, usecols=cols)
-    best_parameter_values = []
+
     for i in range(len(cols)):
         new_para_value = parameter_values.at[best_fitness_index, cols[i]]
-        print("{}: {}".format(cols[i], new_para_value))
-        best_parameter_values.append(new_para_value)
+        print("{}: {}".format(cols[i][3:], new_para_value))
 
-    template_file = setups[0].model_template
-    print(template_file)
+        if type(new_para_value) == float:
+            temp_raw = temp_raw.replace("#" + cols[i][3:] + "#",
+                              "{:E}".format(new_para_value))
+        else:
+            temp_raw = temp_raw.replace("#" + cols[i][3:] + "#", str(new_para_value))
 
-    pbf.write_input_file(template_file, 'best_para.fds')
+
+    new_path = os.path.join(results_dir, 'best_para.fds')
+
+    pbf.write_input_file(temp_raw, new_path)
+    print("")
     print("Simulation input file with best parameter set written.")
 
     print("Task finished.")
