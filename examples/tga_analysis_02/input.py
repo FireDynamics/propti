@@ -162,7 +162,7 @@ print('** input file processed')
 
 
 
-
+"""
 
 # define empty simulation setup set
 setups = pr.SimulationSetupSet()
@@ -196,3 +196,6 @@ setups.append(s)
 # use default values for optimiser
 optimiser = pr.OptimiserProperties(algorithm='sceua',
                                    repetitions=1000)
+
+"""
+
