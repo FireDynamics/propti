@@ -129,7 +129,7 @@ for i in range(len(HeatingRatesTGA)):
                                                                  i])),
                            model_template=template_file,
                            model_parameter=mps0,
-                           model_executable='fds653',
+                           model_executable='fds',
                            relations=r)
 
     ssetups.append(s)
