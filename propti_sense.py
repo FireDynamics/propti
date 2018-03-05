@@ -18,7 +18,7 @@ ops = None  # type: pr.ParameterSet
 optimiser = None  # type: pr.OptimiserProperties
 
 in_file = open('propti.pickle.init', 'rb')
-setups, ops, optimiser = pickle.load(in_file)
+ver, setups, ops, optimiser = pickle.load(in_file)
 in_file.close()
 # Check if everything is in order
 if ops is None:
@@ -49,7 +49,7 @@ sensitivity = pr.OptimiserProperties('fast',
                                      mpi=mpi_bool)
 
 
-print(setups, ops, sensitivity)
+print(ver, setups, ops, sensitivity)
 '''
 Not writing any data to pickle file since there is only
 one method to analyse sensitivity. It makes sense to Wiki this instead.
