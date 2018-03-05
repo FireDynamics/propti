@@ -38,8 +38,7 @@ backup = optimiser.backup_every
 # Compute number of repetitions required
 k = len(ops)        # total number of optimization params
 (M, d) = 3, 2       # M = inference factor, d = freq. step <spotpy defaults>
-rep = (1 + 4*(1 + (k-2)*d)*M**2)*k
-
+rep = (1 + 4*(M**2)*(1+(k-2)*d))*k      
 
 sensitivity = pr.OptimiserProperties('fast',
                                      repetitions=rep,
