@@ -21,6 +21,7 @@ class OptimiserProperties:
     def __init__(self,
                  algorithm: str = 'sceua',
                  repetitions: int = 1,
+                 backup_every: int = 100,
                  ngs: int = None,  # will be set to len(ops) during
                                    # propti_prepare, if no value is provided
                  db_name: str = 'propti_db',
@@ -34,6 +35,8 @@ class OptimiserProperties:
         :param algorithm: choose spotpy algorithm, default: sceua,
             range: [sceua]
         :param repetitions: number of sampling repetitions, default: 1
+        :param backup_every: How many repetitions before backup is performed,
+            default: 100
         :param ngs: number of complexes, if None then set to len(para),
             default: None
         :param db_name: name of spotpy database file, default: propti_db
@@ -54,6 +57,7 @@ class OptimiserProperties:
         """
         self.algorithm = algorithm
         self.repetitions = repetitions
+        self.backup_every = backup_every
         self.ngs = ngs
         self.db_name = db_name
         self.db_type = db_type
@@ -89,13 +93,14 @@ class OptimiserProperties:
         """
         return "\noptimiser properties\n" \
                "--------------------\n" \
-               "alg: {}\nrep: {}\nngs: {}" \
+               "alg: {}\nrep: {}\nrep_backup: {}\nngs: {}" \
                "\ndb_name: {}\ndb_type: {}" \
                "\ndb_precision: {}" \
                "\nexecution mode: {}" \
                "\nnumber of sub-processes: {}" \
                "\nmpi mode: {}\n".format(self.algorithm,
                                          self.repetitions,
+                                         self.backup_every,
                                          self.ngs,
                                          self.db_name,
                                          self.db_type,
