@@ -13,7 +13,6 @@ import propti as pr
 import propti.propti_monitor as pm
 import propti.propti_post_processing as ppm
 
-# TODO: Create subdirectory for process analysis and plots automatically.
 
 parser = argparse.ArgumentParser()
 parser.add_argument("root_dir", type=str,
@@ -125,6 +124,9 @@ if cmdl_args.create_best_input:
     This functionality is focused on the usage of SPOTPY.
     """
 
+    # TODO: Add meta data to files
+    # TODO: Create files for each setup
+
     print("")
     print("* Create input file with best parameter set")
     print("----------------------")
@@ -145,8 +147,26 @@ if cmdl_args.create_best_input:
     for p in ops:
         cols.append("par{}".format(p.place_holder))
 
+    # Collect simulation setup names.
+    print("* Collect simulation setup names:")
+    print("---")
+    sim_setup_names = []
+    for ssn in range(len(setups)):
+        ssn_value = setups[ssn].name
+        print("Setup {}: {}".format(ssn, ssn_value))
+        sim_setup_names.append(ssn_value)
+    print("")
+
+    # Collect parameter names
+    print("* Collect parameter names:")
+    print("---")
+    para_names = []
+    for s_i in range(len(setups)):
+        print('*', setups[s_i].model_parameter)
+    print("")
+
     # Determine the best fitness value and its position.
-    print("Locate best parameter set:")
+    print("* Locate best parameter set:")
     print("---")
     fitness_values = pd.read_csv(db_file_name, usecols=['like1'])
     best_fitness_index = fitness_values.idxmax().iloc[0]
@@ -158,9 +178,9 @@ if cmdl_args.create_best_input:
 
     # Load template.
     template_file_path = setups[0].model_template
-    print(template_file_path)
+    # print(template_file_path)
     temp_raw = pbf.read_template(template_file_path)
-    print(temp_raw)
+    # print(temp_raw)
 
     # Extract the parameter values of the best set.
     print("* Extract best parameter set")
@@ -177,10 +197,10 @@ if cmdl_args.create_best_input:
 
         if type(new_para_value) == float:
             temp_raw = temp_raw.replace("#" + cols[i][3:] + "#",
-                              "{:E}".format(new_para_value))
+                                        "{:E}".format(new_para_value))
         else:
-            temp_raw = temp_raw.replace("#" + cols[i][3:] + "#", str(new_para_value))
-
+            temp_raw = temp_raw.replace("#" + cols[i][3:] + "#",
+                                        str(new_para_value))
 
     new_path = os.path.join(results_dir, 'best_para.fds')
 
@@ -233,6 +253,9 @@ if cmdl_args.plot_para_values:
     base file, based on information stored in the pickle file. 
     This functionality is focused on the usage of SPOTPY.
     """
+
+    # TODO: Check for optimisation algorithm
+    # TODO: Adjust output depending on optimisation algorithm
 
     print("")
     print("* Plot likes and values.")

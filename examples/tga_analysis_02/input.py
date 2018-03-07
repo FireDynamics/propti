@@ -57,12 +57,6 @@ set_of_parameters = [op1, op2, op3, op4]
 ops = pr.ParameterSet(params=set_of_parameters)
 
 
-# define general model parameter, including optimisation parameter
-mps0 = pr.ParameterSet(params=set_of_parameters)
-mps0.append(pr.Parameter(name='heating rate', place_holder='hr', value=10))
-mps0.append(pr.Parameter(name='chid', place_holder='CHID', value=CHID))
-
-
 # Function to provide basic parameters for one simulation setup.
 def create_mod_par_setup(para_set):
     # Provide optimisation parameters to the model parameter setups.
@@ -76,7 +70,7 @@ def create_mod_par_setup(para_set):
 
     # Add individual character ID to distinguish the simulation data.
     ps.append(pr.Parameter(name='chid',
-                           place_holder='chid',
+                           place_holder='CHID',
                            value='{}_{}K'.format(CHID,
                                                  str(HeatingRatesTGA[
                                                          para_set]))))
@@ -87,8 +81,6 @@ def create_mod_par_setup(para_set):
 model_parameter_setups = [create_mod_par_setup(i) for i in range(
     len(HeatingRatesTGA))]
 
-model_parameter_setups.append(pr.ParameterSet(params=set_of_parameters))
-
 
 # Create a list of relations between experimental and model (simulation) data,
 # for each experimental data series. (Could also be nested, if there would be
@@ -98,7 +90,8 @@ for i in range(len(HeatingRatesTGA)):
     # Initialise a relation.
     relation = pr.Relation()
     # Information on simulation data.
-    relation.model.file_name = "{}_tga.csv".format(CHID)
+    relation.model.file_name = '{}_{}K_tga.csv'.format(CHID,
+                                                       str(HeatingRatesTGA[i]))
     relation.model.label_x = 'Time'
     relation.model.label_y = 'MLR'
     relation.model.header_line = 1
@@ -123,14 +116,13 @@ for i in range(len(HeatingRatesTGA)):
 # software executable.
 ssetups = []
 for i in range(len(HeatingRatesTGA)):
-    s = pr.SimulationSetup(name='tga_analysis_02',
-                           work_dir=
-                           "{}_{}K_tga".format(CHID, str(HeatingRatesTGA[
-                                                                 i])),
+    sn = "{}_{}K_tga".format(CHID, str(HeatingRatesTGA[i]))
+    s = pr.SimulationSetup(name=sn,
+                           work_dir=sn,
                            model_template=template_file,
-                           model_parameter=mps0,
-                           model_executable='fds653',
-                           relations=r)
+                           model_parameter=model_parameter_setups[i],
+                           model_executable='fds',
+                           relations=r[i])
 
     ssetups.append(s)
 
