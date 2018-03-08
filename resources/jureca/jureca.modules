@@ -1,5 +1,6 @@
 module load Intel/2018.1.163-GCC-5.4.0 IntelMPI/2018.1.163
 module load SciPy-Stack/2017b-Python-3.6.3
+module load mpi4py/2.0.0-Python-3.6.3
 
 module use --append ~larnold/modules_fire
 module load FDS/6.5.3-gnu720-serial
