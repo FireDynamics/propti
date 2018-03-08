@@ -25,7 +25,7 @@ class OptimiserProperties:
                                    # propti_prepare, if no value is provided
                  db_name: str = 'propti_db',
                  db_type: str = 'csv',
-                 db_precision = np.float64,
+                 db_precision=np.float64,
                  num_subprocesses: int = 1,
                  mpi: bool = False):
         """
@@ -411,6 +411,7 @@ class Relation:
                         self.experiment.label_y)
 
         return res
+
 
 # test for data read-in
 def test_read_map_data():

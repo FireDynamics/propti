@@ -58,8 +58,8 @@ def check_directory(dir_list):
 
     # Set up new path.
     new_dir = os.path.join(cmdl_args.root_dir)
-    for i in dir_list:
-        new_dir = os.path.join(new_dir, i)
+    for directory in dir_list:
+        new_dir = os.path.join(new_dir, directory)
 
     # Check if the new path exists, otherwise create it.
     if not os.path.exists(new_dir):
@@ -163,6 +163,36 @@ if cmdl_args.create_best_input:
     para_names = []
     for s_i in range(len(setups)):
         print('*', setups[s_i].model_parameter)
+
+        para_name_list = []
+        para_ph_list = []
+        para_meta = []
+
+        for s_j in range(len(setups[s_i].model_parameter.parameters)):
+            paras = setups[s_i].model_parameter.parameters
+
+            para_name = paras[s_j].name
+            para_name_list.append(para_name)
+
+            para_ph = paras[s_j].place_holder
+            para_ph_list.append(para_ph)
+
+            p_i = 'par{}'.format(para_ph)
+            if p_i not in cols:
+
+                para_meta.append([para_ph, paras[s_j]])
+
+            # TODO: remove following lines
+            print('Para name: {}'.format(para_name))
+            print('Para place: {}'.format(para_ph))
+            ###########
+
+        print(setups[s_i])
+
+    print('meta: ', para_meta)
+
+    t = setups[0].model_parameter.parameters[1].name
+    print('test: {}'.format(t))
     print("")
 
     # Determine the best fitness value and its position.
@@ -180,6 +210,7 @@ if cmdl_args.create_best_input:
     template_file_path = setups[0].model_template
     # print(template_file_path)
     temp_raw = pbf.read_template(template_file_path)
+    temp_raw2 = pbf.read_template(template_file_path)
     # print(temp_raw)
 
     # Extract the parameter values of the best set.
@@ -191,6 +222,8 @@ if cmdl_args.create_best_input:
     print("---")
     parameter_values = pd.read_csv(db_file_name, usecols=cols)
 
+    # TODO: remove following lines
+    ###################
     for i in range(len(cols)):
         new_para_value = parameter_values.at[best_fitness_index, cols[i]]
         print("{}: {}".format(cols[i][3:], new_para_value))
@@ -201,10 +234,32 @@ if cmdl_args.create_best_input:
         else:
             temp_raw = temp_raw.replace("#" + cols[i][3:] + "#",
                                         str(new_para_value))
-
     new_path = os.path.join(results_dir, 'best_para.fds')
 
     pbf.write_input_file(temp_raw, new_path)
+    ##################
+
+    # Create new directories, based on simulation setup names.
+    for i in sim_setup_names:
+        check_directory([results_dir, i])
+        # os.path.join(results_dir, i)
+
+        # Create new input files with best parameters,
+        # based on simulation setups.
+        for j in range(len(cols)):
+            new_para_value = parameter_values.at[best_fitness_index, cols[j]]
+            print("{}: {}".format(cols[j][3:], new_para_value))
+
+            if type(new_para_value) == float:
+                temp_raw2 = temp_raw2.replace("#" + cols[j][3:] + "#",
+                                            "{:E}".format(new_para_value))
+            else:
+                temp_raw2 = temp_raw2.replace("#" + cols[j][3:] + "#",
+                                            str(new_para_value))
+
+        pbf.write_input_file(temp_raw2, os.path.join(results_dir,
+                                                     i, i + '.fds'))
+
     print("")
     print("Simulation input file with best parameter set written.")
 
