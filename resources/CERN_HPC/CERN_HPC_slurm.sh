@@ -17,7 +17,8 @@ which python3
 
 which fds653_serial
 
-module load mpi/mpich/3.2/gcc-6.3.1
+#module load mpi/mpich/3.2/gcc-6.3.1
+module load mpi/mpich/3.2.1
 
 export PATH=$PATH:/hpcscratch/user/username/path/to/FDS
 mpirun python3 /hpcscratch/user/username/path/to/propti/propti/propti_run.py . &> log.spotpy_mpi
