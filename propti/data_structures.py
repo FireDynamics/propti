@@ -10,6 +10,11 @@ import spotpy
 from typing import List
 
 
+# Reads the script's location. Used to access the propti version number from the
+# git repo.
+script_location = os.path.dirname(os.path.realpath(__file__))
+
+
 #################
 # OPTIMISER CLASS
 class OptimiserProperties:
@@ -682,8 +687,10 @@ class Version:
             output = e.output
             self.flag_propti = e.returncode
         # if git command doesn't exist
+
         if self.flag_propti != 0:  # TODO: This is a little hard coded(?)
-            with open('../../.git/refs/heads/master', 'r') as f:
+            with open(os.path.join(script_location,
+                                   '../', '.git/refs/heads/master'), 'r') as f:
                 ver = f.readline()[:7]
             f.close()
         ver = 'PROPTI-' + ver
