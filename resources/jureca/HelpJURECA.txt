@@ -1,0 +1,4 @@
+Help for usage of JURECA
+
+SLURM batch system:
+http://www.fz-juelich.de/SharedDocs/Downloads/IAS/JSC/EN/JURECA/jureca_batch_system_manual.pdf?__blob=publicationFile

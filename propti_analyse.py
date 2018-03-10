@@ -48,6 +48,7 @@ ops = None  # type: pr.ParameterSet
 optimiser = None  # type: pr.OptimiserProperties
 
 
+# <<<<<<< HEAD
 def check_directory(dir_list):
     """
     Take a list of directory names (strings) and attach them to the root
@@ -85,7 +86,7 @@ print("----------------------")
 pickle_file = os.path.join(cmdl_args.root_dir, 'propti.pickle.init')
 
 in_file = open(pickle_file, 'rb')
-setups, ops, optimiser = pickle.load(in_file)
+ver, setups, ops, optimiser = pickle.load(in_file)
 in_file.close()
 
 print("Loading complete.")
@@ -97,7 +98,9 @@ if setups is None:
 if ops is None:
     logging.critical("optimisation parameter are not defined")
 
-# print(setups, ops, optimiser)
+
+print(ver, setups, ops, optimiser)
+
 
 # TODO: define spotpy db file name in optimiser properties
 # TODO: use placeholder as name? or other way round?

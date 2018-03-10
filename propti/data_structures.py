@@ -4,10 +4,15 @@ import logging
 import copy
 import numpy as np
 import pandas as pd
-
+import subprocess
 import spotpy
 
 from typing import List
+
+
+# Reads the script's location. Used to access the propti version number from the
+# git repo.
+script_location = os.path.dirname(os.path.realpath(__file__))
 
 
 #################
@@ -21,6 +26,7 @@ class OptimiserProperties:
     def __init__(self,
                  algorithm: str = 'sceua',
                  repetitions: int = 1,
+                 backup_every: int = 100,
                  ngs: int = None,  # will be set to len(ops) during
                                    # propti_prepare, if no value is provided
                  db_name: str = 'propti_db',
@@ -34,6 +40,8 @@ class OptimiserProperties:
         :param algorithm: choose spotpy algorithm, default: sceua,
             range: [sceua]
         :param repetitions: number of sampling repetitions, default: 1
+        :param backup_every: How many repetitions before backup is performed,
+            default: 100
         :param ngs: number of complexes, if None then set to len(para),
             default: None
         :param db_name: name of spotpy database file, default: propti_db
@@ -54,6 +62,7 @@ class OptimiserProperties:
         """
         self.algorithm = algorithm
         self.repetitions = repetitions
+        self.backup_every = backup_every
         self.ngs = ngs
         self.db_name = db_name
         self.db_type = db_type
@@ -70,6 +79,18 @@ class OptimiserProperties:
 
         self.mpi = mpi
 
+    def upgrade(self) -> List:
+        """ Upgrade method updates object instance with default values,
+            if pickle file is of older version.
+            Returns list of missing parameters.
+        """
+        default_constr = OptimiserProperties()
+        missing_attr = [x for x in default_constr.__dict__.keys()
+                        if x not in self.__dict__.keys()]
+        for x in missing_attr:
+            self.__dict__[x] = default_constr.__dict__[x]
+        return missing_attr
+
     def __str__(self) -> str:
         """
         Pretty print of (major) class values
@@ -77,13 +98,14 @@ class OptimiserProperties:
         """
         return "\noptimiser properties\n" \
                "--------------------\n" \
-               "alg: {}\nrep: {}\nngs: {}" \
+               "alg: {}\nrep: {}\nrep_backup: {}\nngs: {}" \
                "\ndb_name: {}\ndb_type: {}" \
                "\ndb_precision: {}" \
                "\nexecution mode: {}" \
                "\nnumber of sub-processes: {}" \
                "\nmpi mode: {}\n".format(self.algorithm,
                                          self.repetitions,
+                                         self.backup_every,
                                          self.ngs,
                                          self.db_name,
                                          self.db_type,
@@ -148,6 +170,18 @@ class Parameter:
     def create_spotpy_parameter(self):
         pass
 
+    def upgrade(self) -> List:
+        """ Upgrade method updates object instance with default values,
+            if pickle file is of older version.
+            Returns list of missing parameters.
+        """
+        default_constr = Parameter()
+        missing_attr = [x for x in default_constr.__dict__.keys()
+                        if x not in self.__dict__.keys()]
+        for x in missing_attr:
+            self.__dict__[x] = default_constr.__dict__[x]
+        return missing_attr
+
     def __str__(self) -> str:
         """
         Creates string with parameter info.
@@ -180,6 +214,20 @@ class ParameterSet:
         if params:
             for p in params:
                 self.parameters.append(copy.deepcopy(p))
+
+    def upgrade(self) -> List:
+        """ Upgrade method updates object instance with default values,
+            if pickle file is of older version.
+            Returns list of missing parameters.
+            !! CAREFUL !! Since lists like params will be init as [],
+            it may not cause unrecognised consequences.
+        """
+        default_constr = ParameterSet()
+        missing_attr = [x for x in default_constr.__dict__.keys()
+                        if x not in self.__dict__.keys()]
+        for x in missing_attr:
+            self.__dict__[x] = default_constr.__dict__[x]
+        return missing_attr
 
     def update(self, other: 'ParameterSet'):
         """
@@ -501,6 +549,18 @@ class SimulationSetup:
 
         self.id = None
 
+    def upgrade(self) -> List:
+        """ Upgrade method updates object instance with default values,
+            if pickle file is of older version.
+            Returns list of missing parameters.
+        """
+        default_constr = SimulationSetup()
+        missing_attr = [x for x in default_constr.__dict__.keys()
+                        if x not in self.__dict__.keys()]
+        for x in missing_attr:
+            self.__dict__[x] = default_constr.__dict__[x]
+        return missing_attr
+
     def __str__(self) -> str:
         """
         Creates a string with the major simulation setup information.
@@ -518,7 +578,7 @@ class SimulationSetup:
 
 class SimulationSetupSet:
     """
-    Cointainer class for SimulationSetup objects.
+    Container class for SimulationSetup objects.
     """
 
     def __init__(self,
@@ -541,6 +601,20 @@ class SimulationSetupSet:
         else:
             self.setups = []  # type: List[SimulationSetup]
         self.next_id = 0
+
+    def upgrade(self) -> List:
+        """ Upgrade method updates object instance with default values,
+            if pickle file is of older version.
+            Returns list of missing parameters.
+            !! Careful !! Since lists like SimulationSetupc will be init as [],
+            it may cause unrecognised consequences.
+        """
+        default_constr = SimulationSetupSet()
+        missing_attr = [x for x in default_constr.__dict__.keys()
+                        if x not in self.__dict__.keys()]
+        for x in missing_attr:
+            self.__dict__[x] = default_constr.__dict__[x]
+        return missing_attr
 
     def __len__(self) -> int:
         """
@@ -587,6 +661,71 @@ class SimulationSetupSet:
             res += str(s) + "\n"
         res += "\n"
         return res
+
+
+class Version:
+    '''
+      Version class to determine the current version of propti and simulation
+      software in use.
+      TODO : Think whether repr is the correct thing to code instead of str,i.e
+      even though the class rep of the output variable is a 'Version' it does not
+      represent a method by which the class could be initialized.
+    '''
+    def __init__(self):
+        self.flag_propti = 0
+        self.ver_propti = self.propti_versionCall()
+        self.ver_fds = self.fds_versionCall()
+        self.ver_spotpy = spotpy.__version__
+
+    def propti_versionCall(self) -> str:
+        ''' Look for propti-version and print a human readable representation.
+            Print git hash value if no git is present.
+        '''
+        try:
+            ver = subprocess.check_output(["git describe --always"
+                                        ], shell=True).strip().decode("utf-8")
+        except subprocess.CalledProcessError as e:
+            output = e.output
+            self.flag_propti = e.returncode
+        # if git command doesn't exist
+
+        if self.flag_propti != 0:  # TODO: This is a little hard coded(?)
+            with open(os.path.join(script_location,
+                                   '../', '.git/refs/heads/master'), 'r') as f:
+                ver = f.readline()[:7]
+            f.close()
+        ver = 'PROPTI-' + ver
+        return ver
+
+    def fds_versionCall(self) -> str:  # TODO: must capture errors of any kind ?
+        ''' Look for fds revision by calling fds without parameters
+            and return its revision in use.
+        '''
+        proc = subprocess.Popen(['fds'], shell=True, stdout=subprocess.PIPE,
+                                stderr=subprocess.STDOUT)
+        while True:
+            line = proc.stdout.readline().decode("utf-8")
+            if line[1:9] == 'Revision':
+                ver = line[line.index(':')+2:]
+                break
+        return ver
+
+    def __repr__(self) -> str:
+        string = self.ver_propti + ', ' + self.ver_fds
+        return ('%r') % string
+
+    def __str__(self) -> str:
+        """
+        Pretty print of class values
+        :return: string
+        """
+        return "\nversion\n" \
+               "--------------------\n" \
+               "Propti Version: \t{}\n" \
+               "Spotpy Version: \t{}\n"\
+               "FDS Version:\t\t{}".format(self.ver_propti,
+                                             self.ver_spotpy,
+                                             self.ver_fds)
 
 
 def test_simulation_setup_setup():

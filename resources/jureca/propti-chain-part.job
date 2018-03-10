@@ -1,0 +1,63 @@
+#!/bin/bash
+
+# Provide job name to be displayed in the queue overview
+#SBATCH --job-name propti-test
+
+# Set desired number of nodes.
+# JURECA provides 24 cores per node.
+# The first 24 jobs per node get one physical core each. If more
+# jobs are scheduled per node, hyperthreading is invoked.
+#SBATCH --nodes 2
+#SBATCH --ntasks 18
+
+# Set number of cores that are to be used per task. For example when
+# multiple cores are to be used per mesh, to speed up the calculation.
+#SBATCH --cpus-per-task 3
+#SBATCH --output %j.out
+#SBATCH --error %j.err
+
+# Wall clock time is 24 h on JURECA
+# Set time constrains for the job execution, by the following format:
+# days-hours:minutes:seconds   -    example 5-12:35:42
+#SBATCH --time=05:30:00
+
+# This signal is used to control the relaunch process of the simulation.
+# It is needed when e.g. large FDS simulations are conducted, that would
+# have longer execution times then the 24 h possible.
+# Not necessary for propti.
+## SBATCH --signal=B:SIGUSR1@600
+
+####################
+###  USER INPUT  ###
+####################
+
+# define path to propti
+PROPTISTEM=/path/to/propti/repo
+
+####################
+
+
+cd $SLURM_SUBMIT_DIR
+
+
+# load necessary modules
+module load Intel/2018.1.163-GCC-5.4.0 IntelMPI/2018.1.163
+module load SciPy-Stack/2017b-Python-3.6.3
+module load mpi4py/2.0.0-Python-3.6.3
+
+module use --append ~larnold/modules_fire
+module load FDS/6.5.3-gnu720-serial
+
+pwd
+
+printenv &> user.env-$SLURM_JOB_ID
+
+which python3
+
+which fds
+
+
+# run propti
+#srun fds $FDSSTEM*.fds & wait
+#mpirun python3 $PROPTISTEM/propti/propti/propti_run.py . &> log.propti_run
+srun python3 $PROPTISTEM/propti/propti/propti_run.py . &> log.propti_run

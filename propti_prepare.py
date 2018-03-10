@@ -21,6 +21,8 @@ parser.add_argument("--prepare_init_inputs",
                     help="prepare input files with initial values",
                     action="store_true")
 cmdl_args = parser.parse_args()
+# Check version numbers
+ver = pr.Version()
 
 setups = None  # type: pr.SimulationSetupSet
 ops = None  # type: pr.ParameterSet
@@ -30,8 +32,10 @@ input_file = cmdl_args.input_file
 
 logging.info("reading input file: {}".format(input_file))
 exec(open(input_file).read(), globals())
-# TODO: check for correct execution
 
+if ver.flag_propti != 0:
+    logging.warning("No git. Propti version is represented as a hash.")
+# TODO: check for correct execution
 if ops is None:
     logging.critical("optimisation parameters not defined")
 if setups is None:
@@ -76,10 +80,10 @@ for s in setups:
         sys.exit()
     in_file_list.append(tpath)
 
-print(setups, ops, optimiser)
+print(ver, setups, ops, optimiser)
 
 out_file = open('propti.pickle.init', 'wb')
-pickle.dump((setups, ops, optimiser), out_file)
+pickle.dump((ver, setups, ops, optimiser), out_file)
 out_file.close()
 
 if cmdl_args.prepare_init_inputs:

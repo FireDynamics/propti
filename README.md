@@ -1,6 +1,6 @@
 ## Process
 
-![](resources/propti.png)
+![](resources/jureca/propti.png)
 
 ## Idea
 
