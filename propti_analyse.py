@@ -116,6 +116,10 @@ if cmdl_args.run_best:
     print("")
 
 
+###########################
+###  Create best input  ###
+###########################
+
 if cmdl_args.create_best_input:
     """
     Takes the (up to now) best parameter set from the optimiser data base and 
@@ -124,13 +128,10 @@ if cmdl_args.create_best_input:
     This functionality is focused on the usage of SPOTPY.
     """
 
-    # TODO: Add meta data to files
-    # TODO: Create files for each setup
-
     print("")
     print("* Create input file with best parameter set")
     print("----------------------")
-    print("Read data base file, please wait.")
+    print("Read data base file, please wait...")
     print("")
 
     # Read data base file name from the pickle file.
@@ -138,36 +139,56 @@ if cmdl_args.create_best_input:
                                 '{}.{}'.format(optimiser.db_name,
                                                optimiser.db_type))
 
-    # Check if a directory for the result files exists. If not create it.
-    results_dir = check_directory(['Analysis', 'BestParameter'])
+    # Determine the best fitness value and its location in the data base.
+    print("* Locate best parameter set:")
+    print("---")
 
-    # Collect the parameter names. Change format to match column headers, based
-    # on SPOTPY definition. Store headers in a list.
-    cols = []
-    for p in ops:
-        cols.append("par{}".format(p.place_holder))
+    fitness_values = pd.read_csv(db_file_name, usecols=['like1'])
+    best_fitness_index = fitness_values.idxmax().iloc[0]
+    best_fitness_value = fitness_values.max().iloc[0]
+
+    print("Best fitness index: line {}".format(best_fitness_index))
+    print("Best fitness value: {}".format(best_fitness_value))
+    print("---")
+    print("")
+
+    # Check if a directory for the result files exists. If not, create it.
+    results_dir = check_directory(['Analysis', 'BestParameter'])
 
     # Collect simulation setup names.
     print("* Collect simulation setup names:")
     print("---")
+
     sim_setup_names = []
     for ssn in range(len(setups)):
         ssn_value = setups[ssn].name
-        print("Setup {}: {}".format(ssn, ssn_value))
         sim_setup_names.append(ssn_value)
+
+        print("Setup {}: {}".format(ssn, ssn_value))
+    print("---")
     print("")
 
+    # Collect the optimisation parameter names. Change format to match column
+    # headers in propti_db, based on SPOTPY definition. Store headers in a list.
+    cols = []
+    for p in ops:
+        cols.append("par{}".format(p.place_holder))
+
     # Collect parameter names
-    print("* Collect parameter names:")
+    print("* Collect parameter names and place holders:")
     print("---")
+
     para_names = []
+    para_simsetup_complete = []
+    para_name_list = []
     for s_i in range(len(setups)):
-        print('*', setups[s_i].model_parameter)
 
-        para_name_list = []
+        # Place holder list
         para_ph_list = []
-        para_meta = []
 
+        # Collect meta parameters, those which describe the simulation setup.
+        # First, find all parameters and place holders.
+        para_meta_simsetup = []
         for s_j in range(len(setups[s_i].model_parameter.parameters)):
             paras = setups[s_i].model_parameter.parameters
 
@@ -177,88 +198,84 @@ if cmdl_args.create_best_input:
             para_ph = paras[s_j].place_holder
             para_ph_list.append(para_ph)
 
+            # Compare the place holders with the optimisation parameters, to
+            # determine if they are meta parameters.
             p_i = 'par{}'.format(para_ph)
             if p_i not in cols:
+                # Store meta parameters (place holder and value) in list.
+                para_meta_simsetup.append([para_ph, paras[s_j].value])
 
-                para_meta.append([para_ph, paras[s_j]])
+            print('Name: {}'.format(para_name))
+            print('Place holder: {}'.format(para_ph))
+        print("---")
 
-            # TODO: remove following lines
-            print('Para name: {}'.format(para_name))
-            print('Para place: {}'.format(para_ph))
-            ###########
+        # Put meta lists into list which mirrors the simulation setups.
+        para_simsetup_complete.append(para_meta_simsetup)
 
-        print(setups[s_i])
-
-    print('meta: ', para_meta)
-
-    t = setups[0].model_parameter.parameters[1].name
-    print('test: {}'.format(t))
     print("")
 
-    # Determine the best fitness value and its position.
-    print("* Locate best parameter set:")
-    print("---")
-    fitness_values = pd.read_csv(db_file_name, usecols=['like1'])
-    best_fitness_index = fitness_values.idxmax().iloc[0]
-    best_fitness_value = fitness_values.max().iloc[0]
-
-    print("Best fitness index: line {}".format(best_fitness_index))
-    print("Best fitness value: {}".format(best_fitness_value))
-    print("")
-
-    # Load template.
-    template_file_path = setups[0].model_template
-    # print(template_file_path)
-    temp_raw = pbf.read_template(template_file_path)
-    temp_raw2 = pbf.read_template(template_file_path)
-    # print(temp_raw)
-
-    # Extract the parameter values of the best set.
     print("* Extract best parameter set")
-    print("----------------------")
-    print("Read data base file, please wait.")
-    print("")
-    print("Parameters:")
     print("---")
+    print("Read data base file, please wait...")
+    print("")
+
+    # Read propti data base.
     parameter_values = pd.read_csv(db_file_name, usecols=cols)
 
-    # TODO: remove following lines
-    ###################
+    print("Best parameter values:")
+    print("---")
+
+    # Extract the parameter values of the best set. Store place holder and
+    # parameter values in lists.
+    opti_para = []
     for i in range(len(cols)):
         new_para_value = parameter_values.at[best_fitness_index, cols[i]]
-        print("{}: {}".format(cols[i][3:], new_para_value))
+        print("{}: {}".format(para_name_list[i], new_para_value))
+        opti_para.append([cols[i][3:], new_para_value])
 
-        if type(new_para_value) == float:
-            temp_raw = temp_raw.replace("#" + cols[i][3:] + "#",
-                                        "{:E}".format(new_para_value))
-        else:
-            temp_raw = temp_raw.replace("#" + cols[i][3:] + "#",
-                                        str(new_para_value))
-    new_path = os.path.join(results_dir, 'best_para.fds')
+    # Append optimisation parameter place holders and values to the parameter
+    # lists, sorted by simulation setups.
+    for pssc in para_simsetup_complete:
+        for para in opti_para:
+            pssc.append(para)
 
-    pbf.write_input_file(temp_raw, new_path)
-    ##################
+    # print("para complete: {}".format(para_simsetup_complete))
+    print("")
 
-    # Create new directories, based on simulation setup names.
-    for i in sim_setup_names:
-        check_directory([results_dir, i])
-        # os.path.join(results_dir, i)
+    # Load templates from each simulation setup, fill in the values and write
+    # the new input files in the appropriate directories.
+    print("* Fill templates")
+    print("--------------")
+    # Counter
+    css = 0
+    for simsetup in sim_setup_names:
+        # Create new directories, based on simulation setup names.
+        check_directory([results_dir, simsetup])
+
+        # Load template.
+        template_file_path = setups[css].model_template
+        temp_raw = pbf.read_template(template_file_path)
 
         # Create new input files with best parameters,
         # based on simulation setups.
-        for j in range(len(cols)):
-            new_para_value = parameter_values.at[best_fitness_index, cols[j]]
-            print("{}: {}".format(cols[j][3:], new_para_value))
+        for bestpara in para_simsetup_complete[css]:
+            print("best para: {}".format(bestpara))
+            new_para_value = bestpara[1]
 
             if type(new_para_value) == float:
-                temp_raw2 = temp_raw2.replace("#" + cols[j][3:] + "#",
+                temp_raw = temp_raw.replace("#" + bestpara[0] + "#",
                                             "{:E}".format(new_para_value))
             else:
-                temp_raw2 = temp_raw2.replace("#" + cols[j][3:] + "#",
+                temp_raw = temp_raw.replace("#" + bestpara[0] + "#",
                                             str(new_para_value))
 
-        pbf.write_input_file(temp_raw2, os.path.join(results_dir,
-                                                     i, i + '.fds'))
+        # Write new input file with best parameters.
+        pbf.write_input_file(temp_raw,
+                             os.path.join(results_dir, simsetup,
+                                          simsetup + '.fds'))
+        print("---")
+        # Advance counter.
+        css += 1
 
     print("")
     print("Simulation input file with best parameter set written.")
@@ -267,6 +284,10 @@ if cmdl_args.create_best_input:
     print("")
     print("")
 
+
+##################################
+###  Plot fitness development  ###
+##################################
 
 if cmdl_args.plot_fitness_development:
 
