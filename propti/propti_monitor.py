@@ -9,13 +9,8 @@ import propti as pr
 import numpy as np
 import pandas as pd
 import scipy.signal as sign
-<<<<<<< HEAD
-# import matplotlib as mpl
-
-=======
 import matplotlib as mpl
 from textwrap import wrap
->>>>>>> master
 import matplotlib.pyplot as plt
 
 import re
@@ -41,13 +36,9 @@ import os
 #%%
 
 
-<<<<<<< HEAD
-def plot_scatter(data_label, data_frame, plot_title,
-                 file_name=None, file_path=None, y_label=None, skip_lines=1):
-=======
+
 def plot_scatter(data_label, data_frame, plot_title, plot_text,
                  file_name=None, y_label=None, skip_lines=1):
->>>>>>> master
 
     """
     :param data_label: column label for Pandas data frame
@@ -83,17 +74,12 @@ def plot_scatter(data_label, data_frame, plot_title, plot_text,
         plt.ylabel(data_label)
     else:
         plt.ylabel(y_label)
-<<<<<<< HEAD
 
-    plt.title(plot_title)
-
-=======
     # Create plot title from file name.
     #print(type(repr(plot_text)))
     plt.title(plot_title + ' ' + file_name)
     plt.figtext(0.6, 0.95, repr(plot_text))
     # plt.title(pr.Version().ver_propti + pr.Version().ver_fds, fontsize=6)
->>>>>>> master
     plt.grid()
 
     # Check if a file name is provided, if it is a file will be
