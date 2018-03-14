@@ -43,12 +43,12 @@ parser.add_argument("--plot_best_sim_exp",
                     action="store_true")
 cmdl_args = parser.parse_args()
 
+ver = None  # type: pr.Version
 setups = None  # type: pr.SimulationSetupSet
 ops = None  # type: pr.ParameterSet
 optimiser = None  # type: pr.OptimiserProperties
 
 
-# <<<<<<< HEAD
 def check_directory(dir_list):
     """
     Take a list of directory names (strings) and attach them to the root
@@ -86,8 +86,29 @@ print("----------------------")
 pickle_file = os.path.join(cmdl_args.root_dir, 'propti.pickle.init')
 
 in_file = open(pickle_file, 'rb')
-ver, setups, ops, optimiser = pickle.load(in_file)
+
+#########
+# TODO: Enable better backwards compatibility then the following:
+
+pickle_items = []
+for item in pickle.load(in_file):
+    pickle_items.append(item)
+
 in_file.close()
+
+p_length = len(pickle_items)
+
+print('Pickle length: {}'.format(p_length))
+
+if p_length == 3:
+    setups, ops, optimiser = pickle_items
+elif p_length == 4:
+    ver, setups, ops, optimiser = pickle_items
+else:
+    print('The init-file is incompatible '
+          'with this version of propti_analyse.')
+#########
+
 
 print("Loading complete.")
 
@@ -97,9 +118,6 @@ if setups is None:
 
 if ops is None:
     logging.critical("optimisation parameter are not defined")
-
-
-print(ver, setups, ops, optimiser)
 
 
 # TODO: define spotpy db file name in optimiser properties
@@ -324,7 +342,10 @@ if cmdl_args.plot_fitness_development:
     print("")
 
 
-# Scatter plot of RMSE development
+############################################
+###  Plot development of all parameters  ###
+############################################
+
 if cmdl_args.plot_para_values:
     """
     Creates scatter plots of the development of each parameter over the 
