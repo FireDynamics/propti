@@ -47,6 +47,14 @@ parser.add_argument("--plot_best_para_gen",
                          "parameter, by generation.",
                     action="store_true")
 
+parser.add_argument("--plot_fit_semilogx",
+                    help="Plots fitness values with semi-log x scale.",
+                    action="store_true")
+
+parser.add_argument("--extract_data",
+                    help="Extracts parameter data, based on fitness values.",
+                    action="store_true")
+
 parser.add_argument("--func_test",
                     help="Executes test function for testing purpose",
                     action="store_true")
@@ -377,6 +385,8 @@ if cmdl_args.plot_para_values:
     results_dir_scatter = check_directory(['Analysis', 'Plots', 'Scatter'])
     results_dir_boxplot = check_directory(['Analysis', 'Plots', 'Boxplot'])
     results_dir_histogram = check_directory(['Analysis', 'Plots', 'Histogram'])
+    results_dir_para_gen = check_directory(['Analysis', 'Plots', 'Para_Gen'])
+    results_dir_log = check_directory(['Analysis', 'Plots', 'Log'])
 
     # Extract data to be plotted.
     cols = ['like1', 'chain']
@@ -387,7 +397,7 @@ if cmdl_args.plot_para_values:
     # Scatter plots of parameter development over the whole run.
     for c in cols[2:]:
         # Scatter plots of parameter development over the whole run.
-        pr.plot_scatter(c, data, 'Parameter development: ' + c, c,
+        pr.plot_scatter(c, data, 'Parameter development: ', c,
                         results_dir_scatter)
 
         # Histogram plots of parameters
@@ -398,6 +408,15 @@ if cmdl_args.plot_para_values:
     pr.plot_scatter('like1', data, 'Fitness value development',
                     'FitnessDevelopment', results_dir_scatter,
                     'Root Mean Square Error (RMSE)')
+
+    # Plot values of best parameter set, by generation.
+    pm.plot_best_para_generation(cols, data, len(ops), optimiser.ngs,
+                                 results_dir_para_gen)
+
+    # Plot fitness semi-log x.
+    pm.plot_semilogx_scatter('like1', data, 'Fitness value development',
+                             'FitnessDevelopment', results_dir_log,
+                             'Root Mean Square Error (RMSE)')
 
     # Box plot to visualise steps (generations).
     pr.plot_box_rmse(data, 'Fitness values, histogram per step (generation)',
@@ -517,6 +536,82 @@ if cmdl_args.plot_best_para_gen:
     print("")
 
 
+#################################
+###  Plot Fitness Semi-log x  ###
+#################################
+
+if cmdl_args.plot_fit_semilogx:
+
+    """
+    Used to test functionality.
+    """
+
+    print("")
+    print("* Fitness semi-log x.")
+    print("----------------------")
+    db_file_name = os.path.join(cmdl_args.root_dir,
+                                '{}.{}'.format(optimiser.db_name,
+                                               optimiser.db_type))
+
+    # Check if a directory for the result files exists. If not create it.
+    results_dir_semilogx_fitness = check_directory(['Analysis', 'Plots', 'Log'])
+
+    # Collect the optimisation parameter names. Change format to match column
+    # headers in propti_db, based on SPOTPY definition. Store headers in a list.
+    cols = ['like1', 'chain']
+
+    data = pd.read_csv(db_file_name, usecols=cols)
+
+    # Scatter plot of fitness values.
+    pm.plot_semilogx_scatter('like1', data, 'Fitness value development',
+                    'FitnessDevelopment', results_dir_semilogx_fitness,
+                    'Root Mean Square Error (RMSE)')
+
+
+    print("")
+    print("Plot fitness semi-log x completed.")
+    print("")
+    print("")
+
+
+###############################
+###  Functionality testing  ###
+###############################
+
+if cmdl_args.extract_data:
+
+    """
+    Used to extract parameter sets, based on their fitness value.
+    """
+
+    print("")
+    print("* Extract data.")
+    print("----------------------")
+    db_file_name = os.path.join(cmdl_args.root_dir,
+                                '{}.{}'.format(optimiser.db_name,
+                                               optimiser.db_type))
+
+    # Check if a directory for the result files exists. If not create it.
+    results_dir_best_para = check_directory(['Analysis', 'BestParameter'])
+
+    # Collect the optimisation parameter names. Change format to match column
+    # headers in propti_db, based on SPOTPY definition. Store headers in a list.
+    cols = ['like1', 'chain']
+    for p in ops:
+        cols.append("par{}".format(p.place_holder))
+
+    data = pd.read_csv(db_file_name, usecols=cols)
+
+    # Scatter plot of fitness values.
+    pm.data_extractor(cols, data, len(ops), optimiser.ngs,
+                      'BestParaExtraction', results_dir_best_para)
+
+    print("")
+    print("Extraction completed and file saved.")
+    print("")
+    print("")
+
+
 ###############################
 ###  Functionality testing  ###
 ###############################
@@ -535,7 +630,7 @@ if cmdl_args.func_test:
                                                optimiser.db_type))
 
     # Check if a directory for the result files exists. If not create it.
-    results_dir = check_directory(['Analysis', 'Plots', 'Para_Gen'])
+    results_dir_best_para = check_directory(['Analysis', 'BestParameter'])
 
     # Collect the optimisation parameter names. Change format to match column
     # headers in propti_db, based on SPOTPY definition. Store headers in a list.
@@ -543,11 +638,11 @@ if cmdl_args.func_test:
     for p in ops:
         cols.append("par{}".format(p.place_holder))
 
-    # Extract data to be plotted.
     data = pd.read_csv(db_file_name, usecols=cols)
 
-    pm.plot_best_para_generation(cols, data, len(ops), optimiser.ngs,
-                                 results_dir)
+    # Scatter plot of fitness values.
+    pm.data_extractor(cols, data, len(ops), optimiser.ngs,
+                      'BestParaExtraction', results_dir_best_para)
 
     print("")
     print("Functionality test completed.")

@@ -68,7 +68,8 @@ def plot_best_para_generation(data_label, data_frame, para_to_optimise,
         local_best = data_frame.iloc[start:end]['like1'].idxmax()
         local_best_locations.append(local_best)
         print('Local best, gen. {}: {}'.format(i, local_best))
-        print("Sample length: {}".format(data_frame.iloc[start:end]['like1'].size))
+        print("Sample length: {}".format(
+            data_frame.iloc[start:end]['like1'].size))
 
     for col_label in range(len(data_label[2:])):
 
@@ -99,13 +100,15 @@ def plot_best_para_generation(data_label, data_frame, para_to_optimise,
         plt.close()
 
 
-def plot_scatter(data_label, data_frame, plot_title, plot_text,
-                 file_name=None, y_label=None, skip_lines=1):
+def plot_scatter(data_label, data_frame, plot_title,
+                 file_name=None, file_path=None, y_label=None, skip_lines=1,
+                 version=None,):
 
     """
     :param data_label: column label for Pandas data frame
     :param data_frame: name of the Pandas data frame
     :param plot_title: title of the plot
+    :param version: conveys (Propti) version information to the plot
     :param file_name: name of the PDF-file to be created
     :param file_path: path to the location where the file shall be written
     :param y_label: label for the y-axis, default: data_label
@@ -137,10 +140,17 @@ def plot_scatter(data_label, data_frame, plot_title, plot_text,
     else:
         plt.ylabel(y_label)
 
+    # Determine versions to provide them to the plot.
+    if version is None:
+        version_info = 'Not available.'
+    else:
+        version_info = version
+
     # Create plot title from file name.
-    #print(type(repr(plot_text)))
-    plt.title(plot_title + ' ' + file_name)
-    plt.figtext(0.6, 0.95, repr(plot_text))
+    #print(type(repr(version_info)))
+    plt.title(plot_title + file_name)
+    # plt.figtext(0.6, 0.95, repr('Version: {}'.format(version_info)))
+    plt.figtext(0.6, 0.95, 'Version: {}'.format(version_info))
     # plt.title(pr.Version().ver_propti + pr.Version().ver_fds, fontsize=6)
     plt.grid()
 
@@ -162,6 +172,151 @@ def plot_scatter(data_label, data_frame, plot_title, plot_text,
     print("Queue of plotting tasks finished.")
     print("")
 
+
+def plot_semilogx_scatter(data_label, data_frame, plot_title,
+                 file_name=None, file_path=None, y_label=None, skip_lines=1,
+                 version=None,):
+
+    """
+    :param data_label: column label for Pandas data frame
+    :param data_frame: name of the Pandas data frame
+    :param plot_title: title of the plot
+    :param version: conveys (Propti) version information to the plot
+    :param file_name: name of the PDF-file to be created
+    :param file_path: path to the location where the file shall be written
+    :param y_label: label for the y-axis, default: data_label
+    :param skip_lines: used to create plots while omitting the first lines
+                       of the data frame
+    :return: creates a plot and saves it as PDF-file
+    """
+
+    # Message to indicate that the plotting process has started.
+    n_plots = 1
+    print("")
+    print("RMSE scatter plot(s):")
+    print("Start plotting, {} task(s) in queue.".format(n_plots))
+    print("--------------")
+
+    # Extract the RMSE values from the data frame.
+    # Skip first entry.
+    rmse_values = data_frame[data_label][skip_lines:]
+
+    # Plot the RMSE values.
+    fig = plt.figure()
+    plt.semilogx(rmse_values, color='black', marker='.', linestyle='None')
+    # Finish the plot
+    # pl.rcParams['figure.figsize'] = 16, 12
+    plt.xlabel('Individuals')
+
+    if y_label is None:
+        plt.ylabel(data_label)
+    else:
+        plt.ylabel(y_label)
+
+    # Determine versions to provide them to the plot.
+    if version is None:
+        version_info = 'Not available.'
+    else:
+        version_info = version
+
+    # Create plot title from file name.
+    #print(type(repr(version_info)))
+    plt.title(plot_title + file_name)
+    # plt.figtext(0.6, 0.95, repr('Version: {}'.format(version_info)))
+    plt.figtext(0.6, 0.95, 'Version: {}'.format(version_info))
+    # plt.title(pr.Version().ver_propti + pr.Version().ver_fds, fontsize=6)
+    plt.grid()
+
+    # Check if a file name is provided, if it is a file will be
+    # created.
+    if file_name is not None:
+        if file_path is not None:
+
+            new_path = os.path.join(file_path, file_name + '_semilogx_scatter.pdf')
+        else:
+            new_path = os.path.join(file_name + '_semilogx_scatter.pdf')
+        plt.savefig(new_path)
+    plt.close(fig)
+
+    print("Plot '{}_semilogx_scatter.pdf' has been created.".format(file_name))
+
+    # Message to indicate that the job is done.
+    print("--------------")
+    print("Queue of plotting tasks finished.")
+    print("")
+
+
+def plot_semilogy_scatter(data_label, data_frame, plot_title,
+                 file_name=None, file_path=None, y_label=None, skip_lines=1,
+                 version=None,):
+
+    """
+    :param data_label: column label for Pandas data frame
+    :param data_frame: name of the Pandas data frame
+    :param plot_title: title of the plot
+    :param version: conveys (Propti) version information to the plot
+    :param file_name: name of the PDF-file to be created
+    :param file_path: path to the location where the file shall be written
+    :param y_label: label for the y-axis, default: data_label
+    :param skip_lines: used to create plots while omitting the first lines
+                       of the data frame
+    :return: creates a plot and saves it as PDF-file
+    """
+
+    # Message to indicate that the plotting process has started.
+    n_plots = 1
+    print("")
+    print("RMSE scatter plot(s):")
+    print("Start plotting, {} task(s) in queue.".format(n_plots))
+    print("--------------")
+
+    # Extract the RMSE values from the data frame.
+    # Skip first entry.
+    rmse_values = data_frame[data_label][skip_lines:]
+
+    # Plot the RMSE values.
+    fig = plt.figure()
+    plt.semilogy(rmse_values, color='black', marker='.', linestyle='None')
+    # Finish the plot
+    # pl.rcParams['figure.figsize'] = 16, 12
+    plt.xlabel('Individuals')
+
+    if y_label is None:
+        plt.ylabel(data_label)
+    else:
+        plt.ylabel(y_label)
+
+    # Determine versions to provide them to the plot.
+    if version is None:
+        version_info = 'Not available.'
+    else:
+        version_info = version
+
+    # Create plot title from file name.
+    #print(type(repr(version_info)))
+    plt.title(plot_title + file_name)
+    # plt.figtext(0.6, 0.95, repr('Version: {}'.format(version_info)))
+    plt.figtext(0.6, 0.95, 'Version: {}'.format(version_info))
+    # plt.title(pr.Version().ver_propti + pr.Version().ver_fds, fontsize=6)
+    plt.grid()
+
+    # Check if a file name is provided, if it is a file will be
+    # created.
+    if file_name is not None:
+        if file_path is not None:
+
+            new_path = os.path.join(file_path, file_name + '_semilogy_scatter.pdf')
+        else:
+            new_path = os.path.join(file_name + '_semilogy_scatter.pdf')
+        plt.savefig(new_path)
+    plt.close(fig)
+
+    print("Plot '{}_semilogy_scatter.pdf' has been created.".format(file_name))
+
+    # Message to indicate that the job is done.
+    print("--------------")
+    print("Queue of plotting tasks finished.")
+    print("")
 
 # for multiple directories
 #
@@ -340,6 +495,64 @@ def plot_box_rmse(df_name, plot_title, para_to_optimise,
     print("Queue of plotting tasks finished.")
     print("")
 
+
+def data_extractor(data_label, data_frame, para_to_optimise, num_complex,
+                   file_name=None, file_path=None, version=None,
+                   best_data=True):
+    # Extract the total amount of individuals over all generations,
+    # the very first individual will be skipped.
+    individuals_total = len(data_frame['chain'].tolist()) - 1
+    # Debugging:
+    # print 'Individuals total:', individuals_total
+
+    # Calculate generation size
+    generation_size = int((2 * para_to_optimise + 1) * num_complex)
+    print("Generation size: {}".format(generation_size))
+
+    # Calculate number of full generations. If last generation is
+    # only partly complete it will be skipped.
+    generations = individuals_total // generation_size
+    print("Generations: {}".format(generations))
+
+    # Collect data from the best parameter sets per generation.
+    if best_data is True:
+        # Find best fitness parameter per generation and collect them.
+        local_best_locations = []
+        for i in range(generations):
+            start = 0 + i * generation_size
+            end = 0 + (i + 1) * generation_size
+
+            local_best = data_frame.iloc[start:end]['like1'].idxmax()
+            local_best_locations.append(local_best)
+            print('Local best, gen. {}: {}'.format(i, local_best))
+            print("Sample length: {}".format(
+                data_frame.iloc[start:end]['like1'].size))
+
+        # Collect corresponding data.
+        new_data = []
+
+        # For each row.
+        for i in range(len(local_best_locations)):
+
+            # For each column (parameter), create key-value pair and put
+            # in dictionary.
+            new_element = {}
+            for col_label in range(len(data_label)):
+                key = data_label[col_label]
+                value = data_frame.iloc[local_best_locations[i]][data_label[col_label]]
+                new_element.update({key: value})
+
+            # Collect dictionaries in list
+            new_data.append(new_element)
+
+    # Construct pandas data frame from list of dicts, keep column labels .
+    new_data_frame = pd.DataFrame(new_data, columns=data_label)
+    print(new_data_frame)
+
+    # Write data frame to file.
+    new_path = os.path.join(file_path, file_name + '.csv')
+    new_data_frame.to_csv(new_path,
+                          sep=',', encoding='utf-8')
 
 # Multiple Directories
 #
