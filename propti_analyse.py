@@ -41,6 +41,15 @@ parser.add_argument("--plot_best_sim_exp",
                     help="plot results of the simulation of the best parameter "
                          "set and the experimental data to be compared with",
                     action="store_true")
+
+parser.add_argument("--plot_best_para_gen",
+                    help="Plots the value of the best parameter set for each"
+                         "parameter, by generation.",
+                    action="store_true")
+
+parser.add_argument("--func_test",
+                    help="Executes test function for testing purpose",
+                    action="store_true")
 cmdl_args = parser.parse_args()
 
 ver = None  # type: pr.Version
@@ -466,5 +475,81 @@ if cmdl_args.plot_best_sim_exp:
 
     for s in setups:
         pr.plot_best_sim_exp(s, pickle_file)
+    print("")
+    print("")
+
+
+###################################################
+###  Plot best parameter value, by generation.  ###
+###################################################
+
+if cmdl_args.plot_best_para_gen:
+
+    """
+    Plot the parameter values for the best parameter set of each generation.
+    """
+
+    print("")
+    print("* Plot best values of a generation.")
+    print("----------------------")
+    db_file_name = os.path.join(cmdl_args.root_dir,
+                                '{}.{}'.format(optimiser.db_name,
+                                               optimiser.db_type))
+
+    # Check if a directory for the result files exists. If not create it.
+    results_dir = check_directory(['Analysis', 'Plots', 'Para_Gen'])
+
+    # Collect the optimisation parameter names. Change format to match column
+    # headers in propti_db, based on SPOTPY definition. Store headers in a list.
+    cols = ['like1', 'chain']
+    for p in ops:
+        cols.append("par{}".format(p.place_holder))
+
+    # Extract data to be plotted.
+    data = pd.read_csv(db_file_name, usecols=cols)
+
+    pm.plot_best_para_generation(cols, data, len(ops), optimiser.ngs,
+                                 results_dir)
+
+    print("")
+    print("Plotting task completed.")
+    print("")
+    print("")
+
+
+###############################
+###  Functionality testing  ###
+###############################
+
+if cmdl_args.func_test:
+
+    """
+    Used to test functionality.
+    """
+
+    print("")
+    print("* Functionality testing.")
+    print("----------------------")
+    db_file_name = os.path.join(cmdl_args.root_dir,
+                                '{}.{}'.format(optimiser.db_name,
+                                               optimiser.db_type))
+
+    # Check if a directory for the result files exists. If not create it.
+    results_dir = check_directory(['Analysis', 'Plots', 'Para_Gen'])
+
+    # Collect the optimisation parameter names. Change format to match column
+    # headers in propti_db, based on SPOTPY definition. Store headers in a list.
+    cols = ['like1', 'chain']
+    for p in ops:
+        cols.append("par{}".format(p.place_holder))
+
+    # Extract data to be plotted.
+    data = pd.read_csv(db_file_name, usecols=cols)
+
+    pm.plot_best_para_generation(cols, data, len(ops), optimiser.ngs,
+                                 results_dir)
+
+    print("")
+    print("Functionality test completed.")
     print("")
     print("")

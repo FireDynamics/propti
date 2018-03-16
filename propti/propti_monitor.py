@@ -36,6 +36,68 @@ import os
 #%%
 
 
+# def plot_best_para_generation(data_label, data_frame, plot_title, plot_text,
+#                               para_to_optimise,
+#                               num_complex,
+#                               file_name=None, y_label=None, skip_lines=1):
+
+def plot_best_para_generation(data_label, data_frame, para_to_optimise,
+                              num_complex, file_path):
+
+    # Extract the total amount of individuals over all generations,
+    # the very first individual will be skipped.
+    individuals_total = len(data_frame['chain'].tolist()) - 1
+    # Debugging:
+    # print 'Individuals total:', individuals_total
+
+    # Calculate generation size
+    generation_size = int((2 * para_to_optimise + 1) * num_complex)
+    print("Generation size: {}".format(generation_size))
+
+    # Calculate number of full generations. If last generation is
+    # only partly complete it will be skipped.
+    generations = individuals_total // generation_size
+    print("Generations: {}".format(generations))
+
+    # Find best fitness parameter per generation and collect them.
+    local_best_locations = []
+    for i in range(generations):
+        start = 0 + i * generation_size
+        end = 0 + (i+1) * generation_size
+
+        local_best = data_frame.iloc[start:end]['like1'].idxmax()
+        local_best_locations.append(local_best)
+        print('Local best, gen. {}: {}'.format(i, local_best))
+        print("Sample length: {}".format(data_frame.iloc[start:end]['like1'].size))
+
+    for col_label in range(len(data_label[2:])):
+
+        # Prepare plotting .
+        # Collect data.
+        x_values = []
+        y_values = []
+
+        for lbl in local_best_locations:
+            x_values.append(lbl)
+            y_values.append(data_frame.iloc[lbl][data_label[2 + col_label]])
+
+        # Reset color cycle.
+        # plt.gca().set_color_cycle(None)
+
+        plt.plot(x_values, y_values, color='lightgrey')
+        plt.plot(x_values, y_values, marker='.', linestyle='None', color='k')
+
+        plt.title("Best value development per generation.")
+        plt.xlabel("Individuals")
+        plt.ylabel(data_label[2 + col_label])
+        plt.grid()
+
+        new_path = os.path.join(file_path, data_label[2 + col_label] + '.jpg')
+        print(new_path)
+        plt.savefig(new_path, dpi=400)
+        plt.show()
+        plt.close()
+
 
 def plot_scatter(data_label, data_frame, plot_title, plot_text,
                  file_name=None, y_label=None, skip_lines=1):
