@@ -191,7 +191,8 @@ if cmdl_args.create_best_input:
     print("")
 
     # Check if a directory for the result files exists. If not, create it.
-    results_dir = check_directory(['Analysis', 'BestParameter'])
+    results_dir = check_directory(['Analysis', 'BestParameter',
+                                   'Repetition_{}'.format(best_fitness_index)])
 
     # Collect simulation setup names.
     print("* Collect simulation setup names:")
@@ -308,9 +309,10 @@ if cmdl_args.create_best_input:
                                             str(new_para_value))
 
         # Write new input file with best parameters.
-        pbf.write_input_file(temp_raw,
-                             os.path.join(results_dir, simsetup,
-                                          simsetup + '.fds'))
+        bip = os.path.join(results_dir, simsetup,
+                           simsetup + '_rep{}.fds'.format(best_fitness_index))
+        pbf.write_input_file(temp_raw, bip)
+
         print("---")
         # Advance counter.
         css += 1
