@@ -537,6 +537,11 @@ def data_extractor(data_label, data_frame, para_to_optimise, num_complex,
             # For each column (parameter), create key-value pair and put
             # in dictionary.
             new_element = {}
+
+            # Collect the number of the repetition to keep track where the
+            # parameter sets are from.
+            new_element.update({'repetition': local_best_locations[i]})
+
             for col_label in range(len(data_label)):
                 key = data_label[col_label]
                 value = data_frame.iloc[local_best_locations[i]][data_label[col_label]]
@@ -546,7 +551,8 @@ def data_extractor(data_label, data_frame, para_to_optimise, num_complex,
             new_data.append(new_element)
 
     # Construct pandas data frame from list of dicts, keep column labels .
-    new_data_frame = pd.DataFrame(new_data, columns=data_label)
+    new_cols = data_label.append('repetition')
+    new_data_frame = pd.DataFrame(new_data, columns=new_cols)
     print(new_data_frame)
 
     # Write data frame to file.
