@@ -147,7 +147,7 @@ def plot_scatter(data_label, data_frame, plot_title,
         version_info = version
 
     # Create plot title from file name.
-    #print(type(repr(version_info)))
+    # print(type(repr(version_info)))
     plt.title(plot_title + file_name)
     # plt.figtext(0.6, 0.95, repr('Version: {}'.format(version_info)))
     plt.figtext(0.6, 0.95, 'Version: {}'.format(version_info))
@@ -174,8 +174,8 @@ def plot_scatter(data_label, data_frame, plot_title,
 
 
 def plot_semilogx_scatter(data_label, data_frame, plot_title,
-                 file_name=None, file_path=None, y_label=None, skip_lines=1,
-                 version=None,):
+                          file_name=None, file_path=None, y_label=None,
+                          skip_lines=1, version=None,):
 
     """
     :param data_label: column label for Pandas data frame
@@ -220,7 +220,7 @@ def plot_semilogx_scatter(data_label, data_frame, plot_title,
         version_info = version
 
     # Create plot title from file name.
-    #print(type(repr(version_info)))
+    # print(type(repr(version_info)))
     plt.title(plot_title + file_name)
     # plt.figtext(0.6, 0.95, repr('Version: {}'.format(version_info)))
     plt.figtext(0.6, 0.95, 'Version: {}'.format(version_info))
@@ -232,7 +232,8 @@ def plot_semilogx_scatter(data_label, data_frame, plot_title,
     if file_name is not None:
         if file_path is not None:
 
-            new_path = os.path.join(file_path, file_name + '_semilogx_scatter.pdf')
+            new_path = os.path.join(file_path,
+                                    file_name + '_semilogx_scatter.pdf')
         else:
             new_path = os.path.join(file_name + '_semilogx_scatter.pdf')
         plt.savefig(new_path)
@@ -247,8 +248,8 @@ def plot_semilogx_scatter(data_label, data_frame, plot_title,
 
 
 def plot_semilogy_scatter(data_label, data_frame, plot_title,
-                 file_name=None, file_path=None, y_label=None, skip_lines=1,
-                 version=None,):
+                          file_name=None, file_path=None, y_label=None,
+                          skip_lines=1, version=None,):
 
     """
     :param data_label: column label for Pandas data frame
@@ -293,7 +294,7 @@ def plot_semilogy_scatter(data_label, data_frame, plot_title,
         version_info = version
 
     # Create plot title from file name.
-    #print(type(repr(version_info)))
+    # print(type(repr(version_info)))
     plt.title(plot_title + file_name)
     # plt.figtext(0.6, 0.95, repr('Version: {}'.format(version_info)))
     plt.figtext(0.6, 0.95, 'Version: {}'.format(version_info))
@@ -305,7 +306,8 @@ def plot_semilogy_scatter(data_label, data_frame, plot_title,
     if file_name is not None:
         if file_path is not None:
 
-            new_path = os.path.join(file_path, file_name + '_semilogy_scatter.pdf')
+            new_path = os.path.join(file_path,
+                                    file_name + '_semilogy_scatter.pdf')
         else:
             new_path = os.path.join(file_name + '_semilogy_scatter.pdf')
         plt.savefig(new_path)
@@ -417,7 +419,7 @@ def plot_box_rmse(df_name, plot_title, para_to_optimise,
     # the very first individual will be skipped.
     individuals_total = len(df_name['chain'].tolist()) - 1
     # Debugging:
-    #print 'Individuals total:', individuals_total
+    # print 'Individuals total:', individuals_total
 
     # Calculate generation size
     generation_size = int((2 * para_to_optimise + 1) * num_complex)
@@ -429,7 +431,7 @@ def plot_box_rmse(df_name, plot_title, para_to_optimise,
     print(generations)
 
     # Debugging:
-    #print 'Generations:', generations
+    # print 'Generations:', generations
 
     # Check if at least one full generation exists, if not print
     # a message and terminate this particular task and go on with
@@ -440,7 +442,7 @@ def plot_box_rmse(df_name, plot_title, para_to_optimise,
         print("* {}".format(file_name))
         print("* Task of plotting generation data stopped.")
         return
-    #continue
+    # continue
 
     # Prepare list of lists to take the data for multiple boxplots, based
     # on the generations.
@@ -465,9 +467,9 @@ def plot_box_rmse(df_name, plot_title, para_to_optimise,
     ax.boxplot(data_series_multi)
 
     # Finish the plot
-    #pl.rcParams['figure.figsize'] = 16, 12
+    # pl.rcParams['figure.figsize'] = 16, 12
     # Prepare list for x-tick labels.
-    x_tick_labels = ['',]
+    x_tick_labels = ['', ]
     # Create x-tick labels based on number of generations.
     for i in range(generations):
         x_tick_labels.append(str(i))
@@ -544,7 +546,8 @@ def data_extractor(data_label, data_frame, para_to_optimise, num_complex,
 
             for col_label in range(len(data_label)):
                 key = data_label[col_label]
-                value = data_frame.iloc[local_best_locations[i]][data_label[col_label]]
+                value = data_frame.iloc[
+                    local_best_locations[i]][data_label[col_label]]
                 new_element.update({key: value})
 
             # Collect dictionaries in list
