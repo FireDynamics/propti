@@ -4,6 +4,7 @@ import pickle
 import logging
 import argparse
 import sys
+import copy
 
 import propti.basic_functions as pbf
 
@@ -762,7 +763,7 @@ if cmdl_args.func_test:
     #
     print("Number of data sets: {}".format(len(extr_data['repetition'])))
     for i in range(len(extr_data['repetition'])):
-        new_dir_rep = 'rep_{}'.format(int(extr_data.iloc[i]['repetition']))
+        new_dir_rep = 'rep_{:08d}'.format(int(extr_data.iloc[i]['repetition']))
         check_directory([extractor_dir, new_dir_rep])
         print(i)
 
@@ -778,11 +779,13 @@ if cmdl_args.func_test:
         # Append optimisation parameter place holders and values to the
         # parameter lists, sorted by simulation setups.
 
-        para_simsetup_complete_work = para_simsetup_complete[:]
+        para_simsetup_complete_work = copy.deepcopy(para_simsetup_complete)
         # for pssc in para_simsetup_complete:
+        print(len(opti_para))
         for pssc in para_simsetup_complete_work:
             for para in opti_para:
                 pssc.append(para)
+            print("pssc: ", len(pssc))
 
         # print("para complete: {}".format(para_simsetup_complete))
         print("")
@@ -804,7 +807,7 @@ if cmdl_args.func_test:
             # Create new input files with best parameters,
             # based on simulation setups.
             for bestpara in para_simsetup_complete_work[css]:
-                print("best para: {}".format(bestpara))
+                # print("best para: {}".format(bestpara))
                 new_para_value = bestpara[1]
 
                 if type(new_para_value) == float:
@@ -838,8 +841,12 @@ if cmdl_args.func_test:
             pbf.write_input_file(temp_raw, bip)
 
             print("---")
+            print(len(cols))
+            print(len(para_simsetup_complete[css]))
             # Advance counter.
             css += 1
+
+            temp_raw = ''
 
         print(len(para_simsetup_complete_work))
         para_simsetup_complete_work.clear()
