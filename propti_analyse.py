@@ -61,6 +61,11 @@ parser.add_argument("--extract_data_input",
                          "from the data extractor.",
                     action="store_true")
 
+parser.add_argument("--create_case_input",
+                    help="Creates input files for user cases, based on  the "
+                         "resulting file from the data extractor.",
+                    action="store_true")
+
 parser.add_argument("--func_test",
                     help="Executes test function for testing purpose",
                     action="store_true")
@@ -797,14 +802,16 @@ if cmdl_args.extract_data_input:
     print("")
 
 
-###############################
-###  Functionality testing  ###
-###############################
+#####################################
+###  Create Input for User Cases  ###
+#####################################
 
-if cmdl_args.func_test:
+if cmdl_args.create_case_input:
 
     """
-    Used to test functionality.
+    Templates of simulation input files are filled with data from the data 
+    extractor. However, the templates are free to chose, thus means are provided
+    to implement results from the IMP into different use cases.
     """
 
     print("")
@@ -815,9 +822,9 @@ if cmdl_args.func_test:
                                                optimiser.db_type))
 
     # Check if a directory for the result files exists. If not create it.
-    extractor_dir = check_directory(['Analysis', 'DataExtractor'])
+    case_dir = check_directory(['Analysis', 'Cases'])
 
-    # Directory that shall contain the results from data_extractor.
+    # Directory that is supposed to contain the results from data_extractor.
     results_dir_best_para = os.path.join(cmdl_args.root_dir, 'Analysis',
                                          'BestParameter')
 
@@ -832,73 +839,29 @@ if cmdl_args.func_test:
         print("")
         exit()
 
-    # Collect simulation setup names.
-    print("* Collect simulation setup names:")
-    print("---")
+    # Check if template exists.
+    case_temp_name = 'C219_MT3_LargeDomain'
+    template_file_path = '{}.fds'.format(case_temp_name)
+    if os.path.isfile(template_file_path):
+        print("Template for cases found.")
+        print("")
+    else:
+        print("No template for cases found.\n"
+              "Please provide a template.")
+        print("")
+        exit()
 
-    sim_setup_names = []
-    for ssn in range(len(setups)):
-        ssn_value = setups[ssn].name
-        sim_setup_names.append(ssn_value)
-
-        print("Setup {}: {}".format(ssn, ssn_value))
-    print("---")
-    print("")
-
-    # Collect the optimisation parameter names. Change format to match column
-    # headers in propti_db, based on SPOTPY definition. Store headers in a list.
-    cols = []
-    for p in ops:
-        cols.append("par{}".format(p.place_holder))
-    print(cols)
-    # Collect parameter names
-    print("* Collect parameter names and place holders:")
-    print("---")
-
-    para_names = []
-    para_simsetup_complete = []
-    para_name_list = []
-    for s_i in range(len(setups)):
-
-        # Place holder list
-        para_ph_list = []
-
-        # Collect model parameters, those which describe the simulation setup.
-        # First, find all parameters and place holders.
-        para_meta_simsetup = []
-        for s_j in range(len(setups[s_i].model_parameter.parameters)):
-            paras = setups[s_i].model_parameter.parameters
-
-            para_name = paras[s_j].name
-            para_name_list.append(para_name)
-
-            para_ph = paras[s_j].place_holder
-            para_ph_list.append(para_ph)
-
-            # Compare the place holders with the optimisation parameters, to
-            # determine if they are meta parameters.
-            p_i = 'par{}'.format(para_ph)
-            if p_i not in cols:
-                # Store meta parameters (place holder and value) in list.
-                para_meta_simsetup.append([para_ph, paras[s_j].value])
-
-            print('Name: {}'.format(para_name))
-            print('Place holder: {}'.format(para_ph))
-        print("---")
-
-        # Put meta lists into list which mirrors the simulation setups.
-        para_simsetup_complete.append(para_meta_simsetup)
-    print("")
-
-    print("* Extract data from collection.")
-    print("---")
-    print("Read data collection file, please wait...")
-    print("")
+    # Read case template.
+    temp_raw = pbf.read_template(template_file_path)
 
     # Read data collection from data_extractor.
     extr_data = pd.read_csv(extr_file, sep=',')
 
     #
+
+    cols = list(extr_data)
+    print(cols)
+
     print("Number of data sets: {}".format(len(extr_data['repetition'])))
     for i in range(len(extr_data['repetition'])):
 
@@ -906,66 +869,150 @@ if cmdl_args.func_test:
         print("--------------")
 
         rep_value = int(extr_data.iloc[i]['repetition'])
-        new_dir_rep = 'rep_{:08d}'.format(rep_value)
-        check_directory([extractor_dir, new_dir_rep])
+        new_dir_rep = 'rep_{:06d}'.format(rep_value)
+        check_directory([case_dir, new_dir_rep])
         print("Line: {}".format(i))
         print("Repetition value: {}".format(rep_value))
         print("")
+        print("Parameters:")
+        print("---")
 
-        # Extract the parameter values of the best set. Store place holder and
-        # parameter values in lists.
-        opti_para = []
-        for j in range(len(cols)):
-            new_para_value = extr_data.at[i, cols[j]]
-            print("{}: {}".format(para_name_list[j], new_para_value))
-            opti_para.append([cols[j][3:], new_para_value])
-
-        # Append optimisation parameter place holders and values to the
-        # parameter lists, sorted by simulation setups.
-
-        para_simsetup_complete_work = copy.deepcopy(para_simsetup_complete)
-        for pssc in para_simsetup_complete_work:
-            for para in opti_para:
-                pssc.append(para)
-
-        # Load templates from each simulation setup, fill in the values and
-        # write the new input files in the appropriate directories.
-        # Counter
-        css = 0
-        for simsetup in sim_setup_names:
-            # Create new directories, based on simulation setup names.
-            check_directory([extractor_dir, new_dir_rep, simsetup])
-
-            # Load template.
-            template_file_path = setups[css].model_template
-            temp_raw = pbf.read_template(template_file_path)
-
-            # Create new input files with best parameters,
-            # based on simulation setups.
-            for bestpara in para_simsetup_complete_work[css]:
-
-                new_para_value = bestpara[1]
+        for c in range(len(cols)):
+            if "par" in cols[c]:
+                if "insulator" in cols[c]:
+                    # Divide insulator layer thickness by 2, for even split.
+                    new_para_value = extr_data.at[i, cols[c]]/2
+                else:
+                    new_para_value = extr_data.at[i, cols[c]]
 
                 if type(new_para_value) == float:
-                    temp_raw = temp_raw.replace("#" + bestpara[0] + "#",
+                    temp_raw = temp_raw.replace("#" + cols[c][3:] + "#",
                                                 "{:E}".format(new_para_value))
                 else:
-                    temp_raw = temp_raw.replace("#" + bestpara[0] + "#",
+                    temp_raw = temp_raw.replace("#" + cols[c][3:] + "#",
                                                 str(new_para_value))
 
+            # Set character ID for file.
+            rep_value = int(extr_data.iloc[i]['repetition'])
+            temp_raw = temp_raw.replace("#chid#",
+                                        "{}_rep{:06d}").format(case_temp_name,
+                                                               rep_value)
+
             # Write new input file with best parameters.
-            bip = os.path.join(extractor_dir, new_dir_rep, simsetup,
-                               simsetup + '_rep{}.fds'.format(
-                                   int(extr_data.iloc[i]['repetition'])))
+            new_case_name = '{}_rep{:06d}.fds'.format(case_temp_name, rep_value)
+            bip = os.path.join(case_dir, new_dir_rep, new_case_name)
             pbf.write_input_file(temp_raw, bip)
 
-            # Advance counter.
-            css += 1
 
-        para_simsetup_complete_work.clear()
 
-        print("---")
+    print("")
+    print("Functionality test completed.")
+    print("")
+    print("")
+
+
+###############################
+###  Functionality testing  ###
+###############################
+
+if cmdl_args.func_test:
+
+    """
+    Used to test functionality.
+
+    Templates of simulation input files are filled with data from the data 
+    extractor. However, the templates are free to chose, thus means are provided
+    to implement results from the IMP into different use cases.
+    """
+
+    print("")
+    print("* Functionality testing.")
+    print("----------------------")
+    db_file_name = os.path.join(cmdl_args.root_dir,
+                                '{}.{}'.format(optimiser.db_name,
+                                               optimiser.db_type))
+
+    # Check if a directory for the result files exists. If not create it.
+    case_dir = check_directory(['Analysis', 'Cases'])
+
+    # Directory that is supposed to contain the results from data_extractor.
+    results_dir_best_para = os.path.join(cmdl_args.root_dir, 'Analysis',
+                                         'BestParameter')
+
+    # Check if data collection exists.
+    extr_file = os.path.join(results_dir_best_para, 'BestParaExtraction.csv')
+    if os.path.isfile(extr_file):
+        print("Data collection from data_extractor found.")
         print("")
+    else:
+        print("No data collection from data_extractor found.\n"
+              "Please run the data_collector first.")
+        print("")
+        exit()
+
+    # Check if template exists.
+    case_temp_name = 'C219_MT3_LargeDomain'
+    template_file_path = '{}.fds'.format(case_temp_name)
+    if os.path.isfile(template_file_path):
+        print("Template for cases found.")
+        print("")
+    else:
+        print("No template for cases found.\n"
+              "Please provide a template.")
+        print("")
+        exit()
+
+    # Read case template.
+    temp_raw = pbf.read_template(template_file_path)
+
+    # Read data collection from data_extractor.
+    extr_data = pd.read_csv(extr_file, sep=',')
+
+    #
+
+    cols = list(extr_data)
+    print(cols)
+
+    print("Number of data sets: {}".format(len(extr_data['repetition'])))
+    for i in range(len(extr_data['repetition'])):
+
+        print("* Fill templates")
+        print("--------------")
+
+        rep_value = int(extr_data.iloc[i]['repetition'])
+        new_dir_rep = 'rep_{:06d}'.format(rep_value)
+        check_directory([case_dir, new_dir_rep])
+        print("Line: {}".format(i))
+        print("Repetition value: {}".format(rep_value))
+        print("")
+        print("Parameters:")
+        print("---")
+
+        for c in range(len(cols)):
+            if "par" in cols[c]:
+                if "insulator" in cols[c]:
+                    # Divide insulator layer thickness by 2, for even split.
+                    new_para_value = extr_data.at[i, cols[c]] / 2
+                else:
+                    new_para_value = extr_data.at[i, cols[c]]
+
+                if type(new_para_value) == float:
+                    temp_raw = temp_raw.replace("#" + cols[c][3:] + "#",
+                                                "{:E}".format(new_para_value))
+                else:
+                    temp_raw = temp_raw.replace("#" + cols[c][3:] + "#",
+                                                str(new_para_value))
+
+            # Set character ID for file.
+            rep_value = int(extr_data.iloc[i]['repetition'])
+            temp_raw = temp_raw.replace("#chid#",
+                                        "{}_rep{:06d}").format(case_temp_name,
+                                                               rep_value)
+
+            # Write new input file with best parameters.
+            new_case_name = '{}_rep{:06d}.fds'.format(case_temp_name, rep_value)
+            bip = os.path.join(case_dir, new_dir_rep, new_case_name)
+            pbf.write_input_file(temp_raw, bip)
 
     print("")
     print("Functionality test completed.")
