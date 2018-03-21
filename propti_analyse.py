@@ -851,8 +851,6 @@ if cmdl_args.create_case_input:
         print("")
         exit()
 
-    # Read case template.
-    temp_raw = pbf.read_template(template_file_path)
 
     # Read data collection from data_extractor.
     extr_data = pd.read_csv(extr_file, sep=',')
@@ -865,6 +863,9 @@ if cmdl_args.create_case_input:
     print("Number of data sets: {}".format(len(extr_data['repetition'])))
     for i in range(len(extr_data['repetition'])):
 
+        # Read case template.
+        temp_raw = pbf.read_template(template_file_path)
+        
         print("* Fill templates")
         print("--------------")
 
@@ -885,6 +886,8 @@ if cmdl_args.create_case_input:
                 else:
                     new_para_value = extr_data.at[i, cols[c]]
 
+                print("{}: {}".format(cols[c], new_para_value))
+
                 if type(new_para_value) == float:
                     temp_raw = temp_raw.replace("#" + cols[c][3:] + "#",
                                                 "{:E}".format(new_para_value))
@@ -892,18 +895,17 @@ if cmdl_args.create_case_input:
                     temp_raw = temp_raw.replace("#" + cols[c][3:] + "#",
                                                 str(new_para_value))
 
-            # Set character ID for file.
-            rep_value = int(extr_data.iloc[i]['repetition'])
-            temp_raw = temp_raw.replace("#chid#",
-                                        "{}_rep{:06d}").format(case_temp_name,
-                                                               rep_value)
+        # Set character ID for file.
+        rep_value = int(extr_data.iloc[i]['repetition'])
+        temp_raw = temp_raw.replace("#chid#",
+                                    "{}_rep{:06d}").format(case_temp_name,
+                                                           rep_value)
 
-            # Write new input file with best parameters.
-            new_case_name = '{}_rep{:06d}.fds'.format(case_temp_name, rep_value)
-            bip = os.path.join(case_dir, new_dir_rep, new_case_name)
-            pbf.write_input_file(temp_raw, bip)
-
-
+        # Write new input file with best parameters.
+        new_case_name = '{}_rep{:06d}.fds'.format(case_temp_name, rep_value)
+        bip = os.path.join(case_dir, new_dir_rep, new_case_name)
+        pbf.write_input_file(temp_raw, bip)
+        print(len(temp_raw))
 
     print("")
     print("Functionality test completed.")
