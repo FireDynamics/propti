@@ -865,7 +865,7 @@ if cmdl_args.create_case_input:
 
         # Read case template.
         temp_raw = pbf.read_template(template_file_path)
-        
+
         print("* Fill templates")
         print("--------------")
 
