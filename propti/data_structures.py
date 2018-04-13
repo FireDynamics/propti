@@ -701,7 +701,7 @@ class Version:
         try:
             with open(os.path.join(script_location,
                                    '../', 'VERSION.txt'), 'r') as f:
-                ver = f.readline()[6:24]
+                ver = f.readline()[7:25]
             f.close()
         except:
             print("Version file not found.")

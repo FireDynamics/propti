@@ -20,6 +20,11 @@ parser.add_argument("root_dir", type=str,
                     help="optimisation root directory",
                     default='.')
 
+parser.add_argument("--inspect_init",
+                    help="provide overview over the data stored in the "
+                         "pickle.init file",
+                    action="store_true")
+
 parser.add_argument("--create_best_input",
                     help="Creates simulation input file  with "
                          "best parameter set",
@@ -116,7 +121,7 @@ pickle_file = os.path.join(cmdl_args.root_dir, 'propti.pickle.init')
 in_file = open(pickle_file, 'rb')
 
 #########
-# TODO: Enable better backwards compatibility then the following:
+# TODO: Enable better backwards compatibility than the following:
 
 pickle_items = []
 for item in pickle.load(in_file):
@@ -152,13 +157,46 @@ if ops is None:
 # TODO: use placeholder as name? or other way round?
 
 
+##################################
+###  Inspect PROPTI Init file  ###
+##################################
+
+if cmdl_args.inspect_init:
+    db_file_name = os.path.join(cmdl_args.root_dir,
+                                '{}.{}'.format(optimiser.db_name,
+                                               optimiser.db_type))
+
+    print("")
+    print(" Inspection of the pickle.init")
+    print("----------------------")
+
+    print("* Version:")
+    print(ver)
+
+    print("* Simulation Setups:")
+    print(setups)
+
+    print("* Optimisation Parameters:")
+    print(ops)
+
+    print("Optimiser Settings:")
+    print(optimiser)
+
+    print("")
+    print("")
+
+
+##############################################
+###  Run Simulation of Best Parameter Set  ###
+##############################################
+
 if cmdl_args.run_best:
     db_file_name = os.path.join(cmdl_args.root_dir,
                                 '{}.{}'.format(optimiser.db_name,
                                                optimiser.db_type))
 
     print("")
-    print("- run simulation(s) of best parameter set")
+    print("* Run simulation(s) of best parameter set")
     print("----------------------")
     pr.run_best_para(setups, ops, optimiser, pickle_file)
     print("")
