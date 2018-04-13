@@ -734,10 +734,10 @@ class Version:
         return "\nversion\n" \
                "--------------------\n" \
                "Propti Version: \t{}\n" \
-               "Spotpy Version: \t{}\n"\
+               "Spotpy Version: \t{}\n" \
                "FDS Version:\t\t{}".format(self.ver_propti,
-                                             self.ver_spotpy,
-                                             self.ver_fds)
+                                           self.ver_spotpy,
+                                           self.ver_fds)
 
 
 def test_simulation_setup_setup():
