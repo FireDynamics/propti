@@ -96,6 +96,15 @@ class OptimiserProperties:
         Pretty print of (major) class values
         :return: string
         """
+
+        ####
+        # TODO: Revisit this attempt for backwards compatibility.
+        if hasattr(self, 'backup_every'):
+            be = self.backup_every
+        else:
+            be = 'Not available.'
+        #####
+
         return "\noptimiser properties\n" \
                "--------------------\n" \
                "alg: {}\nrep: {}\nrep_backup: {}\nngs: {}" \
@@ -105,7 +114,7 @@ class OptimiserProperties:
                "\nnumber of sub-processes: {}" \
                "\nmpi mode: {}\n".format(self.algorithm,
                                          self.repetitions,
-                                         self.backup_every,
+                                         be,
                                          self.ngs,
                                          self.db_name,
                                          self.db_type,
