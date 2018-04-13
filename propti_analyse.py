@@ -167,7 +167,7 @@ if cmdl_args.inspect_init:
                                                optimiser.db_type))
 
     print("")
-    print(" Inspection of the pickle.init")
+    print("* Inspection of the pickle.init")
     print("----------------------")
 
     print("* Version:")
@@ -179,7 +179,7 @@ if cmdl_args.inspect_init:
     print("* Optimisation Parameters:")
     print(ops)
 
-    print("Optimiser Settings:")
+    print("* Optimiser Settings:")
     print(optimiser)
 
     print("")
@@ -449,7 +449,7 @@ if cmdl_args.plot_para_values:
     for c in cols[2:]:
         # Scatter plots of parameter development over the whole run.
         pr.plot_scatter(c, data, 'Parameter development: ', c,
-                        results_dir_scatter)
+                        results_dir_scatter, version=ver.ver_propti)
 
         # Histogram plots of parameters
         pr.plot_hist(c, data, 'Histogram per generation for: ' + c,
@@ -458,7 +458,8 @@ if cmdl_args.plot_para_values:
     # Scatter plot of fitness values.
     pr.plot_scatter('like1', data, 'Fitness value development',
                     'FitnessDevelopment', results_dir_scatter,
-                    'Root Mean Square Error (RMSE)')
+                    'Root Mean Square Error (RMSE)',
+                    version=ver.ver_propti)
 
     # Plot values of best parameter set, by generation.
     pm.plot_best_para_generation(cols, data, len(ops), optimiser.ngs,
@@ -467,7 +468,8 @@ if cmdl_args.plot_para_values:
     # Plot fitness semi-log x.
     pm.plot_semilogx_scatter('like1', data, 'Fitness value development',
                              'FitnessDevelopment', results_dir_log,
-                             'Root Mean Square Error (RMSE)')
+                             'Root Mean Square Error (RMSE)',
+                             version=ver.ver_propti)
 
     # Box plot to visualise steps (generations).
     pr.plot_box_rmse(data, 'Fitness values, histogram per step (generation)',
