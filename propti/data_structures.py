@@ -681,21 +681,33 @@ class Version:
         ''' Look for propti-version and print a human readable representation.
             Print git hash value if no git is present.
         '''
-        try:
-            ver = subprocess.check_output(["git describe --always"
-                                        ], shell=True).strip().decode("utf-8")
-        except subprocess.CalledProcessError as e:
-            output = e.output
-            self.flag_propti = e.returncode
-        # if git command doesn't exist
+        # try:
+        #     ver = subprocess.check_output(["git describe --always"
+        #                                 ], shell=True).strip().decode("utf-8")
+        # except subprocess.CalledProcessError as e:
+        #     output = e.output
+        #     self.flag_propti = e.returncode
+        # # if git command doesn't exist
+        #
+        # if self.flag_propti != 0:  # TODO: This is a little hard coded(?)
+        #     with open(os.path.join(script_location,
+        #                            '../', '.git/refs/heads/master'), 'r') as f:
+        #         ver = f.readline()[:7]
+        #     with open(os.path.join(script_location,
+        #                            '../', 'VERSION.txt'), 'r') as f:
+        #         ver = f.readline()[6:24]
+        #     f.close()
 
-        if self.flag_propti != 0:  # TODO: This is a little hard coded(?)
+        try:
             with open(os.path.join(script_location,
-                                   '../', '.git/refs/heads/master'), 'r') as f:
-                ver = f.readline()[:7]
+                                   '../', 'VERSION.txt'), 'r') as f:
+                ver = f.readline()[6:24]
             f.close()
-        ver = 'PROPTI-' + ver
-        return ver
+        except:
+            print("Version file not found.")
+
+        ver_data = 'PROPTI-' + ver
+        return ver_data
 
     def fds_versionCall(self) -> str:  # TODO: must capture errors of any kind ?
         ''' Look for fds revision by calling fds without parameters

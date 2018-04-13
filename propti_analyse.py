@@ -900,6 +900,9 @@ if cmdl_args.create_case_input:
         temp_raw = temp_raw.replace("#chid#",
                                     "{}_rep{:06d}").format(case_temp_name,
                                                            rep_value)
+        temp_raw = temp_raw.replace("#chid2#",
+                                    "{}_rep{:06d}").format(case_temp_name,
+                                                           rep_value)
 
         # Write new input file with best parameters.
         new_case_name = '{}_rep{:06d}.fds'.format(case_temp_name, rep_value)
