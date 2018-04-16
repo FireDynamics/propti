@@ -389,10 +389,10 @@ class Relation:
         # if file name is not specified, do not read from file, as data may
         # have been set directly to ds.x / ds.y
         if ds.file_name is None:
-            logging.warning("skip reading data, no data file defined")
+            logging.warning("* Skip reading data, no data file defined")
             return
 
-        logging.debug("read in data file: {} in directory".format(ds.file_name,
+        logging.debug("* Read in data file: {} in directory".format(ds.file_name,
                                                                   wd))
 
         # construct the input file name
@@ -426,7 +426,7 @@ class Relation:
         if target == 'experiment':
             ds = self.experiment
         if ds is None:
-            logging.error("wrong data read target: {}".format(target))
+            logging.error("* Wrong data read target: {}".format(target))
             sys.exit()
 
         # which mode?
@@ -441,7 +441,7 @@ class Relation:
                              ds.y) * ds.factor + ds.offset
 
         # wrong mode was chosen
-        logging.error("wrong data mapping mode: {}".format(mode))
+        logging.error("* Wrong data mapping mode: {}".format(mode))
         sys.exit()
 
     def __str__(self) -> str:
