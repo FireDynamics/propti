@@ -522,9 +522,10 @@ def data_extractor(data_label, data_frame, para_to_optimise, num_complex,
 
     #################
 
-
     # Collect data from the best parameter sets per generation.
     if best_data is True:
+        print('Collect best parameter sets per generation.')
+
         # Find best fitness parameter per generation and collect them.
         local_best_locations = []
         for i in range(generations):
@@ -561,6 +562,8 @@ def data_extractor(data_label, data_frame, para_to_optimise, num_complex,
             new_data.append(new_element)
 
     if best_data is False:
+        print('Collect worst parameter sets per generation.')
+
         # Find worst fitness parameter per generation and collect them.
         local_worst_locations = []
         for i in range(generations):
