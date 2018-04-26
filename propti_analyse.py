@@ -646,6 +646,7 @@ if cmdl_args.extract_data:
 
     # Check if a directory for the result files exists. If not create it.
     results_dir_best_para = check_directory(['Analysis', 'BestParameter'])
+    results_dir_worst_para = check_directory(['Analysis', 'WorstParameter'])
 
     # Collect the optimisation parameter names. Change format to match column
     # headers in propti_db, based on SPOTPY definition. Store headers in a list.
@@ -658,6 +659,9 @@ if cmdl_args.extract_data:
     # Scatter plot of fitness values.
     pm.data_extractor(cols, data, len(ops), optimiser.ngs,
                       'BestParaExtraction', results_dir_best_para)
+    pm.data_extractor(cols, data, len(ops), optimiser.ngs,
+                      'WorstParaExtraction', results_dir_worst_para,
+                      best_data=False)
 
     print("")
     print("Extraction completed and file saved.")

@@ -501,6 +501,10 @@ def plot_box_rmse(df_name, plot_title, para_to_optimise,
 def data_extractor(data_label, data_frame, para_to_optimise, num_complex,
                    file_name=None, file_path=None, version=None,
                    best_data=True, get_limits=True):
+
+    # Create copy of data label list to prevent conflicts.
+    dl = data_label[:]
+
     # Extract the total amount of individuals over all generations,
     # the very first individual will be skipped.
     individuals_total = len(data_frame['chain'].tolist()) - 1
@@ -515,6 +519,9 @@ def data_extractor(data_label, data_frame, para_to_optimise, num_complex,
     # only partly complete it will be skipped.
     generations = individuals_total // generation_size
     print("Generations: {}".format(generations))
+
+    #################
+
 
     # Collect data from the best parameter sets per generation.
     if best_data is True:
@@ -544,17 +551,92 @@ def data_extractor(data_label, data_frame, para_to_optimise, num_complex,
             # parameter sets are from.
             new_element.update({'repetition': local_best_locations[i]})
 
-            for col_label in range(len(data_label)):
-                key = data_label[col_label]
+            for col_label in range(len(dl)):
+                key = dl[col_label]
                 value = data_frame.iloc[
-                    local_best_locations[i]][data_label[col_label]]
+                    local_best_locations[i]][dl[col_label]]
                 new_element.update({key: value})
 
             # Collect dictionaries in list
             new_data.append(new_element)
 
+    if best_data is False:
+        # Find worst fitness parameter per generation and collect them.
+        local_worst_locations = []
+        for i in range(generations):
+            start = 0 + i * generation_size
+            end = 0 + (i + 1) * generation_size
+
+            local_worst = data_frame.iloc[start:end]['like1'].idxmin()
+            local_worst_locations.append(local_worst)
+            print('Local worst, gen. {}: {}'.format(i, local_worst))
+            print("Sample length: {}".format(
+                data_frame.iloc[start:end]['like1'].size))
+
+        # Collect corresponding data.
+        new_data = []
+
+        # For each row.
+        for i in range(len(local_worst_locations)):
+
+            # For each column (parameter), create key-value pair and put
+            # in dictionary.
+            new_element2 = {}
+
+            # Collect the number of the repetition to keep track where the
+            # parameter sets are from.
+            new_element2.update({'repetition': local_worst_locations[i]})
+
+            for col_label in range(len(dl)):
+                key = dl[col_label]
+                value = data_frame.iloc[
+                    local_worst_locations[i]][dl[col_label]]
+                new_element2.update({key: value})
+
+            # Collect dictionaries in list
+            new_data.append(new_element2)
+
+    # # Collect data from the best parameter sets per generation.
+    # if best_data is True:
+    #     # Find best fitness parameter per generation and collect them.
+    #     local_best_locations = []
+    #     for i in range(generations):
+    #         start = 0 + i * generation_size
+    #         end = 0 + (i + 1) * generation_size
+    #
+    #         local_best = data_frame.iloc[start:end]['like1'].idxmax()
+    #         local_best_locations.append(local_best)
+    #         print('Local best, gen. {}: {}'.format(i, local_best))
+    #         print("Sample length: {}".format(
+    #             data_frame.iloc[start:end]['like1'].size))
+    #
+    #     # Collect corresponding data.
+    #     new_data = []
+    #
+    #     # For each row.
+    #     for i in range(len(local_best_locations)):
+    #
+    #         # For each column (parameter), create key-value pair and put
+    #         # in dictionary.
+    #         new_element = {}
+    #
+    #         # Collect the number of the repetition to keep track where the
+    #         # parameter sets are from.
+    #         new_element.update({'repetition': local_best_locations[i]})
+    #
+    #         for col_label in range(len(data_label)):
+    #             key = data_label[col_label]
+    #             value = data_frame.iloc[
+    #                 local_best_locations[i]][data_label[col_label]]
+    #             new_element.update({key: value})
+    #
+    #         # Collect dictionaries in list
+    #         new_data.append(new_element)
+
+    #################
+
     # Construct pandas data frame from list of dicts, keep column labels .
-    new_cols = data_label.append('repetition')
+    new_cols = dl.append('repetition')
     new_data_frame = pd.DataFrame(new_data, columns=new_cols)
     print(new_data_frame)
 
