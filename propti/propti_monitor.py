@@ -522,33 +522,50 @@ def data_extractor(data_label, data_frame, para_to_optimise, num_complex,
 
     #################
 
-    if generations < 1:
-        repetitions = [1]
-    else:
-        repetitions = range(generations)
-
     # Collect data from the best parameter sets per generation.
     if best_data is True:
         print('Collect best parameter sets per generation.')
 
         # Find best fitness parameter per generation and collect them.
+        # local_best_locations = []
+        # print("sfdg", range(1))
+        # for i in repetitions:
+        #     print(i)
+        #     start = 0 + i * generation_size
+        #
+        #     if generations < 1:
+        #         end = individuals_total
+        #         print("end", end)
+        #     else:
+        #         end = 0 + (i + 1) * generation_size
+        #
+        #     local_best = data_frame.iloc[start:end]['like1'].idxmax()
+        #     local_best_locations.append(local_best)
+        #     print('Local best, gen. {}: {}'.format(i, local_best))
+        #     print("Sample length: {}".format(
+        #         data_frame.iloc[start:end]['like1'].size))
+
         local_best_locations = []
-        print("sfdg", range(1))
-        for i in repetitions:
-            print(i)
-            start = 0 + i * generation_size
 
-            if generations < 1:
-                end = individuals_total
-                print("end", end)
-            else:
-                end = 0 + (i + 1) * generation_size
-
+        if generations < 1:
+            start = 0
+            end = individuals_total
             local_best = data_frame.iloc[start:end]['like1'].idxmax()
             local_best_locations.append(local_best)
-            print('Local best, gen. {}: {}'.format(i, local_best))
+            print('Local best, gen. {} not complete: {}'.format(0, local_best))
             print("Sample length: {}".format(
                 data_frame.iloc[start:end]['like1'].size))
+        else:
+            for i in range(generations):
+                print(i)
+                start = 0 + i * generation_size
+                end = 0 + (i + 1) * generation_size
+
+                local_best = data_frame.iloc[start:end]['like1'].idxmax()
+                local_best_locations.append(local_best)
+                print('Local best, gen. {}: {}'.format(i, local_best))
+                print("Sample length: {}".format(
+                    data_frame.iloc[start:end]['like1'].size))
 
         # Collect corresponding data.
         new_data = []
