@@ -522,15 +522,27 @@ def data_extractor(data_label, data_frame, para_to_optimise, num_complex,
 
     #################
 
+    if generations < 1:
+        repetitions = [1]
+    else:
+        repetitions = range(generations)
+
     # Collect data from the best parameter sets per generation.
     if best_data is True:
         print('Collect best parameter sets per generation.')
 
         # Find best fitness parameter per generation and collect them.
         local_best_locations = []
-        for i in range(generations):
+        print("sfdg", range(1))
+        for i in repetitions:
+            print(i)
             start = 0 + i * generation_size
-            end = 0 + (i + 1) * generation_size
+
+            if generations < 1:
+                end = individuals_total
+                print("end", end)
+            else:
+                end = 0 + (i + 1) * generation_size
 
             local_best = data_frame.iloc[start:end]['like1'].idxmax()
             local_best_locations.append(local_best)
@@ -568,7 +580,11 @@ def data_extractor(data_label, data_frame, para_to_optimise, num_complex,
         local_worst_locations = []
         for i in range(generations):
             start = 0 + i * generation_size
-            end = 0 + (i + 1) * generation_size
+
+            if generations < 1:
+                end = individuals_total
+            else:
+                end = 0 + (i + 1) * generation_size
 
             local_worst = data_frame.iloc[start:end]['like1'].idxmin()
             local_worst_locations.append(local_worst)
