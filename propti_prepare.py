@@ -35,6 +35,9 @@ exec(open(input_file).read(), globals())
 
 if ver.flag_propti != 0:
     logging.warning("No git. Propti version is represented as a hash.")
+if ver.flag_exec == 1:
+    logging.critical("No executable present for optimization!")
+    logging.critical("Cannot perform optimization process !")    
 # TODO: check for correct execution
 if ops is None:
     logging.critical("optimisation parameters not defined")

@@ -682,8 +682,9 @@ class Version:
     '''
     def __init__(self):
         self.flag_propti = 0
+        self.flag_exec = 0
         self.ver_propti = self.propti_versionCall()
-        self.ver_fds = self.fds_versionCall()
+        self.ver_exec = self.exec_versionCall()
         self.ver_spotpy = spotpy.__version__
 
     def propti_versionCall(self) -> str:
@@ -718,21 +719,31 @@ class Version:
         ver_data = 'PROPTI-' + ver
         return ver_data
 
-    def fds_versionCall(self) -> str:  # TODO: must capture errors of any kind ?
-        ''' Look for fds revision by calling fds without parameters
+    def exec_versionCall(self) -> str:  
+        ''' Look for executable version.
+            Look for fds revision by calling fds without parameters
             and return its revision in use.
+            # TODO: convert exec_versionCall completely to generic executable
         '''
-        proc = subprocess.Popen(['fds'], shell=True, stdout=subprocess.PIPE,
-                                stderr=subprocess.STDOUT)
-        while True:
-            line = proc.stdout.readline().decode("utf-8")
-            if line[1:9] == 'Revision':
-                ver = line[line.index(':')+2:]
+        try:
+            subprocess.check_call(['fds'], shell=True, stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
+            proc = subprocess.Popen(['fds'], shell=True, stdout=subprocess.PIPE,
+                                  stderr=subprocess.STDOUT)
+            # This bit is only specfic to fds
+            while True:
+                line = proc.stdout.readline().decode("utf-8")
+                if line[1:9] == 'Revision':
+                    ver = line[line.index(':')+2:]
                 break
-        return ver
+            return ver
+        except subprocess.CalledProcessError:
+            self.flag_exec = 1
+            return "!! No Executable Present !!"
+            
 
     def __repr__(self) -> str:
-        string = self.ver_propti + ', ' + self.ver_fds
+        string = self.ver_propti + ', ' + self.ver_exec
         return ('%r') % string
 
     def __str__(self) -> str:
@@ -744,9 +755,9 @@ class Version:
                "--------------------\n" \
                "Propti Version: \t{}\n" \
                "Spotpy Version: \t{}\n" \
-               "FDS Version:\t\t{}".format(self.ver_propti,
+               "Executable Version:\t\t{}\n\n".format(self.ver_propti,
                                            self.ver_spotpy,
-                                           self.ver_fds)
+                                           self.ver_exec)
 
 
 def test_simulation_setup_setup():
