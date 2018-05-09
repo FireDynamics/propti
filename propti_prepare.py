@@ -33,8 +33,9 @@ input_file = cmdl_args.input_file
 logging.info("reading input file: {}".format(input_file))
 exec(open(input_file).read(), globals())
 
-if ver.flag_propti != 0:
-    logging.warning("No git. Propti version is represented as a hash.")
+if ver.flag_propti == 1:
+    logging.warning("Cannot determine PROPTI version.")
+    logging.info("No version file present for PROPTI.")
 if ver.flag_exec == 1:
     logging.critical("No executable present for optimization!")
     logging.critical("Cannot perform optimization process !")    

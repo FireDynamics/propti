@@ -709,15 +709,15 @@ class Version:
         #     f.close()
 
         try:
+            ver = 'PROPTI-'
             with open(os.path.join(script_location,
                                    '../', 'VERSION.txt'), 'r') as f:
-                ver = f.readline()[7:25]
+                ver += f.readline()[7:25]
             f.close()
-        except:
-            print("Version file not found.")
-
-        ver_data = 'PROPTI-' + ver
-        return ver_data
+            return ver
+        except FileNotFoundError:
+            self.flag_propti = 1
+            return "Undetermined"
 
     def exec_versionCall(self) -> str:  
         ''' Look for executable version.
