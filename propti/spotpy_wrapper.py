@@ -109,7 +109,6 @@ class SpotpySetup(object):
         for s in self.setups:
             for r in s.relations:
                 r.read_data(wd='.', target='experiment')
-
         # determine the length of all data sets
         n = 0
         for s in self.setups:
@@ -124,11 +123,17 @@ class SpotpySetup(object):
                 res[index:index + n] = r.map_to_def(target='experiment')
                 index += n
 
+        # Saves the data that is actually used for the evaluation. Allows
+        # comparison and error tracking.
+        np.savetxt("evaluation_data.csv", res)
+
         return res
 
     def objectivefunction(self, simulation, evaluation):
-        objectivefunction = -spotpy.objectivefunctions.rmse(evaluation, simulation)
-        return objectivefunction    
+
+        objectivefunction = -spotpy.objectivefunctions.rmse(evaluation,
+                                                            simulation)
+        return objectivefunction
 
 
 def run_optimisation(params: ParameterSet,
@@ -178,6 +183,7 @@ def run_optimisation(params: ParameterSet,
                                          backup_every_rep=opt.backup_every)
         sampler.sample(opt.repetitions)
         results = sampler.sample(opt.repetitions)
+
 
 def test_spotpy_setup():
     p1 = Parameter("density", "RHO", min_value=1.0, max_value=2.4,
