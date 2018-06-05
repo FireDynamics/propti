@@ -726,8 +726,8 @@ class Version:
             # TODO: convert exec_versionCall completely to generic executable
         '''
         try:
-            subprocess.check_call(['fds'], shell=True, stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
+            #subprocess.check_call(['fds'], shell=True, stdout=subprocess.PIPE,
+            #                    stderr=subprocess.PIPE)
             proc = subprocess.Popen(['fds'], shell=True, stdout=subprocess.PIPE,
                                   stderr=subprocess.STDOUT)
             # This bit is only specfic to fds
@@ -735,7 +735,7 @@ class Version:
                 line = proc.stdout.readline().decode("utf-8")
                 if line[1:9] == 'Revision':
                     ver = line[line.index(':')+2:]
-                break
+                    break
             return ver
         except subprocess.CalledProcessError:
             self.flag_exec = 1
