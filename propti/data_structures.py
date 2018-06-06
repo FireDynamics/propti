@@ -211,8 +211,9 @@ class Parameter:
         """
 
         str_para = "\nParameter\n" \
+                   "Name: {}\n" \
                    "--------------------\n" \
-                   "Name: {}\nUnits: {}\nPlace holder: {}" \
+                   "Units: {}\nPlace holder: {}" \
                    "\nValue: {}\nDistribution: {}" \
                    "\nMinimum value: {}\nMaximum value: {}" \
                    "\nMaximum increment: {}\n" \
@@ -312,15 +313,24 @@ class ParameterSet:
         :return: string with information about the set
         """
 
-        res = "\n"
-        head_line = "parameter set"
         if self.name:
-            head_line += " ({})".format(self.name)
-        res += head_line + "\n"
-        res += len(head_line) * "-" + "\n"
-        for s in self.parameters:
-            res += str(s) + "\n"
+            psn = self.name
+        else:
+            psn = "Not available."
+
+        res = "\nParameter Set\n" \
+              "Name: {}\n" \
+              "--------------------\n\n".format(psn)
+
+        # Check if the list ParameterSet is empty. Otherwise provide
+        # information on the contained parameters.
+        if not self.parameters:
+            res += "Parameter set is empty."
+        else:
+            for s in self.parameters:
+                res += str(s) + "\n"
         res += "\n"
+
         return res
 
 
