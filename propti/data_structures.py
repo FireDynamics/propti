@@ -255,7 +255,7 @@ class ParameterSet:
         :return List of missing parameters.
 
         !! CAREFUL !! Since lists, like params, will be init as [],
-        it may not cause unrecognised consequences.
+        it may cause unrecognised consequences.
         """
 
         default_constr = ParameterSet()
@@ -270,7 +270,6 @@ class ParameterSet:
         Updates parameter set with given other set.
 
         :param other: set used for update
-        :return:
         """
 
         for ot in other.parameters:
@@ -284,15 +283,16 @@ class ParameterSet:
 
         :return: length of parameter set.
         """
+
         return len(self.parameters)
 
     def append(self, p: Parameter):
         """
-        Append a copy given Parameter object to parameter list.
+        Append a copy of a given Parameter object to parameter list.
 
         :param p: parameter to be appended
-        :return:
         """
+
         self.parameters.append(copy.deepcopy(p))
 
     def __getitem__(self, item: int) -> Parameter:
@@ -300,8 +300,9 @@ class ParameterSet:
         Returns parameter at given index.
 
         :param item: selects the index of the chosen Parameter
-        :return: selected Parameter object
+        :return selected Parameter object
         """
+
         return self.parameters[item]
 
     def __str__(self):
@@ -310,6 +311,7 @@ class ParameterSet:
 
         :return: string with information about the set
         """
+
         res = "\n"
         head_line = "parameter set"
         if self.name:
