@@ -105,23 +105,25 @@ class OptimiserProperties:
             be = 'Not available.'
         #####
 
-        return "\noptimiser properties\n" \
-               "--------------------\n" \
-               "alg: {}\nrep: {}\nrep_backup: {}\nngs: {}" \
-               "\ndb_name: {}\ndb_type: {}" \
-               "\ndb_precision: {}" \
-               "\nexecution mode: {}" \
-               "\nnumber of sub-processes: {}" \
-               "\nmpi mode: {}\n".format(self.algorithm,
-                                         self.repetitions,
-                                         be,
-                                         self.ngs,
-                                         self.db_name,
-                                         self.db_type,
-                                         self.db_precision,
-                                         self.execution_mode,
-                                         self.num_subprocesses,
-                                         self.mpi)
+        str_opt_prop = "\noptimiser properties\n" \
+                       "--------------------\n" \
+                       "alg: {}\nrep: {}\nrep_backup: {}\nngs: {}" \
+                       "\ndb_name: {}\ndb_type: {}" \
+                       "\ndb_precision: {}" \
+                       "\nexecution mode: {}" \
+                       "\nnumber of sub-processes: {}" \
+                       "\nmpi mode: {}\n".format(self.algorithm,
+                                                 self.repetitions,
+                                                 be,
+                                                 self.ngs,
+                                                 self.db_name,
+                                                 self.db_type,
+                                                 self.db_precision,
+                                                 self.execution_mode,
+                                                 self.num_subprocesses,
+                                                 self.mpi)
+
+        return str_opt_prop
 
 
 #################
@@ -161,7 +163,7 @@ class Parameter:
         :param max_increment: step size required for some optimisation
         algorithms
         """
-        
+
         self.name = name
         self.units = units
 
@@ -200,11 +202,19 @@ class Parameter:
         :return: info string
         """
 
-        res = "name: {}".format(self.name)
-        if self.units:
-            res += ", units: {}".format(self.units)
-        res += ", value: {}".format(self.value)
-        return res
+        str_para = "\nParameter\n" \
+                   "--------------------\n" \
+                   "Name: {}\nUnits: {}\nPlace holder: {}" \
+                   "\nValue: {}\nDistribution: {}" \
+                   "\nMinimum value: {}\nMaximum value: {}" \
+                   "\nMaximum increment: {}\n" \
+                   "".format(self.name, self.units,
+                             self.place_holder, self.value,
+                             self.distribution,
+                             self.min_value, self.max_value,
+                             self.max_increment)
+
+        return str_para
 
 
 # TODO: add access elements via parameter name
