@@ -161,6 +161,7 @@ class Parameter:
         :param max_increment: step size required for some optimisation
         algorithms
         """
+        
         self.name = name
         self.units = units
 
@@ -185,6 +186,7 @@ class Parameter:
         if pickle file is of older version.
         Returns list of missing parameters.
         """
+
         default_constr = Parameter()
         missing_attr = [x for x in default_constr.__dict__.keys()
                         if x not in self.__dict__.keys()]
@@ -197,6 +199,7 @@ class Parameter:
         Creates string with parameter info.
         :return: info string
         """
+
         res = "name: {}".format(self.name)
         if self.units:
             res += ", units: {}".format(self.units)
@@ -217,6 +220,7 @@ class ParameterSet:
         :param name: optional label for parameter set
         :param params: initial list of parameters, deep copy is done
         """
+
         self.name = name
         self.parameters = []  # type: List[Parameter]
 
@@ -226,12 +230,15 @@ class ParameterSet:
                 self.parameters.append(copy.deepcopy(p))
 
     def upgrade(self) -> List:
-        """ Upgrade method updates object instance with default values,
-            if pickle file is of older version.
-            Returns list of missing parameters.
-            !! CAREFUL !! Since lists like params will be init as [],
-            it may not cause unrecognised consequences.
         """
+        Upgrade method updates object instance with default values,
+        if pickle file is of older version.
+        Returns list of missing parameters.
+
+        !! CAREFUL !! Since lists like params will be init as [],
+        it may not cause unrecognised consequences.
+        """
+
         default_constr = ParameterSet()
         missing_attr = [x for x in default_constr.__dict__.keys()
                         if x not in self.__dict__.keys()]
