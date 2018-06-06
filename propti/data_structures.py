@@ -229,7 +229,7 @@ class ParameterSet:
             if pickle file is of older version.
             Returns list of missing parameters.
             !! CAREFUL !! Since lists like params will be init as [],
-            it may not cause unrecognised consequences.
+            it may cause unrecognised consequences.
         """
         default_constr = ParameterSet()
         missing_attr = [x for x in default_constr.__dict__.keys()
