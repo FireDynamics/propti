@@ -60,6 +60,7 @@ class OptimiserProperties:
             otherwise it is set to 'seq' (use one core).
             Default: False
         """
+
         self.algorithm = algorithm
         self.repetitions = repetitions
         self.backup_every = backup_every
@@ -79,11 +80,14 @@ class OptimiserProperties:
 
         self.mpi = mpi
 
-    def upgrade(self) -> List:
-        """ Upgrade method updates object instance with default values,
-            if pickle file is of older version.
-            Returns list of missing parameters.
+    def upgrade(self) -> list:
         """
+        Upgrade method updates object instance with default values,
+        if pickle file is of older version.
+
+        :return List of missing parameters.
+        """
+
         default_constr = OptimiserProperties()
         missing_attr = [x for x in default_constr.__dict__.keys()
                         if x not in self.__dict__.keys()]
@@ -94,6 +98,7 @@ class OptimiserProperties:
     def __str__(self) -> str:
         """
         Pretty print of (major) class values
+
         :return: string
         """
 
@@ -105,14 +110,15 @@ class OptimiserProperties:
             be = 'Not available.'
         #####
 
-        str_opt_prop = "\noptimiser properties\n" \
+        str_opt_prop = "\nOptimiser Properties\n" \
                        "--------------------\n" \
-                       "alg: {}\nrep: {}\nrep_backup: {}\nngs: {}" \
-                       "\ndb_name: {}\ndb_type: {}" \
-                       "\ndb_precision: {}" \
-                       "\nexecution mode: {}" \
-                       "\nnumber of sub-processes: {}" \
-                       "\nmpi mode: {}\n".format(self.algorithm,
+                       "Algorithm: {}\nRepetitions: {}\n" \
+                       "Rep. before backup: {}\nNumber of complexes (ngs): {}" \
+                       "\nData base name: {}\nData base type: {}" \
+                       "\nDate base precision: {}" \
+                       "\nExecution mode: {}" \
+                       "\nNumber of sub-processes: {}" \
+                       "\nMPI mode: {}\n".format(self.algorithm,
                                                  self.repetitions,
                                                  be,
                                                  self.ngs,
@@ -225,7 +231,7 @@ class ParameterSet:
     Container type for Parameter objects.
     """
 
-    def __init__(self, name: str = None, params: List[Parameter] = None):
+    def __init__(self, name: str = None, params: list[Parameter] = None):
         """
         Constructor.
 
@@ -241,13 +247,14 @@ class ParameterSet:
             for p in params:
                 self.parameters.append(copy.deepcopy(p))
 
-    def upgrade(self) -> List:
+    def upgrade(self) -> list:
         """
         Upgrade method updates object instance with default values,
         if pickle file is of older version.
-        Returns list of missing parameters.
 
-        !! CAREFUL !! Since lists like params will be init as [],
+        :return List of missing parameters.
+
+        !! CAREFUL !! Since lists, like params, will be init as [],
         it may not cause unrecognised consequences.
         """
 
