@@ -10,7 +10,7 @@ import spotpy
 from typing import List
 
 
-# Reads the script's location. Used to access the propti version number from the
+# Reads the script's location. Used to access the PROPTI version number from the
 # git repo.
 script_location = os.path.dirname(os.path.realpath(__file__))
 
@@ -19,7 +19,7 @@ script_location = os.path.dirname(os.path.realpath(__file__))
 # OPTIMISER CLASS
 class OptimiserProperties:
     """
-    Stores optimiser parameter. They describe parameters that are used by the
+    Stores optimiser parameters. They describe parameters that are used by the
     optimiser, e.g. SPOTPY.
     """
 
@@ -186,7 +186,8 @@ class Parameter:
         """
         Upgrade method updates object instance with default values,
         if pickle file is of older version.
-        Returns list of missing parameters.
+
+        :return list of missing parameter attributes.
         """
 
         default_constr = Parameter()
@@ -199,7 +200,8 @@ class Parameter:
     def __str__(self) -> str:
         """
         Creates string with parameter info.
-        :return: info string
+
+        :return  info string
         """
 
         str_para = "\nParameter\n" \
