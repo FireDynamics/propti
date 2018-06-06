@@ -179,10 +179,11 @@ class Parameter:
     def create_spotpy_parameter(self):
         pass
 
-    def upgrade(self) -> List:
-        """ Upgrade method updates object instance with default values,
-            if pickle file is of older version.
-            Returns list of missing parameters.
+    def upgrade(self) -> list:
+        """
+        Upgrade method updates object instance with default values,
+        if pickle file is of older version.
+        Returns list of missing parameters.
         """
         default_constr = Parameter()
         missing_attr = [x for x in default_constr.__dict__.keys()
