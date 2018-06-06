@@ -149,7 +149,7 @@ class Parameter:
                  units: str = None,
                  place_holder: str = None,
                  value: float = None,
-                 distribution: str = 'uniform',
+                 distribution: str = None,
                  min_value: float = None,
                  max_value: float = None,
                  max_increment: float = None):
@@ -182,7 +182,12 @@ class Parameter:
         self.value = value
         self.min_value = min_value
         self.max_value = max_value
-        self.distribution = distribution
+
+        if distribution is None:
+            self.distribution = 'uniform'
+        else:
+            self.distribution = distribution
+
         self.max_increment = max_increment
 
     def create_spotpy_parameter(self):
@@ -352,33 +357,65 @@ class DataSource:
     experimental data.
     """
 
-    # TODO: add arguments to constructor
     # TODO: move read data to this class
     # TODO: allow for column index definition as alternative to labels
-    def __init__(self):
-        self.file_name = None
-        self.header_line = None
-        self.label_x = None
-        self.label_y = None
-        # self.column_x = None
-        # self.column_y = None
-        self.x = None
-        self.y = None
-        self.factor = 1.0
-        self.offset = 0.0
+    def __init__(self, file_name: str = None,
+                 header_line: int = None,
+                 label_x: str = None,
+                 label_y: str = None,
+                 column_x: int = None,
+                 column_y: int = None,
+                 x_values: list = None,
+                 y_values: list = None,
+                 # TODO: clean the following lines up
+                 # factor: float = 1.0,
+                 # offset: float = 0.0):
+                 factor: float = None,
+                 offset: float = None):
 
         """
-        :param file_name: file name which contains the information
-        :param header_line: row that containts the labels (pandas data frames) 
-        :param label_x: label of the row which contains the information of the 
-            x-axis (pandas data frames)
-        :param label_y:label of the row which contains the information of the 
-            y-axis (pandas data frames)
-        :param x: data of the x-axis (based on above label)
-        :param y: data of the y-axis (based on above label)
-        :param factor:
-        :param offset:
+        Constructor.
+
+        :param file_name: Name of the file which contains the desired data,
+            simulation or experiment.
+        :param header_line: Row that contains the column labels (like pandas
+            data frames).
+        :param label_x: Label of the column which contains the information of
+            the x-axis (pandas data frames).
+        :param label_y: Label of the column which contains the information of
+            the y-axis (pandas data frames).
+        :param column_x: Index of the column containing the data series of
+            the x_values.
+        :param column_y: Index of the column containing the data series of
+            the y_values.
+        :param x_values: Data of the x-axis (based on above label).
+        :param y_values: Data of the y-axis (based on above label).
+        :param factor: Factor to scale the data on-the-fly.
+        :param offset: Offset to shift the data on-the-fly.
         """
+
+        self.file_name = file_name
+        self.header_line = header_line
+        self.label_x = label_x
+        self.label_y = label_y
+        self.column_x = column_x
+        self.column_y = column_y
+        self.x_values = x_values
+        self.y_values = y_values
+
+        # Set default values for factor.
+        if self.factor is None:
+            self.factor = 1.0
+        else:
+            self.factor = factor
+
+        # Set default values for offset.
+        if self.offset is None:
+            self.offset = 0.0
+        else:
+            self.offset = offset
+
+        # TODO: add string method to print content
 
 
 class Relation:
@@ -439,8 +476,8 @@ class Relation:
         # read data
         data = pd.read_csv(in_file, header=ds.header_line)
         # assign data from file to data source arrays
-        ds.x = data[ds.label_x].dropna().values
-        ds.y = data[ds.label_y].dropna().values
+        ds.x_values = data[ds.label_x].dropna().values
+        ds.y_values = data[ds.label_y].dropna().values
 
     def map_to_def(self,
                    target: str = 'model',
@@ -476,8 +513,8 @@ class Relation:
                 return len(self.x_def)
 
             # interpolate data on the definition set and return it
-            return np.interp(self.x_def, ds.x,
-                             ds.y) * ds.factor + ds.offset
+            return np.interp(self.x_def, ds.x_values,
+                             ds.y_values) * ds.factor + ds.offset
 
         # wrong mode was chosen
         logging.error("* Wrong data mapping mode: {}".format(mode))
@@ -525,7 +562,7 @@ def test_read_map_data():
     ds.label_y = 'TEMP'
 
     r.read_data('test_data')
-    r.x_def = r.model.x[::5]
+    r.x_def = r.model.x_values[::5]
     res = r.map_to_def()
     print(r.x_def, res)
 
