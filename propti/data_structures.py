@@ -415,7 +415,26 @@ class DataSource:
         else:
             self.offset = offset
 
-        # TODO: add string method to print content
+    def __str__(self):
+        """
+        Pretty print of parameter set.
+
+        :return string with information about the set
+        """
+
+        str_data_source = "\nData source\n" \
+                          "--------------------\n" \
+                          "File name: {}\n" \
+                          "Header line: {}\nLabel x-data: {}" \
+                          "\nLabel x-data: {}\nColumn index x: {}" \
+                          "\nColumn index y: {}\nFactor: {}" \
+                          "\nOffset: {}\n" \
+                          "".format(self.file_name, self.header_line,
+                                    self.label_x, self.label_y,
+                                    self.column_x, self.column_y,
+                                    self.factor, self.offset)
+
+        return str_data_source
 
 
 class Relation:
