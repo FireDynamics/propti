@@ -815,13 +815,11 @@ class SimulationSetupSet:
 ########################
 # VERSION CLASS
 class Version:
+    # TODO: clean-up this class!
     """
     Version class to determine the current version of PROPTI and simulation
     software in use.
     """
-    # TODO : Think whether repr is the correct thing to code instead of str,i.e
-    # even though the class rep of the output variable is a 'Version' it does
-    # not represent a method by which the class could be initialized.
 
     def __init__(self):
         """
@@ -875,7 +873,6 @@ class Version:
             return "Undetermined"
 
     def exec_version_call(self) -> str:
-
         """
         Look for executable version.
         Look for fds revision by calling fds without parameters
@@ -883,7 +880,7 @@ class Version:
 
         :return: Version of the simulation software executable.
         """
-        # TODO: convert exec_versionCall completely to generic executable
+        # TODO: convert exec_version_call completely to generic executable
 
         try:
             # subprocess.check_call(['fds'], shell=True, stdout=subprocess.PIPE,
@@ -901,6 +898,9 @@ class Version:
             self.flag_exec = 1
             return "!! No Executable Present !!"
 
+    # TODO : Think whether repr is the correct thing to code instead of str,i.e
+    # even though the class rep of the output variable is a 'Version' it does
+    # not represent a method by which the class could be initialized.
     def __repr__(self) -> str:
         string = self.ver_propti + ', ' + self.ver_exec
         return ('%r') % string
