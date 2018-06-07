@@ -748,12 +748,13 @@ class SimulationSetupSet:
             self.setups = []  # type: List[SimulationSetup]
         self.next_id = 0
 
-    def upgrade(self) -> List:
-        """ Upgrade method updates object instance with default values,
-            if pickle file is of older version.
-            Returns list of missing parameters.
-            !! Careful !! Since lists like SimulationSetupc will be init as [],
-            it may cause unrecognised consequences.
+    def upgrade(self) -> list:
+        """
+        Upgrade method updates object instance with default values,
+        if pickle file is of older version.
+        Returns list of missing parameters.
+        !! Careful !! Since lists like SimulationSetup will be init as [],
+        it may cause unrecognised consequences.
         """
         default_constr = SimulationSetupSet()
         missing_attr = [x for x in default_constr.__dict__.keys()
@@ -778,6 +779,7 @@ class SimulationSetupSet:
         :param s: simulation setup to be appended
         :return: None
         """
+
         self.setups.append(copy.deepcopy(s))
         self.setups[-1].id = self.next_id
         self.next_id += 1
@@ -789,6 +791,7 @@ class SimulationSetupSet:
         :param item: index of selected element
         :return: selected simulation setup
         """
+
         return self.setups[item]
 
     def __str__(self):
@@ -812,25 +815,37 @@ class SimulationSetupSet:
 ########################
 # VERSION CLASS
 class Version:
-    '''
+    """
     Version class to determine the current version of PROPTI and simulation
     software in use.
-    '''
+    """
     # TODO : Think whether repr is the correct thing to code instead of str,i.e
     # even though the class rep of the output variable is a 'Version' it does
     # not represent a method by which the class could be initialized.
 
     def __init__(self):
-            self.flag_propti = 0
-            self.flag_exec = 0
-            self.ver_propti = self.propti_versionCall()
-            self.ver_exec = self.exec_versionCall()
-            self.ver_spotpy = spotpy.__version__
+        """
+        :param flag_propti:
+        :param flag_exec:
+        :param ver_propti: Calls and stores the PROPTI version.
+        :param ver_exec: Calls and stores the simulation software executable
+            version.
+        :param ver_spotpy: Calls and stores the SPOTPY version.
+        """
+        self.flag_propti = 0
+        self.flag_exec = 0
+        self.ver_propti = self.propti_versionCall()
+        self.ver_exec = self.exec_versionCall()
+        self.ver_spotpy = spotpy.__version__
 
     def propti_versionCall(self) -> str:
-        ''' Look for propti-version and print a human readable representation.
-            Print git hash value if no git is present.
-        '''
+        """
+        Look for propti-version and print a human readable representation.
+        Print git hash value if no git is present.
+
+        :return: PROPTI version.
+        """
+
         # try:
         #     ver = subprocess.check_output(["git describe --always"
         #                                 ], shell=True).strip().decode("utf-8")
@@ -859,18 +874,23 @@ class Version:
             self.flag_propti = 1
             return "Undetermined"
 
-    def exec_versionCall(self) -> str:  
-        ''' Look for executable version.
-            Look for fds revision by calling fds without parameters
-            and return its revision in use.
-            # TODO: convert exec_versionCall completely to generic executable
-        '''
+    def exec_versionCall(self) -> str:
+
+        """
+        Look for executable version.
+        Look for fds revision by calling fds without parameters
+        and return its revision in use.
+
+        :return: Version of the simulation software executable.
+        """
+        # TODO: convert exec_versionCall completely to generic executable
+
         try:
-            #subprocess.check_call(['fds'], shell=True, stdout=subprocess.PIPE,
+            # subprocess.check_call(['fds'], shell=True, stdout=subprocess.PIPE,
             #                    stderr=subprocess.PIPE)
             proc = subprocess.Popen(['fds'], shell=True, stdout=subprocess.PIPE,
-                                  stderr=subprocess.STDOUT)
-            # This bit is only specfic to fds
+                                    stderr=subprocess.STDOUT)
+            # This bit is only specific to FDS
             while True:
                 line = proc.stdout.readline().decode("utf-8")
                 if line[1:9] == 'Revision':
@@ -880,7 +900,6 @@ class Version:
         except subprocess.CalledProcessError:
             self.flag_exec = 1
             return "!! No Executable Present !!"
-            
 
     def __repr__(self) -> str:
         string = self.ver_propti + ', ' + self.ver_exec
@@ -889,15 +908,19 @@ class Version:
     def __str__(self) -> str:
         """
         Pretty print of class values
+
         :return: string
         """
-        return "\nversion\n" \
-               "--------------------\n" \
-               "Propti Version: \t{}\n" \
-               "Spotpy Version: \t{}\n" \
-               "Executable Version:\t\t{}\n\n".format(self.ver_propti,
-                                           self.ver_spotpy,
-                                           self.ver_exec)
+        
+        str_version = "\nversion\n" \
+                      "--------------------\n" \
+                      "PROPTI Version: \t{}\n" \
+                      "SPOTPY Version: \t{}\n" \
+                      "Executable Version:\t\t{}\n\n".format(self.ver_propti,
+                                                             self.ver_spotpy,
+                                                             self.ver_exec)
+
+        return str_version
 
 
 def test_simulation_setup_setup():
