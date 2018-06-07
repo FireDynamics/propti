@@ -59,20 +59,21 @@ def create_input_file(setup: SimulationSetup, work_dir='execution'):
     write_input_file(input_content, out_fn)
 
 
-def write_input_file(content: str, filename: os.path):
+def write_input_file(content: str, file_path: os.path):
     """
+    Writes a string to a file, at a specified directory.
 
     :param content: Information that shall be written into a file, expected
         to be string.
-    :param filename: File name of the new file.
+    :param file_path: File name of the new file.
 
     :return: File written to specified location.
     """
 
     try:
-        outfile = open(filename, 'w')
+        outfile = open(file_path, 'w')
     except OSError as err:
-        logging.error("error writing input file: {}".format(filename))
+        logging.error("error writing input file: {}".format(file_path))
         sys.exit()
 
     outfile.write(content)
@@ -180,7 +181,7 @@ def run_simulation_serial(setup: SimulationSetup,
     log_file.close()
 
 
-def run_simulation_mp(setups: SimulationSetupSet, num_threads:int = 1):
+def run_simulation_mp(setups: SimulationSetupSet, num_threads: int = 1):
 
     def do_work(work_item: SimulationSetup):
         print("processing {}".format(work_item.name))
