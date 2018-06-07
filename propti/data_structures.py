@@ -232,6 +232,8 @@ class Parameter:
 
 
 # TODO: add access elements via parameter name
+########################
+# PARAMETER SET CLASS
 class ParameterSet:
     """
     Container type for Parameter objects.
@@ -349,8 +351,7 @@ def test_parameter_setup():
 
 
 ##################
-# RELATION CLASSES
-
+# DATA SOURCE CLASS
 class DataSource:
     """
     Container for data and meta data of a data source, i.e. model or
@@ -437,6 +438,8 @@ class DataSource:
         return str_data_source
 
 
+########################
+# RELATION CLASS
 class Relation:
     """
     Class representing a single relation between an experimental and model data
@@ -455,9 +458,9 @@ class Relation:
         :param experiment: experiment data source
         """
 
+        self.x_def = x_def
         self.model = model if model else DataSource()
         self.experiment = experiment if experiment else DataSource()
-        self.x_def = x_def
 
     def read_data(self, wd: os.path, target: str = 'model'):
         """
@@ -478,7 +481,7 @@ class Relation:
 
         # error handling
         if ds is None:
-            logging.error("wrong data read target: {}".format(target))
+            logging.error("Wrong data read target: {}".format(target))
             sys.exit()
 
         # if file name is not specified, do not read from file, as data may
@@ -487,8 +490,8 @@ class Relation:
             logging.warning("* Skip reading data, no data file defined")
             return
 
-        logging.debug("* Read in data file: {} in directory".format(ds.file_name,
-                                                                  wd))
+        logging.debug("* Read in data file: {} in directory"
+                      "".format(ds.file_name, wd))
 
         # construct the input file name
         in_file = os.path.join(wd, ds.file_name)
@@ -545,24 +548,27 @@ class Relation:
 
         :return: information string
         """
-        res = "model file: {},\n" \
-              "model header: {},\n" \
-              "model x-label: {},\n" \
-              "model y-label: {},\n" \
-              "experiment file: {},\n" \
-              "experiment header: {},\n" \
-              "experiment x-label: {},\n" \
-              "experiment y-label: {}\n" \
-              "".format(self.model.file_name,
-                        self.model.header_line,
-                        self.model.label_x,
-                        self.model.label_y,
-                        self.experiment.file_name,
-                        self.experiment.header_line,
-                        self.experiment.label_x,
-                        self.experiment.label_y)
 
-        return res
+        str_relation = "\nRelation\n" \
+                       "--------------------\n" \
+                       "model file: {},\n" \
+                       "model header: {},\n" \
+                       "model x-label: {},\n" \
+                       "model y-label: {},\n" \
+                       "experiment file: {},\n" \
+                       "experiment header: {},\n" \
+                       "experiment x-label: {},\n" \
+                       "experiment y-label: {}\n" \
+                       "".format(self.model.file_name,
+                                 self.model.header_line,
+                                 self.model.label_x,
+                                 self.model.label_y,
+                                 self.experiment.file_name,
+                                 self.experiment.header_line,
+                                 self.experiment.label_x,
+                                 self.experiment.label_y)
+
+        return str_relation
 
 
 # test for data read-in
@@ -588,7 +594,6 @@ def test_read_map_data():
 
 ########################
 # SIMULATION SETUP CLASS
-
 class SimulationSetup:
     """
     A simulation setup is a collection of information to perform one
@@ -596,6 +601,7 @@ class SimulationSetup:
     three simulation setups.
     They are collected later in a SimulationSetupSet.
     """
+
     def __init__(self,
                  name: str,
                  work_dir: os.path = os.path.join('.'),
@@ -614,11 +620,18 @@ class SimulationSetup:
         :param name: name for simulation setup
         :param work_dir: work directory, will contain all needed data
         :param model_template: points to the model input template
-        :param model_input_file: name for model input file
+        :param model_input_file: name for model input file, i.e. the
+            parameters that are worked on by the optimisation algorithm
+            (NOT the environment!)
         :param model_parameter: parameter set needed for this setup
         :param model_executable: call to invoke the model
-        :param execution_dir: directory where the model execution will be
-            carried out, mostly in temporally created directories
+        :param execution_dir: Directory where the model execution will be
+            carried out, mostly in temporally created directories in it.
+            The sub-directory names get a random name to avoid conflicts
+            during mpi.
+        :param execution_dir_prefix: Identifier for the temp directories,
+            to have means to connect them to simulation setups, if needed (error
+            tracking).
         :param best_dir: directory for performing simulation(s) with the best
             parameter set
         :param analyser_input_file: name for analyser input file
@@ -654,10 +667,12 @@ class SimulationSetup:
         self.id = None
 
     def upgrade(self) -> List:
-        """ Upgrade method updates object instance with default values,
-            if pickle file is of older version.
-            Returns list of missing parameters.
         """
+        Upgrade method updates object instance with default values,
+        if pickle file is of older version.
+        Returns list of missing parameters.
+        """
+
         default_constr = SimulationSetup()
         missing_attr = [x for x in default_constr.__dict__.keys()
                         if x not in self.__dict__.keys()]
@@ -671,15 +686,42 @@ class SimulationSetup:
 
         :return: information string
         """
-        res = "id: {}, name: {}, workdir: {}".format(self.id,
-                                                     self.name,
-                                                     self.work_dir)
+
+        str_sim_setup = "\nSimulation setup\n" \
+                        "Name: {},\n" \
+                        "--------------------\n" \
+                        "ID: {},\n" \
+                        "Working directory: {},\n" \
+                        "Model template: {},\n" \
+                        "Model input file: {},\n" \
+                        "Model executable: {},\n" \
+                        "Execution directory: {},\n" \
+                        "Execution dir. prefix: {},\n" \
+                        "Best simulation dir.: {},\n" \
+                        "Analyser input file: {},\n" \
+                        "Relations: {}\n" \
+                        "\nParameters of this simulation setup:\n" \
+                        "--------------------\n" \
+                        "".format(self.name,
+                                  self.id,
+                                  self.work_dir,
+                                  self.model_template,
+                                  self.model_input_file,
+                                  self.model_executable,
+                                  self.execution_dir,
+                                  self.execution_dir_prefix,
+                                  self.best_dir,
+                                  self.analyser_input_file,
+                                  self.relations)
+
         for p in self.model_parameter:
-            res += "\n  " + str(p)
+            str_sim_setup += "\n  " + str(p)
 
-        return res
+        return str_sim_setup
 
 
+########################
+# SIMULATION SETUP SET CLASS
 class SimulationSetupSet:
     """
     Container class for SimulationSetup objects.
@@ -767,20 +809,23 @@ class SimulationSetupSet:
         return res
 
 
+########################
+# VERSION CLASS
 class Version:
     '''
-      Version class to determine the current version of propti and simulation
-      software in use.
-      TODO : Think whether repr is the correct thing to code instead of str,i.e
-      even though the class rep of the output variable is a 'Version' it does not
-      represent a method by which the class could be initialized.
+    Version class to determine the current version of PROPTI and simulation
+    software in use.
     '''
+    # TODO : Think whether repr is the correct thing to code instead of str,i.e
+    # even though the class rep of the output variable is a 'Version' it does
+    # not represent a method by which the class could be initialized.
+
     def __init__(self):
-        self.flag_propti = 0
-        self.flag_exec = 0
-        self.ver_propti = self.propti_versionCall()
-        self.ver_exec = self.exec_versionCall()
-        self.ver_spotpy = spotpy.__version__
+            self.flag_propti = 0
+            self.flag_exec = 0
+            self.ver_propti = self.propti_versionCall()
+            self.ver_exec = self.exec_versionCall()
+            self.ver_spotpy = spotpy.__version__
 
     def propti_versionCall(self) -> str:
         ''' Look for propti-version and print a human readable representation.
