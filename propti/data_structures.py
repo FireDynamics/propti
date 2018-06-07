@@ -834,11 +834,11 @@ class Version:
         """
         self.flag_propti = 0
         self.flag_exec = 0
-        self.ver_propti = self.propti_versionCall()
-        self.ver_exec = self.exec_versionCall()
+        self.ver_propti = self.propti_version_call()
+        self.ver_exec = self.exec_version_call()
         self.ver_spotpy = spotpy.__version__
 
-    def propti_versionCall(self) -> str:
+    def propti_version_call(self) -> str:
         """
         Look for propti-version and print a human readable representation.
         Print git hash value if no git is present.
@@ -874,7 +874,7 @@ class Version:
             self.flag_propti = 1
             return "Undetermined"
 
-    def exec_versionCall(self) -> str:
+    def exec_version_call(self) -> str:
 
         """
         Look for executable version.
@@ -911,7 +911,7 @@ class Version:
 
         :return: string
         """
-        
+
         str_version = "\nversion\n" \
                       "--------------------\n" \
                       "PROPTI Version: \t{}\n" \
