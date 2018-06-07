@@ -109,6 +109,14 @@ def fill_place_holder(template_content: str, paras: ParameterSet) -> str:
 
 
 def read_template(filename: os.path) -> str:
+    """
+    Reads a specified text file. Returns the content as a string.
+
+    :param filename: Name of the file to be read.
+
+    :return: File content as string.
+    """
+
     try:
         infile = open(filename, 'r')
     except OSError as err:
@@ -120,6 +128,10 @@ def read_template(filename: os.path) -> str:
 
 
 def test_read_replace_template():
+    """
+    Simple function used for testing functions defined previously.
+    :return:
+    """
     wd = 'tmp'
     if not os.path.exists(wd):
         os.mkdir(wd)
@@ -138,6 +150,10 @@ def test_read_replace_template():
 
 
 def test_missing_template():
+    """
+    Simple function used for testing functions defined previously.
+    :return:
+    """
     s = SimulationSetup("reader test")
     s.model_template = os.path.join('.', 'templates', 'notexists_basic_01.fds')
     create_input_file(s)
@@ -149,11 +165,12 @@ def run_simulations(setups: SimulationSetupSet,
                     num_subprocesses: int = 1,
                     best_para_run: bool=False):
     """
-    Executes each given SimulationSetup.
+    Executes multiple SimulationSetup in parallel.
 
-    :param setups: set of simulation setups
+    :param setups: set of simulation setups that provide input to the
+        simulations
     :param num_subprocesses: determines how many sub-processes are to be used
-        to perform the calculation, should be more than or equal to 1,
+        to perform the calculation, should be more than, or equal, to 1;
         default: 1, range: [integers >= 1]
     :param best_para_run: flag to switch to simulating the best parameter set
     :return: None
@@ -171,6 +188,14 @@ def run_simulations(setups: SimulationSetupSet,
 
 def run_simulation_serial(setup: SimulationSetup,
                           best_para_run: bool = False):
+    """
+    Executes the simulation of a single simulation setup.
+
+    :param setup: Simulation setup that provides the simulation input.
+    :param best_para_run:
+
+    :return: None
+    """
 
     # TODO: check return status of execution
 
@@ -195,6 +220,15 @@ def run_simulation_serial(setup: SimulationSetup,
 
 
 def run_simulation_mp(setups: SimulationSetupSet, num_threads: int = 1):
+    """
+    Executes the simulation of multiple simulation setups in parallel.
+
+    :param setups: Simulation setups that provide the simulation input.
+    :param num_threads: Number of threads that need to be started to
+        accommodate parallel execution.
+
+    :return: None
+    """
 
     def do_work(work_item: SimulationSetup):
         print("processing {}".format(work_item.name))
@@ -229,6 +263,11 @@ def run_simulation_mp(setups: SimulationSetupSet, num_threads: int = 1):
 
 
 def test_execute_fds():
+    """
+    Simple test function to start fds execution.
+    :return: None
+    """
+
     wd = 'tmp'
     if not os.path.exists(wd):
         os.mkdir(wd)
@@ -244,7 +283,7 @@ def extract_simulation_data(setup: SimulationSetup):
     # TODO: this is not general, but specific for FDS, i.e. first
     # TODO: line contains units, second the quantities names
 
-    logging.debug("execution directory: {}".format(setup.execution_dir))
+    logging.debug("* Execution directory: {}".format(setup.execution_dir))
 
     for r in setup.relations:
         r.read_data(setup.execution_dir)
