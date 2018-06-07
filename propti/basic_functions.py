@@ -73,15 +73,28 @@ def write_input_file(content: str, file_path: os.path):
     try:
         outfile = open(file_path, 'w')
     except OSError as err:
-        logging.error("error writing input file: {}".format(file_path))
+        logging.error("* Error writing input file: {}".format(file_path))
         sys.exit()
 
     outfile.write(content)
 
 
-def fill_place_holder(tc: str, paras: ParameterSet) -> str:
+def fill_place_holder(template_content: str, paras: ParameterSet) -> str:
+    """
+    Gets a string that contains markers (place holder). By convention,
+    the markers are to be encapsulated by the '#' character, for example:
+    '#example_marker#'.
+
+    :param template_content: A string containing markers that are
+        encapsulated by the '#' character.
+    :param paras: A ParameterSet from which the parameter information is
+        taken and implemented into the template.
+
+    :return: A string where placeholders have been exchanged by parameter
+        values.
+    """
     # TODO: check for place holder duplicates
-    res = tc
+    res = template_content
     if paras is not None:
         for p in paras:
             if type(p.value) == float:
@@ -90,7 +103,7 @@ def fill_place_holder(tc: str, paras: ParameterSet) -> str:
             else:
                 res = res.replace("#" + p.place_holder + "#", str(p.value))
     else:
-        logging.warning("using empty parameter set for place holder filling")
+        logging.warning("* Using empty parameter set for place holder filling.")
 
     return res
 
