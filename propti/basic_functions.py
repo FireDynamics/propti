@@ -16,42 +16,46 @@ from .data_structures import Parameter, ParameterSet, SimulationSetup, \
 
 #####################
 # INPUT FILE HANDLING
-
 def create_input_file(setup: SimulationSetup, work_dir='execution'):
-
     """
+    Creates input files for the simulation software. Information on how to
+    construct the file is taken from a simulation setup.
 
     :param setup: specification of  SimulationSetup on which to base the
         simulation run
     :param work_dir: flag to indicate if the regular execution of the function
         (in the sense of inverse modeling) is wanted or if only a simulation
         of the best parameter set is desired, range:['execution', 'best']
+
     :return: Saves a file that is read by the simulation software as input file
     """
-    #
-    # small test
+
+    # Small test to determine if an inverse modelling process is to be
+    # started, or if only a simulation with the best parameter set ist to be
+    # conducted. Basically determines where to store the output.
     if work_dir == 'execution':
         wd = setup.execution_dir
     elif work_dir == 'best':
         wd = setup.best_dir
-    #
-    #
 
     # Log the set working directory
     logging.debug(wd)
 
+    # Read the model (simulation input file) template.
     in_fn = setup.model_template
     template_content = read_template(in_fn)
 
     logging.debug(template_content)
 
+    # Take the parameter information and write it to the marked locations in
+    # the template file.
     parameter_list = setup.model_parameter
     input_content = fill_place_holder(template_content, parameter_list)
 
     logging.debug(input_content)
 
+    # Create path to directory and write the file into it.
     out_fn = os.path.join(wd, setup.model_input_file)
-
     write_input_file(input_content, out_fn)
 
 
@@ -61,8 +65,10 @@ def write_input_file(content: str, filename: os.path):
     :param content: Information that shall be written into a file, expected
         to be string.
     :param filename: File name of the new file.
+
     :return: File written to specified location.
     """
+
     try:
         outfile = open(filename, 'w')
     except OSError as err:
@@ -125,8 +131,6 @@ def test_missing_template():
 
 #################
 # MODEL EXECUTION
-
-
 def run_simulations(setups: SimulationSetupSet,
                     num_subprocesses: int = 1,
                     best_para_run: bool=False):
@@ -176,7 +180,6 @@ def run_simulation_serial(setup: SimulationSetup,
     log_file.close()
 
 
-
 def run_simulation_mp(setups: SimulationSetupSet, num_threads:int = 1):
 
     def do_work(work_item: SimulationSetup):
@@ -223,7 +226,6 @@ def test_execute_fds():
 
 ###########################
 # ANALYSE SIMULATION OUTPUT
-
 def extract_simulation_data(setup: SimulationSetup):
     # TODO: this is not general, but specific for FDS, i.e. first
     # TODO: line contains units, second the quantities names
