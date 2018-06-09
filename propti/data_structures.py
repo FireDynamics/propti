@@ -723,21 +723,20 @@ class Version:
         ''' Look for executable version.
             Look for fds revision by calling fds without parameters
             and return its revision in use.
-            # TODO: convert exec_versionCall completely to generic executable
         '''
-        try:
-            #subprocess.check_call(['fds'], shell=True, stdout=subprocess.PIPE,
-            #                    stderr=subprocess.PIPE)
-            proc = subprocess.Popen(['fds'], shell=True, stdout=subprocess.PIPE,
-                                  stderr=subprocess.STDOUT)
-            # This bit is only specfic to fds
-            while True:
-                line = proc.stdout.readline().decode("utf-8")
-                if line[1:9] == 'Revision':
-                    ver = line[line.index(':')+2:]
+       	try:
+            # Find where FDS is located using environment
+            proc = subprocess.Popen(['echo $PATH'], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            for paths in proc.stdout.readline().decode("utf-8").split(":"):
+                if paths[-1:-9:-1][::-1] == "FDS6/bin":
+                    exec_binary_path = paths + '/fds'
                     break
+            # Record output -> REGEX matches FDS-[everything]-HEAD
+            output = subprocess.Popen(["strings %s | grep \"FDS.*-HEAD\"" % (exec_binary_path)], shell=True, \
+                                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            ver = output.stdout.readline().decode("utf-8").split('\n')[0]
             return ver
-        except subprocess.CalledProcessError:
+        except: 
             self.flag_exec = 1
             return "!! No Executable Present !!"
             
@@ -755,7 +754,7 @@ class Version:
                "--------------------\n" \
                "Propti Version: \t{}\n" \
                "Spotpy Version: \t{}\n" \
-               "Executable Version:\t\t{}\n\n".format(self.ver_propti,
+               "Executable Version:\t{}\n\n".format(self.ver_propti,
                                            self.ver_spotpy,
                                            self.ver_exec)
 
