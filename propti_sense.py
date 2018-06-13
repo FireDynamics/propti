@@ -63,4 +63,4 @@ one method to analyse sensitivity. It makes sense to Wiki this instead.
 # Output of run_optimisation will be None.
 # What are some good parameters that can be printed ?
 res = pr.run_optimisation(ops, setups, sensitivity)
-# print(res) # output of res is None.
+print(res) # output of res is None.
