@@ -239,7 +239,7 @@ class ParameterSet:
     Container type for Parameter objects.
     """
 
-    def __init__(self, name: str = None, params: list[Parameter] = None):
+    def __init__(self, name: str = None, params: list = None):
         """
         Constructor.
 
@@ -327,7 +327,7 @@ class ParameterSet:
 
         res = "\nParameter Set\n" \
               "Name: {}\n" \
-              "--------------------\n\n".format(psn)
+              "--------------------\n".format(psn)
 
         # Check if the list ParameterSet is empty. Otherwise provide
         # information on the contained parameters.
@@ -403,6 +403,8 @@ class DataSource:
         self.column_y = column_y
         self.x_values = x_values
         self.y_values = y_values
+        self.factor = factor
+        self.offset = offset
 
         # Set default values for factor.
         if self.factor is None:
@@ -423,7 +425,7 @@ class DataSource:
         :return string with information about the set
         """
 
-        str_data_source = "\nData source\n" \
+        str_data_source = "\nData Source\n" \
                           "--------------------\n" \
                           "File name: {}\n" \
                           "Header line: {}\nLabel x-data: {}" \
@@ -687,7 +689,7 @@ class SimulationSetup:
         :return: information string
         """
 
-        str_sim_setup = "\nSimulation setup\n" \
+        str_sim_setup = "\nSimulation Setup\n" \
                         "Name: {},\n" \
                         "--------------------\n" \
                         "ID: {},\n" \
@@ -701,7 +703,7 @@ class SimulationSetup:
                         "Analyser input file: {},\n" \
                         "Relations: {}\n" \
                         "\nParameters of this simulation setup:\n" \
-                        "--------------------\n" \
+                        "--------------------" \
                         "".format(self.name,
                                   self.id,
                                   self.work_dir,
@@ -715,7 +717,8 @@ class SimulationSetup:
                                   self.relations)
 
         for p in self.model_parameter:
-            str_sim_setup += "\n  " + str(p)
+            str_sim_setup += "" + str(p)
+            # str_sim_setup += "\n  " + str(p)
 
         return str_sim_setup
 
@@ -801,7 +804,7 @@ class SimulationSetupSet:
         :return: information string
         """
         res = "\n"
-        head_line = "simulaton setup set"
+        head_line = "Simulaton Setup Set"
         if self.name:
             head_line += " ({})".format(self.name)
         res += head_line + "\n"
@@ -912,13 +915,13 @@ class Version:
         :return: string
         """
 
-        str_version = "\nversion\n" \
+        str_version = "\nVersion\n" \
                       "--------------------\n" \
                       "PROPTI Version: \t{}\n" \
                       "SPOTPY Version: \t{}\n" \
-                      "Executable Version:\t\t{}\n\n".format(self.ver_propti,
-                                                             self.ver_spotpy,
-                                                             self.ver_exec)
+                      "Executable Version:\t{}\n\n".format(self.ver_propti,
+                                                           self.ver_spotpy,
+                                                           self.ver_exec)
 
         return str_version
 

@@ -30,7 +30,7 @@ experimental_data_file_list = ['tga_5K_exp.csv',
 # Define the optimisation parameters.
 # name: internal reference name
 # place_holder: what to look for in the template, the '#' are added
-#   automatically by propti
+#   automatically by PROPTI
 # min_value: defines the minimum limit of the range the optimisation is
 #   allowed to sample from
 # max_value: defines the maximum limit of the range the optimisation is
@@ -52,7 +52,7 @@ op4 = pr.Parameter(name='ref_rate_comp_02',
 set_of_parameters = [op1, op2, op3, op4]
 
 
-# Definition of parameters, which is used by propti_prepare.py later on.
+# Definition of parameters, which is used by `propti_prepare.py` later on.
 # It has no further meaning here.
 ops = pr.ParameterSet(params=set_of_parameters)
 

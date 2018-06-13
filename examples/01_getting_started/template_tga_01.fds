@@ -45,7 +45,7 @@ Original values for material component 2
 have been:
 REFERENCE_TEMPERATURE = 430.
 REFERENCE_RATE        = 0.0075
-
+HEATING_RATE          = #hr#
 
 &MATL ID                    = 'component 2'
       EMISSIVITY            = 1.0
