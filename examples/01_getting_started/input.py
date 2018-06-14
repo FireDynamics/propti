@@ -84,7 +84,14 @@ ops = pr.ParameterSet(name="Optimisation parameters",
                       params=set_of_parameters)
 
 
-# define general model parameter, including optimisation parameter
+"""
+Besides the optimisation parameters, also model parameters need to be 
+provided. These model parameters can describe things like the environmental 
+conditions appropriate to the simulation, here it is the heating rate. They can 
+furthermore provide meta information, like a character ID to label the 
+simulation or things like simulation end times or data dump intervals. 
+"""
+# Definition of general model parameters, including optimisation parameters.
 mps0 = pr.ParameterSet(name="Environment and\n"
                             "Optimisation parameters",
                        params=[op1, op2, op3, op4])
