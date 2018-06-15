@@ -23,7 +23,7 @@ with the necessary parameters.
 
 import numpy as np
 
-# import just for IDE convenience
+# Import just for IDE convenience.
 import propti as pr
 
 
@@ -38,7 +38,7 @@ template_file = "template_tga_01.fds"
 # inverse modelling process.
 exp_data_file = "tga_experimental_data.csv"
 
-# fix the chid
+# Character ID used to identify the files connected to one simulation.
 CHID = 'TGA_analysis_01'
 
 #
@@ -94,7 +94,7 @@ simulation or things like simulation end times or data dump intervals.
 # Definition of general model parameters, including optimisation parameters.
 mps0 = pr.ParameterSet(name="Environment and\n"
                             "Optimisation parameters",
-                       params=[op1, op2, op3, op4])
+                       params=set_of_parameters)
 mps0.append(pr.Parameter(name='heating rate', place_holder='hr', value=10))
 mps0.append(pr.Parameter(name='chid', place_holder='CHID', value=CHID))
 
@@ -109,7 +109,7 @@ It is expected that the data files for both are comma separated value files
 (csv). Labels need to be defined, that describe the data series (x/y values), 
 as well as a header line where to find the labels.
 It is further possible to provide a definition range. This is 
-specifically interesting when model and simulation data were taken with 
+specifically interesting, when model and simulation data were taken with 
 different time intervals between their respective data points.  
 """
 # Define model-experiment data relation
@@ -123,7 +123,7 @@ r.experiment.label_x = 'Time'
 r.experiment.label_y = 'MassLossRate'
 r.experiment.header_line = 0
 
-# Define definition set for data comparison
+# Define definition range for data comparison
 r.x_def = np.arange(0., TEND, 12)
 
 
