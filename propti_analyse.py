@@ -22,7 +22,7 @@ parser.add_argument("root_dir", type=str,
 
 parser.add_argument("--inspect_init",
                     help="provide overview over the data stored in the "
-                         "pickle.init file",
+                         "'pickle.init' file",
                     action="store_true")
 
 parser.add_argument("--create_best_input",
@@ -120,7 +120,7 @@ pickle_file = os.path.join(cmdl_args.root_dir, 'propti.pickle.init')
 
 in_file = open(pickle_file, 'rb')
 
-#########
+#######################################################
 # TODO: Enable better backwards compatibility than the following:
 
 pickle_items = []
@@ -140,37 +140,48 @@ elif p_length == 4:
 else:
     print('The init-file is incompatible '
           'with this version of propti_analyse.')
-#########
+#
+#######################################################
 
 
 print("Loading complete.")
 
+# Check if all components are there, otherwise write message to the log file.
+if ver is None:
+    logging.critical("* Version(s) not defined. Legacy '*.pickle.init' file?")
 
 if setups is None:
-    logging.critical("simulation setups are not defined")
+    logging.critical("* Simulation setups are not defined.")
 
 if ops is None:
-    logging.critical("optimisation parameter are not defined")
+    logging.critical("* Optimisation parameters are not defined.")
+
+if optimiser is None:
+    logging.critical("* Optimiser parameters are not defined.")
 
 
 # TODO: define spotpy db file name in optimiser properties
 # TODO: use placeholder as name? or other way round?
 
 
-##################################
-###  Inspect PROPTI Init file  ###
-##################################
-
+##########################
+# Inspect PROPTI Init File
 if cmdl_args.inspect_init:
+    """
+    Calls the various print methods of the respective PROPTI objects and 
+    prints their content in human-readable form.
+    Used to check how the IMP is set up (content of the 'propti.pickle.init'). 
+    """
+
     db_file_name = os.path.join(cmdl_args.root_dir,
                                 '{}.{}'.format(optimiser.db_name,
                                                optimiser.db_type))
 
     print("")
-    print("* Inspection of the pickle.init")
+    print("* Inspection of the 'pickle.init' content")
     print("----------------------")
 
-    print("* Version:")
+    print("* Version(s):")
     print(ver)
 
     print("* Simulation Setups:")
@@ -186,11 +197,15 @@ if cmdl_args.inspect_init:
     print("")
 
 
-##############################################
-###  Run Simulation of Best Parameter Set  ###
-##############################################
-
+######################################
+# Run Simulation of Best Parameter Set
 if cmdl_args.run_best:
+    """
+    Extracts the best parameter set from the data base and writes it into a 
+    copy of the simulation input template. Afterwards, the simulation is 
+    executed. 
+    """
+
     db_file_name = os.path.join(cmdl_args.root_dir,
                                 '{}.{}'.format(optimiser.db_name,
                                                optimiser.db_type))
@@ -203,22 +218,20 @@ if cmdl_args.run_best:
     print("")
 
 
-###########################
-###  Create best input  ###
-###########################
-
+###################
+# Create Best Input
 if cmdl_args.create_best_input:
     """
     Takes the (up to now) best parameter set from the optimiser data base and 
     reads the corresponding parameter values. The parameter values are written 
-    into the simulation input file and saved as *_bestpara.file-type.
+    into the simulation input file and saved as `*_bestpara.file-type`.
     This functionality is focused on the usage of SPOTPY.
     """
 
     print("")
     print("* Create input file with best parameter set")
     print("----------------------")
-    print("Read data base file, please wait...")
+    print("Reading data base file, please wait...")
     print("")
 
     # Read data base file name from the pickle file.
@@ -262,7 +275,7 @@ if cmdl_args.create_best_input:
     for p in ops:
         cols.append("par{}".format(p.place_holder))
 
-    # Collect parameter names
+    # Collect parameter names.
     print("* Collect parameter names and place holders:")
     print("---")
 
@@ -271,7 +284,7 @@ if cmdl_args.create_best_input:
     para_name_list = []
     for s_i in range(len(setups)):
 
-        # Place holder list
+        # Place holder list.
         para_ph_list = []
 
         # Collect meta parameters, those which describe the simulation setup.
@@ -280,9 +293,11 @@ if cmdl_args.create_best_input:
         for s_j in range(len(setups[s_i].model_parameter.parameters)):
             paras = setups[s_i].model_parameter.parameters
 
+            # Parameter names.
             para_name = paras[s_j].name
             para_name_list.append(para_name)
 
+            # Place holders.
             para_ph = paras[s_j].place_holder
             para_ph_list.append(para_ph)
 
@@ -307,7 +322,7 @@ if cmdl_args.create_best_input:
     print("Read data base file, please wait...")
     print("")
 
-    # Read propti data base.
+    # Read PROPTI data base.
     parameter_values = pd.read_csv(db_file_name, usecols=cols)
 
     print("Best parameter values:")
@@ -334,7 +349,7 @@ if cmdl_args.create_best_input:
     # the new input files in the appropriate directories.
     print("* Fill templates")
     print("--------------")
-    # Counter
+    # Counter of simulation setups.
     css = 0
     for simsetup in sim_setup_names:
         # Create new directories, based on simulation setup names.
@@ -347,9 +362,10 @@ if cmdl_args.create_best_input:
         # Create new input files with best parameters,
         # based on simulation setups.
         for bestpara in para_simsetup_complete[css]:
-            print("best para: {}".format(bestpara))
+            print("Best para: {}".format(bestpara))
             new_para_value = bestpara[1]
 
+            # Account for scientific notation of floats.
             if type(new_para_value) == float:
                 temp_raw = temp_raw.replace("#" + bestpara[0] + "#",
                                             "{:E}".format(new_para_value))
@@ -367,21 +383,18 @@ if cmdl_args.create_best_input:
         css += 1
 
     print("")
-    print("Simulation input file with best parameter set written.")
+    print("Simulation input file, based on best parameter set, was written.")
 
-    print("Task finished.")
+    print("* Task finished.")
     print("")
     print("")
 
 
-##################################
-###  Plot fitness development  ###
-##################################
-
+##########################
+# Plot Fitness Development
 if cmdl_args.plot_fitness_development:
-
     """
-    Scatter plot of fitness value (RMSE) development. It reads the propti data 
+    Scatter plot of fitness value (RMSE) development. It reads the PROPTI data 
     base file, based on information stored in the pickle file. 
     This functionality is focused on the usage of SPOTPY.
     """
@@ -410,10 +423,8 @@ if cmdl_args.plot_fitness_development:
     print("")
 
 
-############################################
-###  Plot development of all parameters  ###
-############################################
-
+####################################
+# Plot Development of All Parameters
 if cmdl_args.plot_para_values:
     """
     Creates scatter plots of the development of each parameter over the 
@@ -483,6 +494,9 @@ if cmdl_args.plot_para_values:
 
 
 if cmdl_args.calc_stat:
+    """
+    This functionality is very much work in progress.
+    """
     # TODO: write statistics data to file
 
     print("")
@@ -551,14 +565,12 @@ if cmdl_args.plot_best_sim_exp:
     print("")
 
 
-###################################################
-###  Plot best parameter value, by generation.  ###
-###################################################
-
+##########################################
+# Plot Best Parameter Value, by Generation
 if cmdl_args.plot_best_para_gen:
 
     """
-    Plot the parameter values for the best parameter set of each generation.
+    Plot the parameter values, for the best parameter set, of each generation.
     """
 
     print("")
@@ -589,10 +601,8 @@ if cmdl_args.plot_best_para_gen:
     print("")
 
 
-#################################
-###  Plot Fitness Semi-log x  ###
-#################################
-
+#########################
+# Plot Fitness Semi-log x
 if cmdl_args.plot_fit_semilogx:
 
     """
@@ -620,19 +630,15 @@ if cmdl_args.plot_fit_semilogx:
                     'FitnessDevelopment', results_dir_semilogx_fitness,
                     'Root Mean Square Error (RMSE)')
 
-
     print("")
     print("Plot fitness semi-log x completed.")
     print("")
     print("")
 
 
-########################
-###  Data Extractor  ###
-########################
-
+################
+# Data Extractor
 if cmdl_args.extract_data:
-
     """
     Used to extract parameter sets, based on their fitness value.
     """
@@ -669,10 +675,8 @@ if cmdl_args.extract_data:
     print("")
 
 
-##########################################
-###  Create Input from Data Extractor  ###
-##########################################
-
+##################################
+# Create Input from Data Extractor
 if cmdl_args.extract_data_input:
 
     """
@@ -846,10 +850,8 @@ if cmdl_args.extract_data_input:
     print("")
 
 
-#####################################
-###  Create Input for User Cases  ###
-#####################################
-
+#############################
+# Create Input for User Cases
 if cmdl_args.create_case_input:
 
     """
@@ -894,7 +896,6 @@ if cmdl_args.create_case_input:
               "Please provide a template.")
         print("")
         exit()
-
 
     # Read data collection from data_extractor.
     extr_data = pd.read_csv(extr_file, sep=',')
@@ -960,10 +961,8 @@ if cmdl_args.create_case_input:
     print("")
 
 
-###############################
-###  Functionality testing  ###
-###############################
-
+#######################
+# Functionality testing
 if cmdl_args.func_test:
 
     """
