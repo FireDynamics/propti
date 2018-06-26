@@ -40,6 +40,9 @@ parser.add_argument("--plot_fitness_development",
 parser.add_argument("--plot_para_values",
                     help="plot like and values", action="store_true")
 
+parser.add_argument("--dump_plots",
+                    help="plot like and values", action="store_true")
+
 parser.add_argument("--calc_stat",
                     help="calculate statistics", action="store_true")
 
@@ -61,7 +64,7 @@ parser.add_argument("--extract_data",
                     help="Extracts parameter data, based on fitness values.",
                     action="store_true")
 
-parser.add_argument("--extract_data_input",
+parser.add_argument("--extractor_sim_input",
                     help="Creates input files, based on  the resulting file "
                          "from the data extractor.",
                     action="store_true")
@@ -101,6 +104,11 @@ def check_directory(dir_list):
 
     # Return new path for further usage.
     return new_dir
+
+
+# Names of sub-directories that are used to contain the results of the
+# analysis.
+p1, p2, p3 = 'Analysis', 'Plots', 'Extractor'
 
 
 print("")
@@ -253,7 +261,7 @@ if cmdl_args.create_best_input:
     print("")
 
     # Check if a directory for the result files exists. If not, create it.
-    results_dir = check_directory(['Analysis', 'BestParameter',
+    results_dir = check_directory([p1, p3, 'CurrentBestParameter',
                                    'Repetition_{}'.format(best_fitness_index)])
 
     # Collect simulation setup names.
@@ -427,6 +435,8 @@ if cmdl_args.plot_fitness_development:
 # Plot Development of All Parameters
 if cmdl_args.plot_para_values:
     """
+    This functionality is deprecated!
+    
     Creates scatter plots of the development of each parameter over the 
     optimisation process. It reads the propti data 
     base file, based on information stored in the pickle file. 
@@ -481,6 +491,64 @@ if cmdl_args.plot_para_values:
                              'FitnessDevelopment', results_dir_log,
                              'Root Mean Square Error (RMSE)',
                              version=ver.ver_propti)
+
+    # Box plot to visualise steps (generations).
+    pr.plot_box_rmse(data, 'Fitness values, histogram per step (generation)',
+                     len(ops),
+                     optimiser.ngs,
+                     'FitnessDevelopment', results_dir_boxplot)
+
+    print("Plots have been created.")
+    print("")
+    print("")
+
+
+####################################
+# Plot Development of All Parameters
+if cmdl_args.dump_plots:
+    """
+    Creates scatter plots of the development of each parameter over the 
+    optimisation process. It reads the propti data 
+    base file, based on information stored in the pickle file. 
+    This functionality is focused on the usage of SPOTPY.
+    """
+
+    # TODO: Check for optimisation algorithm
+    # TODO: Adjust output depending on optimisation algorithm
+
+    print("")
+    print("* Plot 'Likes' and Values.")
+    print("----------------------")
+    db_file_name = os.path.join(cmdl_args.root_dir,
+                                '{}.{}'.format(optimiser.db_name,
+                                               optimiser.db_type))
+
+    # Check if a directory for the result files exists. If not create it.
+    results_dir_scatter = check_directory([p1, p2, 'Scatter'])
+    results_dir_boxplot = check_directory([p1, p2, 'Boxplot'])
+    results_dir_para_gen = check_directory([p1, p2, 'Para_Gen'])
+
+    # Extract data to be plotted.
+    cols = ['like1', 'chain']
+    for p in ops:
+        cols.append("par{}".format(p.place_holder))
+    data = pd.read_csv(db_file_name, usecols=cols)
+
+    # Scatter plots of parameter development over the whole run.
+    for c in cols[2:]:
+        # Scatter plots of parameter development over the whole run.
+        pr.plot_scatter(c, data, 'Parameter development: ', c,
+                        results_dir_scatter, version=ver.ver_propti)
+
+    # Scatter plot of fitness values.
+    pr.plot_scatter('like1', data, 'Fitness value development',
+                    'FitnessDevelopment', results_dir_scatter,
+                    'Root Mean Square Error (RMSE)',
+                    version=ver.ver_propti)
+
+    # Plot values of best parameter set, by generation.
+    pm.plot_best_para_generation(cols, data, len(ops), optimiser.ngs,
+                                 results_dir_para_gen)
 
     # Box plot to visualise steps (generations).
     pr.plot_box_rmse(data, 'Fitness values, histogram per step (generation)',
@@ -651,8 +719,7 @@ if cmdl_args.extract_data:
                                                optimiser.db_type))
 
     # Check if a directory for the result files exists. If not create it.
-    results_dir_best_para = check_directory(['Analysis', 'BestParameter'])
-    results_dir_worst_para = check_directory(['Analysis', 'WorstParameter'])
+    results_dir_best_para = check_directory([p1, p3, 'BestParameterGeneration'])
 
     # Collect the optimisation parameter names. Change format to match column
     # headers in propti_db, based on SPOTPY definition. Store headers in a list.
@@ -665,9 +732,6 @@ if cmdl_args.extract_data:
     # Scatter plot of fitness values.
     pm.data_extractor(cols, data, len(ops), optimiser.ngs,
                       'BestParaExtraction', results_dir_best_para)
-    pm.data_extractor(cols, data, len(ops), optimiser.ngs,
-                      'WorstParaExtraction', results_dir_worst_para,
-                      best_data=False)
 
     print("")
     print("Extraction completed and file saved.")
@@ -677,8 +741,7 @@ if cmdl_args.extract_data:
 
 ##################################
 # Create Input from Data Extractor
-if cmdl_args.extract_data_input:
-
+if cmdl_args.extractor_sim_input:
     """
     Takes the file that contains the results of the data extractor and builds 
     simulation input files from it. Files are stored in appropriate directory.
@@ -692,11 +755,11 @@ if cmdl_args.extract_data_input:
                                                optimiser.db_type))
 
     # Check if a directory for the result files exists. If not create it.
-    extractor_dir = check_directory(['Analysis', 'DataExtractor'])
+    extractor_dir = check_directory([p1, p3, 'ExtractorSimInput'])
 
     # Directory that shall contain the results from data_extractor.
-    results_dir_best_para = os.path.join(cmdl_args.root_dir, 'Analysis',
-                                         'BestParameter')
+    results_dir_best_para = os.path.join(cmdl_args.root_dir, p1, p3,
+                                         'BestParameterGeneration')
 
     # Check if data collection exists.
     extr_file = os.path.join(results_dir_best_para, 'BestParaExtraction.csv')
