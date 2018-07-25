@@ -74,6 +74,10 @@ parser.add_argument("--create_case_input",
                          "resulting file from the data extractor.",
                     action="store_true")
 
+parser.add_argument("--clean_db",
+                    help="Removes restart markers from the database file.",
+                    action="store_true")
+
 parser.add_argument("--func_test",
                     help="Executes test function for testing purpose",
                     action="store_true")
@@ -1026,6 +1030,155 @@ if cmdl_args.create_case_input:
 
 #######################
 # Functionality testing
+if cmdl_args.clean_db:
+
+    """
+    When using the restart functionality of SPOTPY and having markers written to 
+    the database this function helps to clean them up. It creates two new 
+    propti_db.csv files: `propti_db_complete.csv` and `propti_db_complete.csv`. 
+    In *complete only the restart markers are removed. 
+    In *reduced partly completed generations, as well as the restart markers 
+    are removed.
+    
+    Focus is set on the SCEUA implementation of SPOTPY.
+    """
+
+    print("")
+    print("* Functionality testing.")
+    print("----------------------")
+    db_file_name = os.path.join(cmdl_args.root_dir,
+                                '{}.{}'.format(optimiser.db_name,
+                                               optimiser.db_type))
+
+    # Check if a directory for the result files exists. If not, create it.
+    results_dir = check_directory([p1, 'Databases'])
+
+    # Raw data base information, to be processed.
+    data_raw = pd.read_csv(db_file_name, usecols=["like1"])
+    print("Total lines: {}".format(len(data_raw)))
+
+    # # Extract data to be plotted.
+    # cols = ['like1', 'chain']
+    # for p in ops:
+    #     cols.append("par{}".format(p.place_holder))
+    # data = pd.read_csv(db_file_name, usecols=cols)
+
+    # Calculate generation size
+    para_to_optimise = len(ops)
+    num_complex = optimiser.ngs
+    generation_size = int((2 * para_to_optimise + 1) * num_complex)
+    print("Generation size: {}".format(generation_size))
+    print("")
+
+    # Count restart markers:
+    restart_marker = "#Restart#"
+    print("Restart marker: {}".format(restart_marker))
+    print("")
+
+    # Iterate over first column and look for restart_marker. Collect line
+    # numbers with occurrences of restart_marker. Print line
+    # number and content (the marker), to provide means for checking the
+    # results.
+    marker_occurrences = []
+    print("Found markers:")
+    print("line value")
+    print("----------")
+    marker_count = 0
+    for line_number, value in enumerate(data_raw['like1']):
+        if restart_marker in value:
+            print(line_number, value)
+            marker_occurrences.append(line_number)
+            marker_count += 1
+    print("----------")
+    print("Total markers: {}".format(marker_count))
+    print("")
+
+    # Provide an overview over the performed runs (restarts), the amount of
+    # completed generations and the amount of individuals that do not fill
+    # the last generation.
+    print("Generations per run:")
+    print("gen.\tres.\tleft")
+    print("----------")
+    # First run.
+    gen = (marker_occurrences[0]-1) // generation_size
+    res = marker_occurrences[0]-1 - gen * generation_size
+    left = generation_size - res
+    print("{}\t{}\t{}".format(gen, res, left))
+    # Intermediate runs.
+    for i in range(marker_count-1):
+        gen = (marker_occurrences[i+1] - marker_occurrences[i]) \
+              // generation_size
+        res = (marker_occurrences[i+1] - marker_occurrences[i]) \
+              - gen * generation_size
+        left = generation_size - res
+        print("{}\t{}\t{}".format(gen, res, left))
+    # Last run.
+    lgi = (len(data_raw) - marker_count - marker_occurrences[-1])
+    gen = lgi // generation_size
+    res = lgi - 1 - gen * generation_size
+    left = generation_size - res
+    print("{}\t{}\t{}".format(gen, res, left))
+    print("----------")
+    print("")
+
+    # Get column labels.
+    col_labels = list(pd.read_csv(db_file_name))
+    print(col_labels)
+
+    gen_per_run = [2, 1, 1, 0]
+
+    # Iterate over the database file, line by line. Create two new database
+    # files: `db_complete` is the file with only the restart markers removed,
+    # `db_reduced` is a file without restart markers and only complete
+    # generations.
+    db_complete = os.path.join(results_dir, 'propti_db_complete.csv')
+    db_reduced = os.path.join(results_dir, 'propti_db_reduced.csv')
+    restart_count = 0
+    indiv_count = 0
+    with open(db_file_name, 'r') as f:
+
+        # Initialise the new database files.
+        header = f.readline()
+        with open(db_complete, 'w') as dbc:
+            dbc.write(header)
+        with open(db_reduced, 'w') as dbr:
+            dbr.write(header)
+
+        # Iterate over every line.
+        for line in f:
+            # Check if restart marker is present, skip the line if true and
+            # increase counter.
+            if restart_marker not in line:
+                # Append to the complete database file (restart markers
+                # removed).
+                with open(db_complete, 'a') as dbc:
+                    dbc.write(line)
+
+                # Count the individuals to extract complete generations.
+                gen_count = gen_per_run[restart_count] * generation_size
+                if indiv_count < gen_count:
+                    with open(db_reduced, 'a') as dbr:
+                        dbr.write(line)
+                    indiv_count += 1
+                # Following line for diagnostic purpose only.
+                # elif gen_per_run[restart_count] is 0:
+                #     print("Not a complete generation in "
+                #           "run {}".format(restart_count))
+
+            else:
+                print(restart_count, indiv_count, generation_size)
+                restart_count += 1
+                # Reset counter of individuals
+                indiv_count = 0
+
+    print("")
+    print("* Finished.")
+    print("")
+    print("")
+
+
+#######################
+# Functionality testing
 if cmdl_args.func_test:
 
     """
@@ -1043,89 +1196,159 @@ if cmdl_args.func_test:
                                 '{}.{}'.format(optimiser.db_name,
                                                optimiser.db_type))
 
-    # Check if a directory for the result files exists. If not create it.
-    case_dir = check_directory(['Analysis', 'Cases'])
+    # Check if a directory for the result files exists. If not, create it.
+    results_dir = check_directory([p1, 'Databases'])
 
-    # Directory that is supposed to contain the results from data_extractor.
-    results_dir_best_para = os.path.join(cmdl_args.root_dir, 'Analysis',
-                                         'BestParameter')
+    # Raw data base information, to be processed.
+    data_raw = pd.read_csv(db_file_name, usecols=["like1"])
+    print("Total lines: {}".format(len(data_raw)))
 
-    # Check if data collection exists.
-    extr_file = os.path.join(results_dir_best_para, 'BestParaExtraction.csv')
-    if os.path.isfile(extr_file):
-        print("Data collection from data_extractor found.")
-        print("")
-    else:
-        print("No data collection from data_extractor found.\n"
-              "Please run the data_collector first.")
-        print("")
-        exit()
+    # # Extract data to be plotted.
+    # cols = ['like1', 'chain']
+    # for p in ops:
+    #     cols.append("par{}".format(p.place_holder))
+    # data = pd.read_csv(db_file_name, usecols=cols)
 
-    # Check if template exists.
-    case_temp_name = 'C219_MT3_LargeDomain'
-    template_file_path = '{}.fds'.format(case_temp_name)
-    if os.path.isfile(template_file_path):
-        print("Template for cases found.")
-        print("")
-    else:
-        print("No template for cases found.\n"
-              "Please provide a template.")
-        print("")
-        exit()
+    # Calculate generation size
+    para_to_optimise = len(ops)
+    num_complex = optimiser.ngs
+    generation_size = int((2 * para_to_optimise + 1) * num_complex)
+    print("Generation size: {}".format(generation_size))
+    print("")
 
-    # Read case template.
-    temp_raw = pbf.read_template(template_file_path)
+    # Count restart markers:
+    restart_marker = "#Restart#"
+    print("Restart marker: {}".format(restart_marker))
+    print("")
 
-    # Read data collection from data_extractor.
-    extr_data = pd.read_csv(extr_file, sep=',')
+    # Iterate over first column and look for restart_marker. Collect line
+    # numbers with occurrences of restart_marker. Print line
+    # number and content (the marker), to provide means for checking the
+    # results.
+    marker_occurrences = []
+    print("Found markers:")
+    print("line value")
+    print("----------")
+    marker_count = 0
+    for line_number, value in enumerate(data_raw['like1']):
+        if restart_marker in value:
+            print(line_number, value)
+            marker_occurrences.append(line_number)
+            marker_count += 1
+    print("----------")
+    print("Total markers: {}".format(marker_count))
+    print("")
 
+    # Provide an overview over the performed runs (restarts), the amount of
+    # completed generations and the amount of individuals that do not fill
+    # the last generation.
+    print("Generations per run:")
+    print("gen.\tres.\tleft")
+    print("----------")
+    # First run.
+    gen = (marker_occurrences[0]-1) // generation_size
+    res = marker_occurrences[0]-1 - gen * generation_size
+    left = generation_size - res
+    print("{}\t{}\t{}".format(gen, res, left))
+    # Intermediate runs.
+    for i in range(marker_count-1):
+        gen = (marker_occurrences[i+1] - marker_occurrences[i]) \
+              // generation_size
+        res = (marker_occurrences[i+1] - marker_occurrences[i]) \
+              - gen * generation_size
+        left = generation_size - res
+        print("{}\t{}\t{}".format(gen, res, left))
+    # Last run.
+    lgi = (len(data_raw) - marker_count - marker_occurrences[-1])
+    gen = lgi // generation_size
+    res = lgi - 1 - gen * generation_size
+    left = generation_size - res
+    print("{}\t{}\t{}".format(gen, res, left))
+    print("----------")
+    print("")
+
+    # Get column labels.
+    col_labels = list(pd.read_csv(db_file_name))
+    print(col_labels)
+
+    gen_per_run = [2, 1, 1, 0]
+
+    # Iterate over the database file, line by line. Create two new database
+    # files: `db_complete` is the file with only the restart markers removed,
+    # `db_reduced` is a file without restart markers and only complete
+    # generations.
+    db_complete = os.path.join(results_dir, 'propti_db_complete.csv')
+    db_reduced = os.path.join(results_dir, 'propti_db_reduced.csv')
+    restart_count = 0
+    indiv_count = 0
+    with open(db_file_name, 'r') as f:
+
+        # Initialise the new database files.
+        header = f.readline()
+        with open(db_complete, 'w') as dbc:
+            dbc.write(header)
+        with open(db_reduced, 'w') as dbr:
+            dbr.write(header)
+
+        # Iterate over every line.
+        for line in f:
+            # Check if restart marker is present, skip the line if true and
+            # increase counter.
+            if restart_marker not in line:
+                # Append to the complete database file (restart markers
+                # removed).
+                with open(db_complete, 'a') as dbc:
+                    dbc.write(line)
+
+                # Count the individuals to extract complete generations.
+                gen_count = gen_per_run[restart_count] * generation_size
+                if indiv_count < gen_count:
+                    with open(db_reduced, 'a') as dbr:
+                        dbr.write(line)
+                    indiv_count += 1
+                # Following line for diagnostic purpose only.
+                # elif gen_per_run[restart_count] is 0:
+                #     print("Not a complete generation in "
+                #           "run {}".format(restart_count))
+
+            else:
+                print(restart_count, indiv_count, generation_size)
+                restart_count += 1
+                # Reset counter of individuals
+                indiv_count = 0
+
+
+
+
+
+    # print(marker_occurrences)
+    # print(data_raw['like1'][marker_occurrences[0]])
+    # print(data_raw['like1'][0])
     #
+    # with open(db_file_name) as f:
+    #     lines = f.readlines()
+    #
+    # print(marker_occurrences[-1]+1, lines[marker_occurrences[-1]+1])
+    #
+    # print("")
+    # print(marker_occurrences[0]//generation_size)
+    # print((marker_occurrences[1] - 1 - marker_occurrences[0]) //
+    #       generation_size)
+    # print((marker_occurrences[2] - 1 - marker_occurrences[1]) //
+    #       generation_size)
+    # print((len(data_raw) - 1 - marker_count - marker_occurrences[2]) //
+    #       generation_size)
+    #
+    # print(marker_occurrences[0])
+    # print(marker_occurrences[1]-marker_occurrences[0])
+    # print(marker_occurrences[2]-marker_occurrences[1])
+    # print(20520-marker_occurrences[2])
+    #
+    # print(2557 + generation_size)
 
-    cols = list(extr_data)
-    print(cols)
 
-    print("Number of data sets: {}".format(len(extr_data['repetition'])))
-    for i in range(len(extr_data['repetition'])):
-
-        print("* Fill templates")
-        print("--------------")
-
-        rep_value = int(extr_data.iloc[i]['repetition'])
-        new_dir_rep = 'rep_{:06d}'.format(rep_value)
-        check_directory([case_dir, new_dir_rep])
-        print("Line: {}".format(i))
-        print("Repetition value: {}".format(rep_value))
-        print("")
-        print("Parameters:")
-        print("---")
-
-        for c in range(len(cols)):
-            if "par" in cols[c]:
-                if "insulator" in cols[c]:
-                    # Divide insulator layer thickness by 2, for even split.
-                    new_para_value = extr_data.at[i, cols[c]] / 2
-                else:
-                    new_para_value = extr_data.at[i, cols[c]]
-
-                if type(new_para_value) == float:
-                    temp_raw = temp_raw.replace("#" + cols[c][3:] + "#",
-                                                "{:E}".format(new_para_value))
-                else:
-                    temp_raw = temp_raw.replace("#" + cols[c][3:] + "#",
-                                                str(new_para_value))
-
-            # Set character ID for file.
-            rep_value = int(extr_data.iloc[i]['repetition'])
-            temp_raw = temp_raw.replace("#chid#",
-                                        "{}_rep{:06d}").format(case_temp_name,
-                                                               rep_value)
-
-            # Write new input file with best parameters.
-            new_case_name = '{}_rep{:06d}.fds'.format(case_temp_name, rep_value)
-            bip = os.path.join(case_dir, new_dir_rep, new_case_name)
-            pbf.write_input_file(temp_raw, bip)
 
     print("")
-    print("Functionality test completed.")
+    print("* Functionality test completed.")
     print("")
     print("")
