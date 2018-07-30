@@ -1043,12 +1043,13 @@ if cmdl_args.clean_db:
     Focus is set on the SCEUA implementation of SPOTPY.
     """
 
-    print("")
-    print("* Functionality testing.")
-    print("----------------------")
     db_file_name = os.path.join(cmdl_args.root_dir,
                                 '{}.{}'.format(optimiser.db_name,
                                                optimiser.db_type))
+
+    print("")
+    print("* Cleaning Database File '{}'.".format(db_file_name))
+    print("----------------------")
 
     # Check if a directory for the result files exists. If not, create it.
     results_dir = check_directory([p1, 'Databases'])
@@ -1085,10 +1086,15 @@ if cmdl_args.clean_db:
     print("----------")
     marker_count = 0
     for line_number, value in enumerate(data_raw['like1']):
-        if restart_marker in value:
-            print(line_number, value)
+        try:
+            if restart_marker in value:
+                print(line_number, value)
+                marker_occurrences.append(line_number)
+                marker_count += 1
+        except TypeError:
+            print("* Error, wrong value", line_number, value)
             marker_occurrences.append(line_number)
-            marker_count += 1
+            # marker_count += 1
     print("----------")
     print("Total markers: {}".format(marker_count))
     print("")
@@ -1122,7 +1128,7 @@ if cmdl_args.clean_db:
     print("")
 
     # Get column labels.
-    col_labels = list(pd.read_csv(db_file_name))
+    col_labels = list(pd.read_csv(db_file_name, header=0))
     print(col_labels)
 
     gen_per_run = [2, 1, 1, 0]
@@ -1200,8 +1206,8 @@ if cmdl_args.func_test:
     results_dir = check_directory([p1, 'Databases'])
 
     # Raw data base information, to be processed.
-    data_raw = pd.read_csv(db_file_name, usecols=["like1"])
-    print("Total lines: {}".format(len(data_raw)))
+    # data_raw = pd.read_csv(db_file_name, usecols=["like1"])
+    # print("Total lines: {}".format(len(data_raw)))
 
     # # Extract data to be plotted.
     # cols = ['like1', 'chain']
@@ -1230,11 +1236,12 @@ if cmdl_args.func_test:
     print("line value")
     print("----------")
     marker_count = 0
-    for line_number, value in enumerate(data_raw['like1']):
-        if restart_marker in value:
-            print(line_number, value)
-            marker_occurrences.append(line_number)
-            marker_count += 1
+    with open(db_file_name, 'r') as data_raw:
+        for line_number, value in enumerate(data_raw):
+            if restart_marker in value:
+                print(line_number, value)
+                marker_occurrences.append(line_number)
+                marker_count += 1
     print("----------")
     print("Total markers: {}".format(marker_count))
     print("")
