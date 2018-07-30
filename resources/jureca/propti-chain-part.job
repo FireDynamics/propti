@@ -31,7 +31,7 @@
 ###  USER INPUT  ###
 ####################
 
-# define path to propti
+# Define path to propti
 PROPTISTEM=/path/to/propti/repo
 
 ####################
@@ -40,7 +40,10 @@ PROPTISTEM=/path/to/propti/repo
 cd $SLURM_SUBMIT_DIR
 
 
-# load necessary modules
+# Load necessary modules
+module use /usr/local/software/jureca/OtherStages
+module load Stages/2017b
+
 module load Intel/2018.1.163-GCC-5.4.0 IntelMPI/2018.1.163
 module load SciPy-Stack/2017b-Python-3.6.3
 module load mpi4py/2.0.0-Python-3.6.3
@@ -52,12 +55,21 @@ pwd
 
 printenv &> user.env-$SLURM_JOB_ID
 
-which python3
+which python3.6
 
+# Here only 'fds', because it depends on the loaded modules.
 which fds
 
+# Used to force Python to dump data immediately.
+PYTHONUNBUFFERED=1
 
-# run propti
+# Add an extra line to the propti db, to be able to destinguish 
+# between restarts.
+if [ -f propti_db.csv ]; then
+   echo "#Restart#" >> propti_db.csv
+fi
+
+# Run PROPTI
 #srun fds $FDSSTEM*.fds & wait
-#mpirun python3 $PROPTISTEM/propti/propti/propti_run.py . &> log.propti_run
-srun python3 $PROPTISTEM/propti/propti/propti_run.py . &> log.propti_run
+#mpirun python3 $PROPTISTEM/propti/propti/propti_run.py . &>> log.propti_run
+srun --export=ALL python3.6 $PROPTISTEM/propti/propti/propti_run.py . &>> log.propti_run
