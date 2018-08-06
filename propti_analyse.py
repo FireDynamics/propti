@@ -1236,12 +1236,14 @@ if cmdl_args.func_test:
     print("line value")
     print("----------")
     marker_count = 0
+    line_number = 0
     with open(db_file_name, 'r') as data_raw:
-        for line_number, value in enumerate(data_raw):
-            if restart_marker in value:
-                print(line_number, value)
+        for line in data_raw:
+            if restart_marker in line:
+                print(line_number, line)
                 marker_occurrences.append(line_number)
                 marker_count += 1
+            line_number += 1
     print("----------")
     print("Total markers: {}".format(marker_count))
     print("")
@@ -1249,11 +1251,13 @@ if cmdl_args.func_test:
     # Provide an overview over the performed runs (restarts), the amount of
     # completed generations and the amount of individuals that do not fill
     # the last generation.
+    gen_per_run = []
     print("Generations per run:")
     print("gen.\tres.\tleft")
     print("----------")
     # First run.
     gen = (marker_occurrences[0]-1) // generation_size
+    gen_per_run.append(gen)
     res = marker_occurrences[0]-1 - gen * generation_size
     left = generation_size - res
     print("{}\t{}\t{}".format(gen, res, left))
@@ -1261,24 +1265,29 @@ if cmdl_args.func_test:
     for i in range(marker_count-1):
         gen = (marker_occurrences[i+1] - marker_occurrences[i]) \
               // generation_size
+        gen_per_run.append(gen)
         res = (marker_occurrences[i+1] - marker_occurrences[i]) \
               - gen * generation_size
         left = generation_size - res
         print("{}\t{}\t{}".format(gen, res, left))
     # Last run.
-    lgi = (len(data_raw) - marker_count - marker_occurrences[-1])
+    lgi = (line_number - marker_count - marker_occurrences[-1])
     gen = lgi // generation_size
+    gen_per_run.append(gen)
     res = lgi - 1 - gen * generation_size
     left = generation_size - res
     print("{}\t{}\t{}".format(gen, res, left))
     print("----------")
     print("")
 
+    ########
     # Get column labels.
     col_labels = list(pd.read_csv(db_file_name))
     print(col_labels)
+    print(gen_per_run)
 
-    gen_per_run = [2, 1, 1, 0]
+    # gen_per_run = [2, 1, 1, 0]
+    #####
 
     # Iterate over the database file, line by line. Create two new database
     # files: `db_complete` is the file with only the restart markers removed,
@@ -1288,6 +1297,7 @@ if cmdl_args.func_test:
     db_reduced = os.path.join(results_dir, 'propti_db_reduced.csv')
     restart_count = 0
     indiv_count = 0
+    print("* Processing the database file...")
     with open(db_file_name, 'r') as f:
 
         # Initialise the new database files.
@@ -1323,6 +1333,8 @@ if cmdl_args.func_test:
                 restart_count += 1
                 # Reset counter of individuals
                 indiv_count = 0
+
+    print("* Processing complete.")
 
 
 
