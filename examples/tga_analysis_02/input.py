@@ -57,29 +57,29 @@ set_of_parameters = [op1, op2, op3, op4]
 ops = pr.ParameterSet(params=set_of_parameters)
 
 
-# Function to provide basic parameters for one simulation setup.
-def create_mod_par_setup(para_set):
-    # Provide optimisation parameters to the model parameter setups.
+# Initialise the list for the parameter sets (objects) that describe the
+# experiments.
+model_parameter_setups = []
+
+# A loop to dynamically create the different parameter sets based on the
+# experimental conditions. It adds the model parameters, that describe the
+# experimental conditions, to the optimisation parameters.
+for i in HeatingRatesTGA:
+
+    # Provide optimisation parameters for the simulation setups.
     ps = pr.ParameterSet(params=set_of_parameters)
 
-    # Add different heating rates (5, 10, 15).
-    ps.append(pr.Parameter(name='heating_rate_{}K'.format(str(HeatingRatesTGA[
-                                                                  para_set])),
+    # Add different heating rates (5, 10, 15) - the model parameters.
+    ps.append(pr.Parameter(name='heating_rate_{}K'.format(i),
                            place_holder='hr',
-                           value=HeatingRatesTGA[para_set]))
+                           value=i))
 
     # Add individual character ID to distinguish the simulation data.
-    ps.append(pr.Parameter(name='chid',
+    ps.append(pr.Parameter(name='character id',
                            place_holder='CHID',
-                           value='{}_{}K'.format(CHID,
-                                                 str(HeatingRatesTGA[
-                                                         para_set]))))
-    return ps
+                           value='{}_{}K'.format(CHID, i)))
 
-# Calls the above function to create multiple parameter sets for the different
-# simulation setups. The parameter sets (objects) are then stored in a list.
-model_parameter_setups = [create_mod_par_setup(i) for i in range(
-    len(HeatingRatesTGA))]
+    model_parameter_setups.append(ps)
 
 
 # Create a list of relations between experimental and model (simulation) data,
@@ -136,7 +136,7 @@ for i in range(len(HeatingRatesTGA)):
     setups.append(ssetups[i])
 
 
-print('** setups generated')
+print('** Simulation setups generated.')
 
 
 # Provide values for optimiser.
@@ -146,7 +146,7 @@ optimiser = pr.OptimiserProperties(algorithm='sceua',
                                    # Sub-processes would be used for
                                    # repetitions of an experiment.
                                    num_subprocesses=1,
-                                   mpi=False)
+                                   mpi=True)
 
 
-print('** input file processed')
+print('** Input file processed.')
