@@ -1048,15 +1048,15 @@ if cmdl_args.clean_db:
                                                optimiser.db_type))
 
     print("")
-    print("* Cleaning Database File '{}'.".format(db_file_name))
+    print("* Cleaning database file '{}'.".format(db_file_name))
     print("----------------------")
 
     # Check if a directory for the result files exists. If not, create it.
     results_dir = check_directory([p1, 'Databases'])
 
     # Raw data base information, to be processed.
-    data_raw = pd.read_csv(db_file_name, usecols=["like1"])
-    print("Total lines: {}".format(len(data_raw)))
+    # data_raw = pd.read_csv(db_file_name, usecols=["like1"])
+    # print("Total lines: {}".format(len(data_raw)))
 
     # # Extract data to be plotted.
     # cols = ['like1', 'chain']
@@ -1085,16 +1085,14 @@ if cmdl_args.clean_db:
     print("line value")
     print("----------")
     marker_count = 0
-    for line_number, value in enumerate(data_raw['like1']):
-        try:
-            if restart_marker in value:
-                print(line_number, value)
+    line_number = 0
+    with open(db_file_name, 'r') as data_raw:
+        for line in data_raw:
+            if restart_marker in line:
+                print(line_number, line)
                 marker_occurrences.append(line_number)
                 marker_count += 1
-        except TypeError:
-            print("* Error, wrong value", line_number, value)
-            marker_occurrences.append(line_number)
-            # marker_count += 1
+            line_number += 1
     print("----------")
     print("Total markers: {}".format(marker_count))
     print("")
@@ -1102,36 +1100,43 @@ if cmdl_args.clean_db:
     # Provide an overview over the performed runs (restarts), the amount of
     # completed generations and the amount of individuals that do not fill
     # the last generation.
+    gen_per_run = []
     print("Generations per run:")
     print("gen.\tres.\tleft")
     print("----------")
     # First run.
-    gen = (marker_occurrences[0]-1) // generation_size
-    res = marker_occurrences[0]-1 - gen * generation_size
+    gen = (marker_occurrences[0] - 1) // generation_size
+    gen_per_run.append(gen)
+    res = marker_occurrences[0] - 1 - gen * generation_size
     left = generation_size - res
     print("{}\t{}\t{}".format(gen, res, left))
     # Intermediate runs.
-    for i in range(marker_count-1):
-        gen = (marker_occurrences[i+1] - marker_occurrences[i]) \
+    for i in range(marker_count - 1):
+        gen = (marker_occurrences[i + 1] - marker_occurrences[i]) \
               // generation_size
-        res = (marker_occurrences[i+1] - marker_occurrences[i]) \
+        gen_per_run.append(gen)
+        res = (marker_occurrences[i + 1] - marker_occurrences[i]) \
               - gen * generation_size
         left = generation_size - res
         print("{}\t{}\t{}".format(gen, res, left))
     # Last run.
-    lgi = (len(data_raw) - marker_count - marker_occurrences[-1])
+    lgi = (line_number - marker_count - marker_occurrences[-1])
     gen = lgi // generation_size
+    gen_per_run.append(gen)
     res = lgi - 1 - gen * generation_size
     left = generation_size - res
     print("{}\t{}\t{}".format(gen, res, left))
     print("----------")
     print("")
 
+    ########
     # Get column labels.
-    col_labels = list(pd.read_csv(db_file_name, header=0))
+    col_labels = list(pd.read_csv(db_file_name))
     print(col_labels)
+    print(gen_per_run)
 
-    gen_per_run = [2, 1, 1, 0]
+    # gen_per_run = [2, 1, 1, 0]
+    #####
 
     # Iterate over the database file, line by line. Create two new database
     # files: `db_complete` is the file with only the restart markers removed,
@@ -1141,6 +1146,7 @@ if cmdl_args.clean_db:
     db_reduced = os.path.join(results_dir, 'propti_db_reduced.csv')
     restart_count = 0
     indiv_count = 0
+    print("* Processing the database file...")
     with open(db_file_name, 'r') as f:
 
         # Initialise the new database files.
@@ -1166,10 +1172,10 @@ if cmdl_args.clean_db:
                     with open(db_reduced, 'a') as dbr:
                         dbr.write(line)
                     indiv_count += 1
-                # Following line for diagnostic purpose only.
-                # elif gen_per_run[restart_count] is 0:
-                #     print("Not a complete generation in "
-                #           "run {}".format(restart_count))
+                    # Following line for diagnostic purpose only.
+                    # elif gen_per_run[restart_count] is 0:
+                    #     print("Not a complete generation in "
+                    #           "run {}".format(restart_count))
 
             else:
                 print(restart_count, indiv_count, generation_size)
@@ -1178,7 +1184,7 @@ if cmdl_args.clean_db:
                 indiv_count = 0
 
     print("")
-    print("* Finished.")
+    print("* Finished cleaning database file '{}'.".format(db_file_name))
     print("")
     print("")
 
