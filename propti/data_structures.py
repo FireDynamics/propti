@@ -7,7 +7,7 @@ import pandas as pd
 import subprocess
 import spotpy
 
-from typing import List
+from typing import List, Union
 
 
 # Reads the script's location. Used to access the PROPTI version number from the
@@ -148,7 +148,7 @@ class Parameter:
     def __init__(self, name: str,
                  units: str = None,
                  place_holder: str = None,
-                 value: float = None,
+                 value: Union[float, int, str] = None,
                  distribution: str = None,
                  min_value: float = None,
                  max_value: float = None,
@@ -161,7 +161,9 @@ class Parameter:
         :param place_holder: place holder string used in templates, if not set,
             name is used
         :param value: holds current parameter value, which may also be the
-            initial value
+            initial value. Type checking is allowing multiple different
+            types, since the parameter could be used to provide numerical
+            values for computations or string e.g. for the naming of files.
         :param distribution: parameter distribution function used for sampling,
             default: uniform, range: [uniform]
         :param min_value: assumed minimal value
