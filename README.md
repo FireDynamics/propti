@@ -22,7 +22,7 @@ See [Wiki](https://github.com/FireDynamics/propti/wiki)
 
 PROPTI is listed to ZENODO to get Data Object Identifiers (DOI) and allow for citations in scientific papers. You can find the necessary information here: 
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1188757.svg)](https://doi.org/10.5281/zenodo.1188757)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1188756.svg)](https://doi.org/10.5281/zenodo.1188756)
 
 Corresponding paper can be found here:
 
