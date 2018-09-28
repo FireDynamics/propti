@@ -24,6 +24,9 @@ PROPTI is listed to ZENODO to get Data Object Identifiers (DOI) and allow for ci
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1188756.svg)](https://doi.org/10.5281/zenodo.1188756)
 
+We have set up a project on ResearchGate: 
+[PROPTI project](https://www.researchgate.net/project/PROPTI-An-Generalised-Inverse-Modelling-Framework)
+
 Corresponding paper can be found here:
 
 [PROPTI - A Generalised Inverse Modelling Framework](https://www.researchgate.net/publication/327655651_PROPTI_-_A_Generalised_Inverse_Modelling_Framework)
