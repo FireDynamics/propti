@@ -181,7 +181,13 @@ def run_optimisation(params: ParameterSet,
                                           parallel=parallel,
                                           breakpoint=break_point,
                                           backup_every_rep=opt.backup_every)
-        sampler.sample(opt.repetitions)
+        eb = opt.eb
+        if not eb:
+            eb = 48
+            # Set amount of parameters as default for number of complexes
+            # if not explicitly specified.
+            opt.eb = eb
+        sampler.sample(opt.repetitions, eb=eb)
         print(sampler.status.params)
 
         for i in range(len(params)):
@@ -197,7 +203,13 @@ def run_optimisation(params: ParameterSet,
                                           parallel=parallel,
                                           breakpoint=break_point,
                                           backup_every_rep=opt.backup_every)
-        sampler.sample(opt.repetitions)
+        eb = opt.eb
+        if not eb:
+            eb = 48
+            # Set amount of parameters as default for number of complexes
+            # if not explicitly specified.
+            opt.eb = eb
+        sampler.sample(opt.repetitions, eb=eb)
         print(sampler.status.params)
 
         for i in range(len(params)):
