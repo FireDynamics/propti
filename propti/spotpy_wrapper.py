@@ -173,6 +173,22 @@ def run_optimisation(params: ParameterSet,
         for s in setups:
             s.model_parameter.update(params)
         return params
+    elif opt.algorithm == 'fscabc':
+        sampler = spotpy.algorithms.fscabc(spot,
+                                          dbname=opt.db_name,
+                                          dbformat=opt.db_type,
+                                          alt_objfun='rmse',
+                                          parallel=parallel,
+                                          breakpoint=break_point,
+                                          backup_every_rep=opt.backup_every)
+        sampler.sample(opt.repetitions)
+        print(sampler.status.params)
+
+        for i in range(len(params)):
+            params[i].value = sampler.status.params[i]
+        for s in setups:
+            s.model_parameter.update(params)
+        return params
     elif opt.algorithm == 'fast':
         sampler = spotpy.algorithms.fast(spot,
                                          dbname=opt.db_name,
