@@ -154,6 +154,7 @@ def run_optimisation(params: ParameterSet,
                                           dbformat=opt.db_type,
                                           alt_objfun='rmse',
                                           parallel=parallel,
+                                          db_precision=np.float64,
                                           breakpoint=break_point,
                                           backup_every_rep=opt.backup_every)
         # Issue #11
@@ -179,6 +180,7 @@ def run_optimisation(params: ParameterSet,
                                           dbformat=opt.db_type,
                                           alt_objfun='rmse',
                                           parallel=parallel,
+                                          db_precision=np.float64,
                                           breakpoint=break_point,
                                           backup_every_rep=opt.backup_every)
         eb = opt.eb
