@@ -21,8 +21,6 @@ parser.add_argument("--prepare_init_inputs",
                     help="prepare input files with initial values",
                     action="store_true")
 cmdl_args = parser.parse_args()
-# Check version numbers
-ver = pr.Version()
 
 setups = None  # type: pr.SimulationSetupSet
 ops = None  # type: pr.ParameterSet
@@ -32,6 +30,9 @@ input_file = cmdl_args.input_file
 
 logging.info("reading input file: {}".format(input_file))
 exec(open(input_file).read(), globals())
+
+# Check version numbers
+ver = pr.Version(setups[0])
 
 if ver.flag_propti == 1:
     logging.warning("Cannot determine PROPTI version.")

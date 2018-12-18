@@ -680,11 +680,11 @@ class Version:
       even though the class rep of the output variable is a 'Version' it does not
       represent a method by which the class could be initialized.
     '''
-    def __init__(self):
+    def __init__(self, setup):
         self.flag_propti = 0
         self.flag_exec = 0
         self.ver_propti = self.propti_versionCall()
-        self.ver_exec = self.exec_versionCall()
+        self.ver_exec = self.exec_versionCall(setup.model_executable)
         self.ver_spotpy = spotpy.__version__
 
     def propti_versionCall(self) -> str:
@@ -719,7 +719,7 @@ class Version:
             self.flag_propti = 1
             return "Undetermined"
 
-    def exec_versionCall(self) -> str:  
+    def exec_versionCall(self, executable) -> str:  
         ''' Look for executable version.
             Look for fds revision by calling fds without parameters
             and return its revision in use.
@@ -728,14 +728,23 @@ class Version:
         try:
             #subprocess.check_call(['fds'], shell=True, stdout=subprocess.PIPE,
             #                    stderr=subprocess.PIPE)
-            proc = subprocess.Popen(['fds'], shell=True, stdout=subprocess.PIPE,
+            proc = subprocess.Popen([executable], shell=True, stdout=subprocess.PIPE,
                                   stderr=subprocess.STDOUT)
+
+            # TODO: make the parsing more general
             # This bit is only specfic to fds
+            
+            # define maximal number of line to be parsed
+            lines_count = 100
             while True:
                 line = proc.stdout.readline().decode("utf-8")
                 if line[1:9] == 'Revision':
                     ver = line[line.index(':')+2:]
                     break
+                lines_count -= 1
+                if lines_count < 0:
+                    self.flag_exec = 1
+                    return "!! No Executable Present !!"
             return ver
         except subprocess.CalledProcessError:
             self.flag_exec = 1
