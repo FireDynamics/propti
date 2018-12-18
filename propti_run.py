@@ -27,14 +27,14 @@ in_file.close()
 # check if propti version is same as in pickle file
 # else upgrade files to new values using defaults.
 dict_of_upgrades = {}
-if ver.ver_propti != pr.Version().ver_propti:
+if ver.ver_propti != pr.Version(setups[0]).ver_propti:
     temp = setups.upgrade()
     dict_of_upgrades["setups"] = temp
     temp = ops.upgrade()
     dict_of_upgrades["ops"] = temp
     temp = optimiser.upgrade()
     dict_of_upgrades["optimiser"] = temp
-    ver = pr.Version()
+    ver = pr.Version(setups[0])
     logging.warning("Pickle init file is old. Upgrading...")
     logging.warning("Optimization run with defaults for missing parameters.")
     logging.warning("Following data was upgraded: " + str(dict_of_upgrades))  # TODO: pPRINT?
