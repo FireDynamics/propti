@@ -165,9 +165,7 @@ def run_simulation_serial(setup: SimulationSetup,
     in_file = setup.model_input_file
     log_file = open(os.path.join(new_dir, "execution.log"), "w")
 
-    # cmd = 'cd {}; {} {}'.format(new_dir, exec_file, in_file)
     cmd = 'cd {} && {} {}'.format(new_dir, exec_file, in_file)
-    # cmd = ["cd {}".format(new_dir), " {} {}".format(exec_file, in_file)]
 
     logging.debug("executing command: {}".format(cmd))
 
