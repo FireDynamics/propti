@@ -228,6 +228,12 @@ def extract_simulation_data(setup: SimulationSetup):
 
     logging.debug("execution directory: {}".format(setup.execution_dir))
 
+    if os.path.exists(os.path.join(setup.execution_dir, 'wct.csv')):
+        wct_file = open(os.path.join(setup.execution_dir, 'wct.csv'))
+        line = wct_file.readline()
+        wct_file.close()
+        logging.debug("WCT info: {}".format(line))
+
     for r in setup.relations:
         r.read_data(setup.execution_dir)
 
