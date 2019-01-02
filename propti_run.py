@@ -6,9 +6,14 @@ import pandas as pd
 import shutil as sh
 import pickle
 
-import propti as pr
+from mpi4py import MPI
 
+comm = MPI.COMM_WORLD
+print('starting propti on MPI rank {} out of {} ranks'.format(comm.Get_rank(), comm.Get_size()))
+
+import propti as pr
 import logging
+
 
 import argparse
 parser = argparse.ArgumentParser()
