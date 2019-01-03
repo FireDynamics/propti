@@ -399,6 +399,9 @@ class Relation:
         in_file = os.path.join(wd, ds.file_name)
         # read data
         data = pd.read_csv(in_file, header=ds.header_line)
+        logging.debug("* size of read data: {}".format(data.shape))
+        logging.debug("* last data values: x={} y={}".format(data[ds.label_x].dropna().values[-1], data[ds.label_y].dropna().values[-1]))
+
         # assign data from file to data source arrays
         ds.x = data[ds.label_x].dropna().values
         ds.y = data[ds.label_y].dropna().values
