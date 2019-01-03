@@ -165,9 +165,7 @@ def run_simulation_serial(setup: SimulationSetup,
     in_file = setup.model_input_file
     log_file = open(os.path.join(new_dir, "execution.log"), "w")
 
-    # cmd = 'cd {}; {} {}'.format(new_dir, exec_file, in_file)
     cmd = 'cd {} && {} {}'.format(new_dir, exec_file, in_file)
-    # cmd = ["cd {}".format(new_dir), " {} {}".format(exec_file, in_file)]
 
     logging.debug("executing command: {}".format(cmd))
 
@@ -229,6 +227,12 @@ def extract_simulation_data(setup: SimulationSetup):
     # TODO: line contains units, second the quantities names
 
     logging.debug("execution directory: {}".format(setup.execution_dir))
+
+    if os.path.exists(os.path.join(setup.execution_dir, 'wct.csv')):
+        wct_file = open(os.path.join(setup.execution_dir, 'wct.csv'))
+        line = wct_file.readline()
+        wct_file.close()
+        logging.debug("WCT info: {}".format(line))
 
     for r in setup.relations:
         r.read_data(setup.execution_dir)
