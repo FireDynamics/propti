@@ -3,10 +3,15 @@ import logging
 #########
 # LOGGING
 # set up logging to file - see previous section for more details
+
+# get MPI rank for individual log files
+from mpi4py import MPI
+my_rank = MPI.COMM_WORLD.Get_rank()
+
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                     datefmt='%m-%d %H:%M',
-                    filename='propti.log',
+                    filename='propti.{:03d}.log'.format(my_rank),
                     filemode='w')
 
 # define a Handler which writes INFO messages or higher to the sys.stderr
