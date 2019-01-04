@@ -5,6 +5,9 @@ import logging
 # set up logging to file - see previous section for more details
 
 # get MPI rank for individual log files
+import mpi4py
+mpi4py.rc.recv_mprobe = False
+
 from mpi4py import MPI
 my_rank = MPI.COMM_WORLD.Get_rank()
 
