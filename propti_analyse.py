@@ -22,7 +22,7 @@ parser.add_argument("root_dir", type=str,
 
 parser.add_argument("--inspect_init",
                     help="provide overview over the data stored in the "
-                         "pickle.init file",
+                         "'pickle.init' file",
                     action="store_true")
 
 parser.add_argument("--create_best_input",
@@ -38,6 +38,9 @@ parser.add_argument("--plot_fitness_development",
                     help="Scatter plot of fitness values", action="store_true")
 
 parser.add_argument("--plot_para_values",
+                    help="plot like and values", action="store_true")
+
+parser.add_argument("--dump_plots",
                     help="plot like and values", action="store_true")
 
 parser.add_argument("--calc_stat",
@@ -61,7 +64,7 @@ parser.add_argument("--extract_data",
                     help="Extracts parameter data, based on fitness values.",
                     action="store_true")
 
-parser.add_argument("--extract_data_input",
+parser.add_argument("--extractor_sim_input",
                     help="Creates input files, based on  the resulting file "
                          "from the data extractor.",
                     action="store_true")
@@ -69,6 +72,10 @@ parser.add_argument("--extract_data_input",
 parser.add_argument("--create_case_input",
                     help="Creates input files for user cases, based on  the "
                          "resulting file from the data extractor.",
+                    action="store_true")
+
+parser.add_argument("--clean_db",
+                    help="Removes restart markers from the database file.",
                     action="store_true")
 
 parser.add_argument("--func_test",
@@ -103,6 +110,11 @@ def check_directory(dir_list):
     return new_dir
 
 
+# Names of sub-directories that are used to contain the results of the
+# analysis.
+p1, p2, p3 = 'Analysis', 'Plots', 'Extractor'
+
+
 print("")
 print("* Loading information of the optimisation process.")
 print("----------------------")
@@ -120,7 +132,7 @@ pickle_file = os.path.join(cmdl_args.root_dir, 'propti.pickle.init')
 
 in_file = open(pickle_file, 'rb')
 
-#########
+#######################################################
 # TODO: Enable better backwards compatibility than the following:
 
 pickle_items = []
@@ -140,37 +152,48 @@ elif p_length == 4:
 else:
     print('The init-file is incompatible '
           'with this version of propti_analyse.')
-#########
+#
+#######################################################
 
 
 print("Loading complete.")
 
+# Check if all components are there, otherwise write message to the log file.
+if ver is None:
+    logging.critical("* Version(s) not defined. Legacy '*.pickle.init' file?")
 
 if setups is None:
-    logging.critical("simulation setups are not defined")
+    logging.critical("* Simulation setups are not defined.")
 
 if ops is None:
-    logging.critical("optimisation parameter are not defined")
+    logging.critical("* Optimisation parameters are not defined.")
+
+if optimiser is None:
+    logging.critical("* Optimiser parameters are not defined.")
 
 
 # TODO: define spotpy db file name in optimiser properties
 # TODO: use placeholder as name? or other way round?
 
 
-##################################
-###  Inspect PROPTI Init file  ###
-##################################
-
+##########################
+# Inspect PROPTI Init File
 if cmdl_args.inspect_init:
+    """
+    Calls the various print methods of the respective PROPTI objects and 
+    prints their content in human-readable form.
+    Used to check how the IMP is set up (content of the 'propti.pickle.init'). 
+    """
+
     db_file_name = os.path.join(cmdl_args.root_dir,
                                 '{}.{}'.format(optimiser.db_name,
                                                optimiser.db_type))
 
     print("")
-    print("* Inspection of the pickle.init")
+    print("* Inspection of the 'pickle.init' content")
     print("----------------------")
 
-    print("* Version:")
+    print("* Version(s):")
     print(ver)
 
     print("* Simulation Setups:")
@@ -186,11 +209,15 @@ if cmdl_args.inspect_init:
     print("")
 
 
-##############################################
-###  Run Simulation of Best Parameter Set  ###
-##############################################
-
+######################################
+# Run Simulation of Best Parameter Set
 if cmdl_args.run_best:
+    """
+    Extracts the best parameter set from the data base and writes it into a 
+    copy of the simulation input template. Afterwards, the simulation is 
+    executed. 
+    """
+
     db_file_name = os.path.join(cmdl_args.root_dir,
                                 '{}.{}'.format(optimiser.db_name,
                                                optimiser.db_type))
@@ -203,22 +230,20 @@ if cmdl_args.run_best:
     print("")
 
 
-###########################
-###  Create best input  ###
-###########################
-
+###################
+# Create Best Input
 if cmdl_args.create_best_input:
     """
     Takes the (up to now) best parameter set from the optimiser data base and 
     reads the corresponding parameter values. The parameter values are written 
-    into the simulation input file and saved as *_bestpara.file-type.
+    into the simulation input file and saved as `*_bestpara.file-type`.
     This functionality is focused on the usage of SPOTPY.
     """
 
     print("")
     print("* Create input file with best parameter set")
     print("----------------------")
-    print("Read data base file, please wait...")
+    print("Reading data base file, please wait...")
     print("")
 
     # Read data base file name from the pickle file.
@@ -240,7 +265,7 @@ if cmdl_args.create_best_input:
     print("")
 
     # Check if a directory for the result files exists. If not, create it.
-    results_dir = check_directory(['Analysis', 'BestParameter',
+    results_dir = check_directory([p1, p3, 'CurrentBestParameter',
                                    'Repetition_{}'.format(best_fitness_index)])
 
     # Collect simulation setup names.
@@ -262,7 +287,7 @@ if cmdl_args.create_best_input:
     for p in ops:
         cols.append("par{}".format(p.place_holder))
 
-    # Collect parameter names
+    # Collect parameter names.
     print("* Collect parameter names and place holders:")
     print("---")
 
@@ -271,7 +296,7 @@ if cmdl_args.create_best_input:
     para_name_list = []
     for s_i in range(len(setups)):
 
-        # Place holder list
+        # Place holder list.
         para_ph_list = []
 
         # Collect meta parameters, those which describe the simulation setup.
@@ -280,9 +305,11 @@ if cmdl_args.create_best_input:
         for s_j in range(len(setups[s_i].model_parameter.parameters)):
             paras = setups[s_i].model_parameter.parameters
 
+            # Parameter names.
             para_name = paras[s_j].name
             para_name_list.append(para_name)
 
+            # Place holders.
             para_ph = paras[s_j].place_holder
             para_ph_list.append(para_ph)
 
@@ -307,7 +334,7 @@ if cmdl_args.create_best_input:
     print("Read data base file, please wait...")
     print("")
 
-    # Read propti data base.
+    # Read PROPTI data base.
     parameter_values = pd.read_csv(db_file_name, usecols=cols)
 
     print("Best parameter values:")
@@ -334,7 +361,7 @@ if cmdl_args.create_best_input:
     # the new input files in the appropriate directories.
     print("* Fill templates")
     print("--------------")
-    # Counter
+    # Counter of simulation setups.
     css = 0
     for simsetup in sim_setup_names:
         # Create new directories, based on simulation setup names.
@@ -347,9 +374,10 @@ if cmdl_args.create_best_input:
         # Create new input files with best parameters,
         # based on simulation setups.
         for bestpara in para_simsetup_complete[css]:
-            print("best para: {}".format(bestpara))
+            print("Best para: {}".format(bestpara))
             new_para_value = bestpara[1]
 
+            # Account for scientific notation of floats.
             if type(new_para_value) == float:
                 temp_raw = temp_raw.replace("#" + bestpara[0] + "#",
                                             "{:E}".format(new_para_value))
@@ -367,21 +395,18 @@ if cmdl_args.create_best_input:
         css += 1
 
     print("")
-    print("Simulation input file with best parameter set written.")
+    print("Simulation input file, based on best parameter set, was written.")
 
-    print("Task finished.")
+    print("* Task finished.")
     print("")
     print("")
 
 
-##################################
-###  Plot fitness development  ###
-##################################
-
+##########################
+# Plot Fitness Development
 if cmdl_args.plot_fitness_development:
-
     """
-    Scatter plot of fitness value (RMSE) development. It reads the propti data 
+    Scatter plot of fitness value (RMSE) development. It reads the PROPTI data 
     base file, based on information stored in the pickle file. 
     This functionality is focused on the usage of SPOTPY.
     """
@@ -410,12 +435,12 @@ if cmdl_args.plot_fitness_development:
     print("")
 
 
-############################################
-###  Plot development of all parameters  ###
-############################################
-
+####################################
+# Plot Development of All Parameters
 if cmdl_args.plot_para_values:
     """
+    This functionality is deprecated!
+    
     Creates scatter plots of the development of each parameter over the 
     optimisation process. It reads the propti data 
     base file, based on information stored in the pickle file. 
@@ -482,7 +507,68 @@ if cmdl_args.plot_para_values:
     print("")
 
 
+####################################
+# Plot Development of All Parameters
+if cmdl_args.dump_plots:
+    """
+    Creates scatter plots of the development of each parameter over the 
+    optimisation process. It reads the propti data 
+    base file, based on information stored in the pickle file. 
+    This functionality is focused on the usage of SPOTPY.
+    """
+
+    # TODO: Check for optimisation algorithm
+    # TODO: Adjust output depending on optimisation algorithm
+
+    print("")
+    print("* Plot 'Likes' and Values.")
+    print("----------------------")
+    db_file_name = os.path.join(cmdl_args.root_dir,
+                                '{}.{}'.format(optimiser.db_name,
+                                               optimiser.db_type))
+
+    # Check if a directory for the result files exists. If not create it.
+    results_dir_scatter = check_directory([p1, p2, 'Scatter'])
+    results_dir_boxplot = check_directory([p1, p2, 'Boxplot'])
+    results_dir_para_gen = check_directory([p1, p2, 'Para_Gen'])
+
+    # Extract data to be plotted.
+    cols = ['like1', 'chain']
+    for p in ops:
+        cols.append("par{}".format(p.place_holder))
+    data = pd.read_csv(db_file_name, usecols=cols)
+
+    # Scatter plots of parameter development over the whole run.
+    for c in cols[2:]:
+        # Scatter plots of parameter development over the whole run.
+        pr.plot_scatter(c, data, 'Parameter development: ', c,
+                        results_dir_scatter, version=ver.ver_propti)
+
+    # Scatter plot of fitness values.
+    pr.plot_scatter('like1', data, 'Fitness value development',
+                    'FitnessDevelopment', results_dir_scatter,
+                    'Root Mean Square Error (RMSE)',
+                    version=ver.ver_propti)
+
+    # Plot values of best parameter set, by generation.
+    pm.plot_best_para_generation(cols, data, len(ops), optimiser.ngs,
+                                 results_dir_para_gen)
+
+    # Box plot to visualise steps (generations).
+    pr.plot_box_rmse(data, 'Fitness values, histogram per step (generation)',
+                     len(ops),
+                     optimiser.ngs,
+                     'FitnessDevelopment', results_dir_boxplot)
+
+    print("Plots have been created.")
+    print("")
+    print("")
+
+
 if cmdl_args.calc_stat:
+    """
+    This functionality is very much work in progress.
+    """
     # TODO: write statistics data to file
 
     print("")
@@ -551,14 +637,12 @@ if cmdl_args.plot_best_sim_exp:
     print("")
 
 
-###################################################
-###  Plot best parameter value, by generation.  ###
-###################################################
-
+##########################################
+# Plot Best Parameter Value, by Generation
 if cmdl_args.plot_best_para_gen:
 
     """
-    Plot the parameter values for the best parameter set of each generation.
+    Plot the parameter values, for the best parameter set, of each generation.
     """
 
     print("")
@@ -589,10 +673,8 @@ if cmdl_args.plot_best_para_gen:
     print("")
 
 
-#################################
-###  Plot Fitness Semi-log x  ###
-#################################
-
+#########################
+# Plot Fitness Semi-log x
 if cmdl_args.plot_fit_semilogx:
 
     """
@@ -620,19 +702,15 @@ if cmdl_args.plot_fit_semilogx:
                     'FitnessDevelopment', results_dir_semilogx_fitness,
                     'Root Mean Square Error (RMSE)')
 
-
     print("")
     print("Plot fitness semi-log x completed.")
     print("")
     print("")
 
 
-########################
-###  Data Extractor  ###
-########################
-
+################
+# Data Extractor
 if cmdl_args.extract_data:
-
     """
     Used to extract parameter sets, based on their fitness value.
     """
@@ -645,8 +723,7 @@ if cmdl_args.extract_data:
                                                optimiser.db_type))
 
     # Check if a directory for the result files exists. If not create it.
-    results_dir_best_para = check_directory(['Analysis', 'BestParameter'])
-    results_dir_worst_para = check_directory(['Analysis', 'WorstParameter'])
+    results_dir_best_para = check_directory([p1, p3, 'BestParameterGeneration'])
 
     # Collect the optimisation parameter names. Change format to match column
     # headers in propti_db, based on SPOTPY definition. Store headers in a list.
@@ -659,9 +736,6 @@ if cmdl_args.extract_data:
     # Scatter plot of fitness values.
     pm.data_extractor(cols, data, len(ops), optimiser.ngs,
                       'BestParaExtraction', results_dir_best_para)
-    pm.data_extractor(cols, data, len(ops), optimiser.ngs,
-                      'WorstParaExtraction', results_dir_worst_para,
-                      best_data=False)
 
     print("")
     print("Extraction completed and file saved.")
@@ -669,12 +743,9 @@ if cmdl_args.extract_data:
     print("")
 
 
-##########################################
-###  Create Input from Data Extractor  ###
-##########################################
-
-if cmdl_args.extract_data_input:
-
+##################################
+# Create Input from Data Extractor
+if cmdl_args.extractor_sim_input:
     """
     Takes the file that contains the results of the data extractor and builds 
     simulation input files from it. Files are stored in appropriate directory.
@@ -688,11 +759,11 @@ if cmdl_args.extract_data_input:
                                                optimiser.db_type))
 
     # Check if a directory for the result files exists. If not create it.
-    extractor_dir = check_directory(['Analysis', 'DataExtractor'])
+    extractor_dir = check_directory([p1, p3, 'ExtractorSimInput'])
 
     # Directory that shall contain the results from data_extractor.
-    results_dir_best_para = os.path.join(cmdl_args.root_dir, 'Analysis',
-                                         'BestParameter')
+    results_dir_best_para = os.path.join(cmdl_args.root_dir, p1, p3,
+                                         'BestParameterGeneration')
 
     # Check if data collection exists.
     extr_file = os.path.join(results_dir_best_para, 'BestParaExtraction.csv')
@@ -846,10 +917,8 @@ if cmdl_args.extract_data_input:
     print("")
 
 
-#####################################
-###  Create Input for User Cases  ###
-#####################################
-
+#############################
+# Create Input for User Cases
 if cmdl_args.create_case_input:
 
     """
@@ -894,7 +963,6 @@ if cmdl_args.create_case_input:
               "Please provide a template.")
         print("")
         exit()
-
 
     # Read data collection from data_extractor.
     extr_data = pd.read_csv(extr_file, sep=',')
@@ -960,10 +1028,169 @@ if cmdl_args.create_case_input:
     print("")
 
 
-###############################
-###  Functionality testing  ###
-###############################
+#######################
+# Functionality testing
+if cmdl_args.clean_db:
 
+    """
+    When using the restart functionality of SPOTPY and having markers written to 
+    the database this function helps to clean them up. It creates two new 
+    propti_db.csv files: `propti_db_complete.csv` and `propti_db_complete.csv`. 
+    In *complete only the restart markers are removed. 
+    In *reduced partly completed generations, as well as the restart markers 
+    are removed.
+    
+    Focus is set on the SCEUA implementation of SPOTPY.
+    """
+
+    db_file_name = os.path.join(cmdl_args.root_dir,
+                                '{}.{}'.format(optimiser.db_name,
+                                               optimiser.db_type))
+
+    print("")
+    print("* Cleaning database file '{}'.".format(db_file_name))
+    print("----------------------")
+
+    # Check if a directory for the result files exists. If not, create it.
+    results_dir = check_directory([p1, 'Databases'])
+
+    # Raw data base information, to be processed.
+    # data_raw = pd.read_csv(db_file_name, usecols=["like1"])
+    # print("Total lines: {}".format(len(data_raw)))
+
+    # # Extract data to be plotted.
+    # cols = ['like1', 'chain']
+    # for p in ops:
+    #     cols.append("par{}".format(p.place_holder))
+    # data = pd.read_csv(db_file_name, usecols=cols)
+
+    # Calculate generation size
+    para_to_optimise = len(ops)
+    num_complex = optimiser.ngs
+    generation_size = int((2 * para_to_optimise + 1) * num_complex)
+    print("Generation size: {}".format(generation_size))
+    print("")
+
+    # Count restart markers:
+    restart_marker = "#Restart#"
+    print("Restart marker: {}".format(restart_marker))
+    print("")
+
+    # Iterate over first column and look for restart_marker. Collect line
+    # numbers with occurrences of restart_marker. Print line
+    # number and content (the marker), to provide means for checking the
+    # results.
+    marker_occurrences = []
+    print("Found markers:")
+    print("line value")
+    print("----------")
+    marker_count = 0
+    line_number = 0
+    with open(db_file_name, 'r') as data_raw:
+        for line in data_raw:
+            if restart_marker in line:
+                print(line_number, line)
+                marker_occurrences.append(line_number)
+                marker_count += 1
+            line_number += 1
+    print("----------")
+    print("Total markers: {}".format(marker_count))
+    print("")
+
+    # Provide an overview over the performed runs (restarts), the amount of
+    # completed generations and the amount of individuals that do not fill
+    # the last generation.
+    gen_per_run = []
+    print("Generations per run:")
+    print("gen.\tres.\tleft")
+    print("----------")
+    # First run.
+    gen = (marker_occurrences[0] - 1) // generation_size
+    gen_per_run.append(gen)
+    res = marker_occurrences[0] - 1 - gen * generation_size
+    left = generation_size - res
+    print("{}\t{}\t{}".format(gen, res, left))
+    # Intermediate runs.
+    for i in range(marker_count - 1):
+        gen = (marker_occurrences[i + 1] - marker_occurrences[i]) \
+              // generation_size
+        gen_per_run.append(gen)
+        res = (marker_occurrences[i + 1] - marker_occurrences[i]) \
+              - gen * generation_size
+        left = generation_size - res
+        print("{}\t{}\t{}".format(gen, res, left))
+    # Last run.
+    lgi = (line_number - marker_count - marker_occurrences[-1])
+    gen = lgi // generation_size
+    gen_per_run.append(gen)
+    res = lgi - 1 - gen * generation_size
+    left = generation_size - res
+    print("{}\t{}\t{}".format(gen, res, left))
+    print("----------")
+    print("")
+
+    ########
+    # Get column labels.
+    col_labels = list(pd.read_csv(db_file_name))
+    print(col_labels)
+    print(gen_per_run)
+
+    # gen_per_run = [2, 1, 1, 0]
+    #####
+
+    # Iterate over the database file, line by line. Create two new database
+    # files: `db_complete` is the file with only the restart markers removed,
+    # `db_reduced` is a file without restart markers and only complete
+    # generations.
+    db_complete = os.path.join(results_dir, 'propti_db_complete.csv')
+    db_reduced = os.path.join(results_dir, 'propti_db_reduced.csv')
+    restart_count = 0
+    indiv_count = 0
+    print("* Processing the database file...")
+    with open(db_file_name, 'r') as f:
+
+        # Initialise the new database files.
+        header = f.readline()
+        with open(db_complete, 'w') as dbc:
+            dbc.write(header)
+        with open(db_reduced, 'w') as dbr:
+            dbr.write(header)
+
+        # Iterate over every line.
+        for line in f:
+            # Check if restart marker is present, skip the line if true and
+            # increase counter.
+            if restart_marker not in line:
+                # Append to the complete database file (restart markers
+                # removed).
+                with open(db_complete, 'a') as dbc:
+                    dbc.write(line)
+
+                # Count the individuals to extract complete generations.
+                gen_count = gen_per_run[restart_count] * generation_size
+                if indiv_count < gen_count:
+                    with open(db_reduced, 'a') as dbr:
+                        dbr.write(line)
+                    indiv_count += 1
+                    # Following line for diagnostic purpose only.
+                    # elif gen_per_run[restart_count] is 0:
+                    #     print("Not a complete generation in "
+                    #           "run {}".format(restart_count))
+
+            else:
+                print(restart_count, indiv_count, generation_size)
+                restart_count += 1
+                # Reset counter of individuals
+                indiv_count = 0
+
+    print("")
+    print("* Finished cleaning database file '{}'.".format(db_file_name))
+    print("")
+    print("")
+
+
+#######################
+# Functionality testing
 if cmdl_args.func_test:
 
     """
@@ -981,89 +1208,172 @@ if cmdl_args.func_test:
                                 '{}.{}'.format(optimiser.db_name,
                                                optimiser.db_type))
 
-    # Check if a directory for the result files exists. If not create it.
-    case_dir = check_directory(['Analysis', 'Cases'])
+    # Check if a directory for the result files exists. If not, create it.
+    results_dir = check_directory([p1, 'Databases'])
 
-    # Directory that is supposed to contain the results from data_extractor.
-    results_dir_best_para = os.path.join(cmdl_args.root_dir, 'Analysis',
-                                         'BestParameter')
+    # Raw data base information, to be processed.
+    # data_raw = pd.read_csv(db_file_name, usecols=["like1"])
+    # print("Total lines: {}".format(len(data_raw)))
 
-    # Check if data collection exists.
-    extr_file = os.path.join(results_dir_best_para, 'BestParaExtraction.csv')
-    if os.path.isfile(extr_file):
-        print("Data collection from data_extractor found.")
-        print("")
-    else:
-        print("No data collection from data_extractor found.\n"
-              "Please run the data_collector first.")
-        print("")
-        exit()
+    # # Extract data to be plotted.
+    # cols = ['like1', 'chain']
+    # for p in ops:
+    #     cols.append("par{}".format(p.place_holder))
+    # data = pd.read_csv(db_file_name, usecols=cols)
 
-    # Check if template exists.
-    case_temp_name = 'C219_MT3_LargeDomain'
-    template_file_path = '{}.fds'.format(case_temp_name)
-    if os.path.isfile(template_file_path):
-        print("Template for cases found.")
-        print("")
-    else:
-        print("No template for cases found.\n"
-              "Please provide a template.")
-        print("")
-        exit()
+    # Calculate generation size
+    para_to_optimise = len(ops)
+    num_complex = optimiser.ngs
+    generation_size = int((2 * para_to_optimise + 1) * num_complex)
+    print("Generation size: {}".format(generation_size))
+    print("")
 
-    # Read case template.
-    temp_raw = pbf.read_template(template_file_path)
+    # Count restart markers:
+    restart_marker = "#Restart#"
+    print("Restart marker: {}".format(restart_marker))
+    print("")
 
-    # Read data collection from data_extractor.
-    extr_data = pd.read_csv(extr_file, sep=',')
+    # Iterate over first column and look for restart_marker. Collect line
+    # numbers with occurrences of restart_marker. Print line
+    # number and content (the marker), to provide means for checking the
+    # results.
+    marker_occurrences = []
+    print("Found markers:")
+    print("line value")
+    print("----------")
+    marker_count = 0
+    line_number = 0
+    with open(db_file_name, 'r') as data_raw:
+        for line in data_raw:
+            if restart_marker in line:
+                print(line_number, line)
+                marker_occurrences.append(line_number)
+                marker_count += 1
+            line_number += 1
+    print("----------")
+    print("Total markers: {}".format(marker_count))
+    print("")
 
+    # Provide an overview over the performed runs (restarts), the amount of
+    # completed generations and the amount of individuals that do not fill
+    # the last generation.
+    gen_per_run = []
+    print("Generations per run:")
+    print("gen.\tres.\tleft")
+    print("----------")
+    # First run.
+    gen = (marker_occurrences[0]-1) // generation_size
+    gen_per_run.append(gen)
+    res = marker_occurrences[0]-1 - gen * generation_size
+    left = generation_size - res
+    print("{}\t{}\t{}".format(gen, res, left))
+    # Intermediate runs.
+    for i in range(marker_count-1):
+        gen = (marker_occurrences[i+1] - marker_occurrences[i]) \
+              // generation_size
+        gen_per_run.append(gen)
+        res = (marker_occurrences[i+1] - marker_occurrences[i]) \
+              - gen * generation_size
+        left = generation_size - res
+        print("{}\t{}\t{}".format(gen, res, left))
+    # Last run.
+    lgi = (line_number - marker_count - marker_occurrences[-1])
+    gen = lgi // generation_size
+    gen_per_run.append(gen)
+    res = lgi - 1 - gen * generation_size
+    left = generation_size - res
+    print("{}\t{}\t{}".format(gen, res, left))
+    print("----------")
+    print("")
+
+    ########
+    # Get column labels.
+    col_labels = list(pd.read_csv(db_file_name))
+    print(col_labels)
+    print(gen_per_run)
+
+    # gen_per_run = [2, 1, 1, 0]
+    #####
+
+    # Iterate over the database file, line by line. Create two new database
+    # files: `db_complete` is the file with only the restart markers removed,
+    # `db_reduced` is a file without restart markers and only complete
+    # generations.
+    db_complete = os.path.join(results_dir, 'propti_db_complete.csv')
+    db_reduced = os.path.join(results_dir, 'propti_db_reduced.csv')
+    restart_count = 0
+    indiv_count = 0
+    print("* Processing the database file...")
+    with open(db_file_name, 'r') as f:
+
+        # Initialise the new database files.
+        header = f.readline()
+        with open(db_complete, 'w') as dbc:
+            dbc.write(header)
+        with open(db_reduced, 'w') as dbr:
+            dbr.write(header)
+
+        # Iterate over every line.
+        for line in f:
+            # Check if restart marker is present, skip the line if true and
+            # increase counter.
+            if restart_marker not in line:
+                # Append to the complete database file (restart markers
+                # removed).
+                with open(db_complete, 'a') as dbc:
+                    dbc.write(line)
+
+                # Count the individuals to extract complete generations.
+                gen_count = gen_per_run[restart_count] * generation_size
+                if indiv_count < gen_count:
+                    with open(db_reduced, 'a') as dbr:
+                        dbr.write(line)
+                    indiv_count += 1
+                # Following line for diagnostic purpose only.
+                # elif gen_per_run[restart_count] is 0:
+                #     print("Not a complete generation in "
+                #           "run {}".format(restart_count))
+
+            else:
+                print(restart_count, indiv_count, generation_size)
+                restart_count += 1
+                # Reset counter of individuals
+                indiv_count = 0
+
+    print("* Processing complete.")
+
+
+
+
+
+    # print(marker_occurrences)
+    # print(data_raw['like1'][marker_occurrences[0]])
+    # print(data_raw['like1'][0])
     #
+    # with open(db_file_name) as f:
+    #     lines = f.readlines()
+    #
+    # print(marker_occurrences[-1]+1, lines[marker_occurrences[-1]+1])
+    #
+    # print("")
+    # print(marker_occurrences[0]//generation_size)
+    # print((marker_occurrences[1] - 1 - marker_occurrences[0]) //
+    #       generation_size)
+    # print((marker_occurrences[2] - 1 - marker_occurrences[1]) //
+    #       generation_size)
+    # print((len(data_raw) - 1 - marker_count - marker_occurrences[2]) //
+    #       generation_size)
+    #
+    # print(marker_occurrences[0])
+    # print(marker_occurrences[1]-marker_occurrences[0])
+    # print(marker_occurrences[2]-marker_occurrences[1])
+    # print(20520-marker_occurrences[2])
+    #
+    # print(2557 + generation_size)
 
-    cols = list(extr_data)
-    print(cols)
 
-    print("Number of data sets: {}".format(len(extr_data['repetition'])))
-    for i in range(len(extr_data['repetition'])):
-
-        print("* Fill templates")
-        print("--------------")
-
-        rep_value = int(extr_data.iloc[i]['repetition'])
-        new_dir_rep = 'rep_{:06d}'.format(rep_value)
-        check_directory([case_dir, new_dir_rep])
-        print("Line: {}".format(i))
-        print("Repetition value: {}".format(rep_value))
-        print("")
-        print("Parameters:")
-        print("---")
-
-        for c in range(len(cols)):
-            if "par" in cols[c]:
-                if "insulator" in cols[c]:
-                    # Divide insulator layer thickness by 2, for even split.
-                    new_para_value = extr_data.at[i, cols[c]] / 2
-                else:
-                    new_para_value = extr_data.at[i, cols[c]]
-
-                if type(new_para_value) == float:
-                    temp_raw = temp_raw.replace("#" + cols[c][3:] + "#",
-                                                "{:E}".format(new_para_value))
-                else:
-                    temp_raw = temp_raw.replace("#" + cols[c][3:] + "#",
-                                                str(new_para_value))
-
-            # Set character ID for file.
-            rep_value = int(extr_data.iloc[i]['repetition'])
-            temp_raw = temp_raw.replace("#chid#",
-                                        "{}_rep{:06d}").format(case_temp_name,
-                                                               rep_value)
-
-            # Write new input file with best parameters.
-            new_case_name = '{}_rep{:06d}.fds'.format(case_temp_name, rep_value)
-            bip = os.path.join(case_dir, new_dir_rep, new_case_name)
-            pbf.write_input_file(temp_raw, bip)
 
     print("")
-    print("Functionality test completed.")
+    print("* Functionality test completed.")
     print("")
     print("")
