@@ -29,6 +29,7 @@ class OptimiserProperties:
                  backup_every: int = 100,
                  ngs: int = None,  # will be set to len(ops) during
                                    # propti_prepare, if no value is provided
+                 eb: int = None,
                  db_name: str = 'propti_db',
                  db_type: str = 'csv',
                  db_precision=np.float64,
@@ -43,6 +44,10 @@ class OptimiserProperties:
         :param backup_every: How many repetitions before backup is performed,
             default: 100
         :param ngs: number of complexes, if None then set to len(para),
+            only applys to SCEUA
+            default: None
+        :param ngs: individuals/2 for each generation, if None then set to 48,
+            only applys to ABC and FSCABC
             default: None
         :param db_name: name of spotpy database file, default: propti_db
         :param db_type: type of database, default: csv, range: [csv]
@@ -64,6 +69,7 @@ class OptimiserProperties:
         self.repetitions = repetitions
         self.backup_every = backup_every
         self.ngs = ngs
+        self.eb = eb
         self.db_name = db_name
         self.db_type = db_type
         self.db_precision = db_precision
