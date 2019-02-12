@@ -287,7 +287,6 @@ def run_optimisation(params: ParameterSet,
         sampler = spotpy.algorithms.mle(spot,
                                           dbname=opt.db_name,
                                           dbformat=opt.db_type,
-                                          alt_objfun='rmse',
                                           parallel=parallel,
                                           breakpoint=break_point,
                                           backup_every_rep=opt.backup_every)
