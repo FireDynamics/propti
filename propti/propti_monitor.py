@@ -221,7 +221,7 @@ def plot_scatter2(x_data, y_data, plot_title,
         version_info = version
 
     # Create plot title from file name.
-    plt.title(plot_title + file_name)
+    plt.title(plot_title)
 
     # Plot PROPTI version information.
     plt.figtext(0.6, 0.95, 'PROPTI Version: {}'.format(version_info))
@@ -256,8 +256,8 @@ def plot_para_vs_fitness(data_frame, fitness_label, parameter_labels,
     # Scatter plots of parameter development over the whole run.
     for par in parameter_labels:
         file_name = par + '_vs_Fitness'
-        plot_scatter2(x_data=data_frame[par],
-                      y_data=fitness_values,
+        plot_scatter2(x_data=fitness_values,
+                      y_data=data_frame[par],
                       plot_title="{} vs. Fitness".format(par),
                       colour_data=range(len(fitness_values)),
                       file_name=file_name,
