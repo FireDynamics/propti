@@ -82,6 +82,10 @@ parser.add_argument("--clean_db",
 parser.add_argument("--func_test",
                     help="Executes test function for testing purpose",
                     action="store_true")
+parser.add_argument("--plot_para_vs_fitness",
+                    help="Plots each parameter against the fitness values, "
+                         "colour coded by repetition.",
+                    action="store_true")
 cmdl_args = parser.parse_args()
 
 ver = None  # type: pr.Version
@@ -532,13 +536,21 @@ if cmdl_args.dump_plots:
     results_dir_scatter = check_directory([p1, p2, 'Scatter'])
     results_dir_boxplot = check_directory([p1, p2, 'Boxplot'])
     results_dir_para_gen = check_directory([p1, p2, 'Para_Gen'])
+    results_dir_para_vs_fit = check_directory([p1, p2, 'Para_vs_Fitness'])
 
     # Extract data to be plotted.
     cols = ['like1', 'chain']
-    for p in ops:
-        cols.append("par{}".format(p.place_holder))
+    pars = list()
+    for parameter in ops:
+        par_label = "par{}".format(parameter.place_holder)
+        cols.append(par_label)
+        pars.append(par_label)
+
+    # Read data for the plots.
     data = pd.read_csv(db_file_name, usecols=cols)
 
+    # Start plotting.
+    # ---------------
     # Scatter plots of parameter development over the whole run.
     for c in cols[2:]:
         # Scatter plots of parameter development over the whole run.
@@ -560,6 +572,15 @@ if cmdl_args.dump_plots:
                      len(ops),
                      optimiser.ngs,
                      'FitnessDevelopment', results_dir_boxplot)
+
+    # Plot the parameter values against the fitness, colour coded by
+    # repetition.
+    pr.plot_para_vs_fitness(data_frame=data,
+                            fitness_label=cols[0],
+                            parameter_labels=pars,
+                            file_path=results_dir_para_vs_fit,
+                            version=ver.ver_propti)
+
 
     print("Plots have been created.")
     print("")
@@ -1188,6 +1209,50 @@ if cmdl_args.clean_db:
         print("* Finished cleaning database file '{}'.".format(db_file_name))
         print("")
         print("")
+
+
+#######################
+# Plot Parameter Values (Sampling Range) against Fitness
+if cmdl_args.plot_para_vs_fitness:
+
+    """
+    Plots the parameter values (sampling ranges) against the fitness values. 
+    The scatter plot is colour coded by the repetition to allow to understand 
+    at what part of the IMP run specific parameters and/or fitness values 
+    were reached.
+    """
+
+    print("\n* Plot parameters vs. fitness.")
+    print("----------------------")
+    db_file_name = os.path.join(cmdl_args.root_dir,
+                                '{}.{}'.format(optimiser.db_name,
+                                               optimiser.db_type))
+
+    # Check if a directory for the result files exists. If not create it.
+    results_dir = check_directory(['Analysis', 'Plots', 'Para_vs_Fitness'])
+
+    # Create lists of column headers, one to read the data and one for the
+    # parameter plots.
+    cols = ['like1']
+    pars = list()
+    for parameter in ops:
+        par_label = "par{}".format(parameter.place_holder)
+        cols.append(par_label)
+        pars.append(par_label)
+
+    # Read data for the plot.
+    data = pd.read_csv(db_file_name, usecols=cols)
+
+    # Scatter plots of parameter development over the whole run.
+    pr.plot_para_vs_fitness(data_frame=data,
+                            fitness_label=cols[0],
+                            parameter_labels=pars,
+                            file_path=results_dir,
+                            version=ver.ver_propti)
+
+    # Message to indicate that the job is done.
+    print("--------------")
+    print("Plot(s) have been created.\n\n")
 
 
 #######################
