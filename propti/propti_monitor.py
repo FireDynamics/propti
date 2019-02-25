@@ -263,7 +263,7 @@ def plot_para_vs_fitness(data_frame, fitness_label, parameter_labels,
                       file_path=file_path,
                       x_label="Fitness values",
                       y_label=par,
-                      colour_label="Individuals",
+                      colour_label="Repetition",
                       version=version)
 
     # # Message to indicate that the job is done.
