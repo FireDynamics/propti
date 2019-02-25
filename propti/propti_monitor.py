@@ -248,13 +248,14 @@ def plot_scatter2(x_data, y_data, plot_title,
 
 
 def plot_para_vs_fitness(data_frame, fitness_label, parameter_labels,
-                         file_name=None, file_path=None, version=None):
+                         file_path=None, version=None):
 
     # Read fitness values.
     fitness_values = data_frame[fitness_label]
 
     # Scatter plots of parameter development over the whole run.
     for par in parameter_labels:
+        file_name = par + '_vs_Fitness'
         plot_scatter2(x_data=data_frame[par],
                       y_data=fitness_values,
                       plot_title="{} vs. Fitness".format(par),
