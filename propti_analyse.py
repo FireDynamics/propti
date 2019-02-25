@@ -1225,7 +1225,6 @@ if cmdl_args.func_test:
     pr.plot_para_vs_fitness(data_frame=data,
                             fitness_label=cols[0],
                             parameter_labels=pars,
-                            file_name=None,
                             file_path=results_dir,
                             version=None)
 
