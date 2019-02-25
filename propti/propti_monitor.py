@@ -175,7 +175,7 @@ def plot_scatter(data_label, data_frame, plot_title,
 
 def plot_scatter2(x_data, y_data, plot_title,
                   colour_data=None, file_name=None, file_path=None,
-                  x_label=None, y_label=None, colour_label=None, skip_lines=1,
+                  x_label=None, y_label=None, colour_label=None,
                   version=None):
     """
 
@@ -189,8 +189,6 @@ def plot_scatter2(x_data, y_data, plot_title,
     :param y_label: label for the y-axis, default: data_label
     :param colour_label: label of the data series that is used to colour the
         data points
-    :param skip_lines: used to create plots while omitting the first lines
-                       of the data frame
     :param version: conveys (PROPTI) version information to the plot
 
     :return: creates a plot and saves it as PNG-file.
@@ -207,7 +205,6 @@ def plot_scatter2(x_data, y_data, plot_title,
     print("\n* Scatter plot: {} vs. {}, coloured by {}.".format(y_label,
                                                                 x_label,
                                                                 colour_label))
-    print("--------------")
 
     # Create the scatter plots.
     fig = plt.figure()
@@ -245,9 +242,33 @@ def plot_scatter2(x_data, y_data, plot_title,
 
     print("Plot '{}{}' has been created.".format(file_name, file_name_end))
 
-    # Message to indicate that the job is done.
-    print("--------------")
-    print("Done.\n")
+    # # Message to indicate that the job is done.
+    # print("--------------")
+    # print("Done.\n")
+
+
+def plot_para_vs_fitness(data_frame, fitness_label, parameter_labels,
+                         file_name=None, file_path=None, version=None):
+
+    # Read fitness values.
+    fitness_values = data_frame[fitness_label]
+
+    # Scatter plots of parameter development over the whole run.
+    for par in parameter_labels:
+        plot_scatter2(x_data=data_frame[par],
+                      y_data=fitness_values,
+                      plot_title="{} vs. Fitness".format(par),
+                      colour_data=range(len(fitness_values)),
+                      file_name=file_name,
+                      file_path=file_path,
+                      x_label="Fitness values",
+                      y_label=par,
+                      colour_label="Individuals",
+                      version=version)
+
+    # # Message to indicate that the job is done.
+    # print("--------------")
+    # print("Done.\n")
 
 
 def plot_semilogx_scatter(data_label, data_frame, plot_title,
