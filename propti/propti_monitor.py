@@ -173,6 +173,83 @@ def plot_scatter(data_label, data_frame, plot_title,
     print("")
 
 
+def plot_scatter2(x_data, y_data, plot_title,
+                  colour_data=None, file_name=None, file_path=None,
+                  x_label=None, y_label=None, colour_label=None, skip_lines=1,
+                  version=None):
+    """
+
+    :param x_data: the x-values for the plot
+    :param y_data: the y-values of the plot
+    :param plot_title: title of the plot
+    :param colour_data: data used to colour the points
+    :param file_name: name of the PNG-file to be created
+    :param file_path: path to the location where the file shall be written
+    :param x_label: label for the x-axis, default: data_label
+    :param y_label: label for the y-axis, default: data_label
+    :param colour_label: label of the data series that is used to colour the
+        data points
+    :param skip_lines: used to create plots while omitting the first lines
+                       of the data frame
+    :param version: conveys (PROPTI) version information to the plot
+
+    :return: creates a plot and saves it as PNG-file.
+    """
+
+    # Set a file name ending, includes the file type.
+    file_name_end = '_scatter.png'
+
+    # Set a label for the color bar if none is provided.
+    if colour_label is None:
+        colour_label = 'None'
+
+    # Message to indicate that the plotting process has started.
+    print("\n* Scatter plot: {} vs. {}, coloured by {}.".format(y_label,
+                                                                x_label,
+                                                                colour_label))
+    print("--------------")
+
+    # Create the scatter plots.
+    fig = plt.figure()
+    plt.scatter(x_data, y_data, c=colour_data)
+
+    # Finish the plot
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+
+    # Determine versions to provide them to the plot.
+    if version is None:
+        version_info = 'Not available.'
+    else:
+        version_info = version
+
+    # Create plot title from file name.
+    plt.title(plot_title + file_name)
+
+    # Plot PROPTI version information.
+    plt.figtext(0.6, 0.95, 'PROPTI Version: {}'.format(version_info))
+
+    plt.grid()
+    cbar = plt.colorbar()
+    cbar.set_label(colour_label, labelpad=+1)
+    # Check if a file name is provided, if it is a file will be
+    # created.
+    if file_name is not None:
+        if file_path is not None:
+
+            new_path = os.path.join(file_path, file_name + file_name_end)
+        else:
+            new_path = os.path.join(file_name + file_name_end)
+        plt.savefig(new_path)
+    plt.close(fig)
+
+    print("Plot '{}{}' has been created.".format(file_name, file_name_end))
+
+    # Message to indicate that the job is done.
+    print("--------------")
+    print("Done.\n")
+
+
 def plot_semilogx_scatter(data_label, data_frame, plot_title,
                           file_name=None, file_path=None, y_label=None,
                           skip_lines=1, version=None,):
