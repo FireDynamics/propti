@@ -284,9 +284,9 @@ def run_optimisation(params: ParameterSet,
         sampler = spotpy.algorithms.mle(spot,
                                           dbname=opt.db_name,
                                           dbformat=opt.db_type,
-                                          parallel=parallel,
-                                          breakpoint=break_point,
-                                          backup_every_rep=opt.backup_every)
+                                          parallel=parallel)
+        ##                                  breakpoint=break_point,
+        ##                                  backup_every_rep=opt.backup_every)
         sampler.sample(opt.repetitions)
         print(sampler.status.params)
 
@@ -314,9 +314,9 @@ def run_optimisation(params: ParameterSet,
         sampler = spotpy.algorithms.rope(spot,
                                           dbname=opt.db_name,
                                           dbformat=opt.db_type,
-                                          parallel=parallel,
-                                          breakpoint=break_point,
-                                          backup_every_rep=opt.backup_every)
+                                          parallel=parallel)
+        ##                                  breakpoint=break_point,
+        ##                                  backup_every_rep=opt.backup_every)
         sampler.sample(opt.repetitions)
         print(sampler.status.params)
 
