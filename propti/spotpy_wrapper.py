@@ -144,7 +144,7 @@ def run_optimisation(params: ParameterSet,
     break_file_name = Path('{}.break'.format(opt.db_name))
     break_point = 'write'
     if break_file_name.is_file():
-        break_point = 'read'
+        break_point = 'readandwrite'
     parallel = 'seq'
     if opt.mpi:
         parallel = 'mpi'
