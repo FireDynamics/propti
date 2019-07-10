@@ -133,7 +133,7 @@ print("----------------------")
 #     sys.exit("Neither 'propti.pickle.finished' nor 'propti.pickle.init' "
 #              "detected. Script execution stopped.")
 
-pickle_file = os.path.join(cmdl_args.root_dir, 'propti.pickle.init')
+pickle_file = os.path.join(cmdl_args.root_dir, 'propti.pickle.finished')
 
 in_file = open(pickle_file, 'rb')
 
