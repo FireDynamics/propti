@@ -11,6 +11,7 @@
 
 &SURF ID             = 'SAMPLE'
       TGA_ANALYSIS   = .TRUE.
+      TGA_HEATING_RATE = #hr#
       COLOR          = 'RED'
       THICKNESS      = 0.01
       MATL_ID(1,1) = 'component 1'
