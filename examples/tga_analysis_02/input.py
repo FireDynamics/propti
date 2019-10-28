@@ -93,7 +93,7 @@ for i in range(len(HeatingRatesTGA)):
     relation.model.file_name = '{}_{}K_tga.csv'.format(CHID,
                                                        str(HeatingRatesTGA[i]))
     relation.model.label_x = 'Time'
-    relation.model.label_y = 'Total MLR'
+    relation.model.label_y = 'MLR'
     relation.model.header_line = 1
 
     # Information on experimental data.
