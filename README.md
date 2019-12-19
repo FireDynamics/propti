@@ -14,9 +14,9 @@ Parallel execution of the algorithms is provided by the respective SPOTPY algori
 
 Basic functionality for data analysis of the inverse modelling process is provided out of the box.
 
-## Documentation
+## Documentation and Examples
 
-See [Wiki](https://github.com/FireDynamics/propti/wiki)
+Documentation is provided in [Wiki](https://github.com/FireDynamics/propti/wiki). The folder 'examples' contains application examples tested with FDS version 6.6.0. 
 
 ## Citation
 
