@@ -391,12 +391,117 @@ def plot_best_sim_exp(setup_plot, pickle_object):
         experimental_data.append(ed_interm)
 
     leg_lab = ['experiment', 'simulation']
-    plot_template(experimental_data, model_data,legend_labels=leg_lab,
+    plot_template(experimental_data,
+                  model_data,
+                  legend_labels=leg_lab,
                   n_colors=lr)
 
 
+# Create lists of column headers and labels.
+def create_column_headers(col_infos):
+
+    new_column_data = list()
+
+    for col_info in col_infos:
+        if col_info is None:
+            new_column_data.append("None")
+        else:
+            new_column_data.append(col_info)
+
+    return new_column_data
 
 
+# Create a database used for subsequent analysis procedures.
+def create_base_analysis_db(db_file_name,
+                            new_file_name,
+                            output_dir,
+                            parameter_headers,
+                            fitness_headers,
+                            progress_headers,
+                            new_file_type="csv"):
+
+    # Create lists of column headers to read the data from the `propti_db`.
+    db_headers = list()  # from original database
+    new_headers = list()  # for new database
+    labels = list()  # human-readable labels
+    parameter_units = list()  # unit information for parameter
+
+
+    # Process the fitness information.
+    for fit_id, fitness_header in enumerate(fitness_headers):
+        # Collect headers of original database file.
+        db_headers.append(fitness_header)
+        # Create new fitness headers.
+        new_headers.append("Fit_{:03d}".format(fit_id))
+        #
+        d
+
+
+
+
+
+
+
+
+
+
+    # Add the different iteration labels.
+    # TODO: progress/iteration info into pickle file - e.g. generations and
+    # complexes for sce.
+    iteration_ids = ["chain"]
+
+    create_column_headers()
+
+
+
+
+    # for iteration_id in iteration_ids:
+    #     new_headers.append(iteration_id)
+    #
+    # # Add different fitness labels.
+    # # TODO: fitness info into pickle file.
+    # fitness_labels = ["Total_fitness"]
+    #
+    # for fitness_label in fitness_labels:
+    #     new_headers.append(fitness_label)
+    #
+    # # Add different parameter labels.
+    # for parameter in ops:
+    #     par_label = "par{}".format(parameter.place_holder)
+    #     new_headers.append(par_label)
+    #     par_label = "{}".format(parameter.name)
+    #     labels.append(par_label)
+
+
+
+
+
+
+
+
+
+
+
+    # # TODO: Adjust pickle to contain information about different fitness values.
+    # cols = ['like1']
+    #
+    #
+    #
+    # # Create new headers.
+    # pars = list()
+    # for parameter in ops:
+    #     par_label = "par{}".format(parameter.place_holder)
+    #     cols.append(par_label)
+    #     pars.append(par_label)
+
+    # Read data for the plot.
+    db_content = pd.read_csv(db_file_name, usecols=cols)
+
+    # Create file name to save the new database file.
+    new_db_name = new_file_name + "." + new_file_type
+    output = os.path.join(output_dir, new_db_name)
+
+    return
 
 
 
