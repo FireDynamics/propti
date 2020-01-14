@@ -357,10 +357,9 @@ class Relation:
     """
 
     def __init__(self,
-                 x_def: np.ndarray=None,
                  model: DataSource=None,
                  experiment: DataSource=None,
-                 fitness_method: FitnessMethod=None,
+                 fitness_method: FitnessMethodInterface=None,
                  weight: float=1.0):
         """
         Set up a relation between the model and experiment data sources.
@@ -374,8 +373,8 @@ class Relation:
 
         self.model = model if model else DataSource()
         self.experiment = experiment if experiment else DataSource()
-        self.x_def = x_def
         self.fitness_method = fitness_method
+        self.x_e = None
         self.y_e = None
 
     def read_data(self, wd: os.path, target: str = 'model'):
@@ -418,55 +417,9 @@ class Relation:
 
         # assign data from file to data source arrays
         ds.x = data[ds.label_x].dropna().values
-        ds.y = data[ds.label_y].dropna().values
-
-    def map_to_def(self,
-                   target: str = 'model',
-                   mode: str = 'average',
-                   len_only: bool = False):
-        """
-        Maps the data of a data source to a definition set.
-
-        :param target: choose data source, i.e. experiment or model,
-            default: model, range: [model, experiment]
-        :param mode: choose if data should be processed, default: average,
-            range: [average]
-        :param len_only: if set, return only the length of the resulting array,
-            without creating the array
-        :return: mapped data array or length of array
-        """
-
-        # set ds to none and if it stays none, something went wrong
-        ds = None
-        if target == 'model':
-            ds = self.model
-        if target == 'experiment':
-            ds = self.experiment
-        if ds is None:
-            logging.error("* Wrong data read target: {}".format(target))
-            sys.exit()
-
-        # which mode?
-        if mode == 'average':
-            # if only length is required, return just the length of the
-            # definition set
-            if len_only:
-                return len(self.x_def)
-
-            # interpolate data on the definition set and return it
-            return np.interp(self.x_def, ds.x,
-                             ds.y) * ds.factor + ds.offset
-
-        # wrong mode was chosen
-        logging.error("* Wrong data mapping mode: {}".format(mode))
-        sys.exit()
+        ds.y = data[ds.label_y].dropna().values * ds.factor + ds.offset
 
     def compute_fitness(self, wd):
-
-        ################
-        # threshold as example
-        pr.threshold()
-
 
         # error handling
         if self.fitness_method is None:
@@ -479,15 +432,13 @@ class Relation:
         # Read experimental data once.
         if self.y_e is None:
             self.read_data(wd, "experiment")
-            self.y_e = self.map_to_def(target="experiment",
-                                       mode="average")
+            self.x_e = ds_e.x
+            self.y_e = ds_e.y
 
         # Read model data every iteration.
         self.read_data(wd, "model")
-        y_m = self.map_to_def(target="model",
-                              mode="average")
 
-        return self.fitness_method.compute(self.x_def, self.y_e, y_m)
+        return self.fitness_method.compute(self.x_e, self.y_e, ds_m.x, ds_m.y)
 
 
 
