@@ -98,26 +98,12 @@ class SpotpySetup(object):
             for r in s.relations:
                 r.read_data(wd='.', target='experiment')
         # determine the length of all data sets
-        n = 0
-        for s in self.setups:
-            for r in s.relations:
-                n += r.map_to_def(target='experiment', len_only=True)
-
-        res = np.zeros(n)
-        index = 0
-        for s in self.setups:
-            for r in s.relations:
-                n = r.map_to_def(target='experiment', len_only=True)
-                res[index:index + n] = r.map_to_def(target='experiment')
-                index += n
 
         # Saves the data that is actually used for the evaluation. Allows
         # comparison and error tracking.
-        np.savetxt("evaluation_data.csv", res)
+        return None
 
-        return res
-
-    def objectivefunction(self, simulation, evaluation):
+    def objectivefunction(self, simulation, evaluation,params):
 
         fitness_value = 0
 
@@ -144,7 +130,6 @@ def run_optimisation(params: ParameterSet,
         sampler = spotpy.algorithms.sceua(spot,
                                           dbname=opt.db_name,
                                           dbformat=opt.db_type,
-                                          alt_objfun='rmse',
                                           parallel=parallel,
                                           db_precision=np.float64,
                                           breakpoint=break_point,
@@ -170,7 +155,6 @@ def run_optimisation(params: ParameterSet,
         sampler = spotpy.algorithms.fscabc(spot,
                                           dbname=opt.db_name,
                                           dbformat=opt.db_type,
-                                          alt_objfun=None,
                                           parallel=parallel,
                                           db_precision=np.float64,
                                           breakpoint=break_point,
@@ -193,7 +177,6 @@ def run_optimisation(params: ParameterSet,
         sampler = spotpy.algorithms.abc(spot,
                                           dbname=opt.db_name,
                                           dbformat=opt.db_type,
-                                          alt_objfun=None,
                                           parallel=parallel,
                                           breakpoint=break_point,
                                           backup_every_rep=opt.backup_every)
@@ -215,7 +198,6 @@ def run_optimisation(params: ParameterSet,
         sampler = spotpy.algorithms.mc(spot,
                                           dbname=opt.db_name,
                                           dbformat=opt.db_type,
-                                          alt_objfun=None,
                                           parallel=parallel,
                                           breakpoint=break_point,
                                           backup_every_rep=opt.backup_every)
@@ -231,7 +213,6 @@ def run_optimisation(params: ParameterSet,
         sampler = spotpy.algorithms.dream(spot,
                                           dbname=opt.db_name,
                                           dbformat=opt.db_type,
-                                          alt_objfun=None,
                                           parallel=parallel,
                                           breakpoint=break_point,
                                           backup_every_rep=opt.backup_every)

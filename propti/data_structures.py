@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 import subprocess
 import spotpy
+from .fitness_methods import FitnessMethodInterface
+
 
 import propti as pr
 
@@ -429,16 +431,7 @@ class Relation:
         ds_m = self.model
         ds_e = self.experiment
 
-        # Read experimental data once.
-        if self.y_e is None:
-            self.read_data(wd, "experiment")
-            self.x_e = ds_e.x
-            self.y_e = ds_e.y
-
-        # Read model data every iteration.
-        self.read_data(wd, "model")
-
-        return self.fitness_method.compute(self.x_e, self.y_e, ds_m.x, ds_m.y)
+        return self.fitness_method.compute(ds_e.x,ds_e.y, ds_m.x, ds_m.y)
 
 
 
