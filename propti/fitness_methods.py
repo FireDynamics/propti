@@ -20,10 +20,6 @@ class FitnessMethodRMSE(FitnessMethodInterface):
         FitnessMethodInterface.__init__(self, scale_fitness=scale_fitness)
 
     def compute(self, x_e, y_e, x_m, y_m):
-        print(x_e.shape)
-        print(y_e.shape)
-        print(x_m.shape)
-        print(y_m.shape)
         # compute x array on which the data sets shall be mapped to in order to compute the RMSE on the
         # same definition range
         if self.x_def is None:
@@ -35,9 +31,6 @@ class FitnessMethodRMSE(FitnessMethodInterface):
 
         y_e_mapped = np.interp(self.x_def, x_e, y_e)
         y_m_mapped = np.interp(self.x_def, x_m, y_m)
-
-        print(y_e_mapped)
-        print(y_m_mapped)
 
         rmse = np.sqrt(((y_e_mapped - y_m_mapped) ** 2).mean())
         if self.scale_fitness:
