@@ -85,24 +85,12 @@ class SpotpySetup(object):
             logging.debug("start data extraction")
             extract_simulation_data(s)
 
-        # determine the length of all data sets
-        n = 0
-        for s in self.setups:
-            for r in s.relations:
-                n += r.map_to_def(len_only=True)
 
-        res = np.zeros(n)
-        index = 0
-        for s in self.setups:
-            for r in s.relations:
-                n = r.map_to_def(len_only=True)
-                res[index:index + n] = r.map_to_def()
-                index += n
-
+        # clean up temporary execution directories
         for s in self.setups:
             shutil.rmtree(s.execution_dir)
 
-        return res
+        return None
 
     def evaluation(self):
         logging.debug("evaluation")
@@ -131,9 +119,13 @@ class SpotpySetup(object):
 
     def objectivefunction(self, simulation, evaluation):
 
-        objectivefunction = -spotpy.objectivefunctions.rmse(evaluation,
-                                                            simulation)
-        return objectivefunction
+        fitness_value = 0
+
+        for s in self.setups:
+            for r in s.relations:
+                fitness_value += r.compute_fitness()
+
+        return fitness_value
 
 
 def run_optimisation(params: ParameterSet,

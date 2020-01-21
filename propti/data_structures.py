@@ -419,7 +419,7 @@ class Relation:
         ds.x = data[ds.label_x].dropna().values
         ds.y = data[ds.label_y].dropna().values * ds.factor + ds.offset
 
-    def compute_fitness(self, wd):
+    def compute_fitness(self):
 
         # error handling
         if self.fitness_method is None:
