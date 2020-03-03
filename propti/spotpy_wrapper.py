@@ -90,20 +90,19 @@ class SpotpySetup(object):
         for s in self.setups:
             shutil.rmtree(s.execution_dir)
 
-        return None
+        # return dummy data
+        return [1]
 
     def evaluation(self):
         logging.debug("evaluation")
         for s in self.setups:
             for r in s.relations:
                 r.read_data(wd='.', target='experiment')
-        # determine the length of all data sets
 
-        # Saves the data that is actually used for the evaluation. Allows
-        # comparison and error tracking.
-        return None
+        # return dummy data
+        return [1]
 
-    def objectivefunction(self, simulation, evaluation,params):
+    def objectivefunction(self, simulation, evaluation, params):
 
         fitness_value = 0
 
