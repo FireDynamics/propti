@@ -21,7 +21,7 @@ ops = pr.ParameterSet(params=[op1, op2, op3, op4])
 
 # define general model parameter, including optimisation parameter
 mps = pr.ParameterSet(params=[op1, op2, op3, op4])
-mps.append(pr.Parameter(name='chid', place_holder='filename', value=CHID))
+mps.append(pr.Parameter(name='chid', place_holder='CHID', value=CHID))
 
 # define empty simulation setup set
 setups = pr.SimulationSetupSet()
@@ -33,10 +33,10 @@ r.model.label_x = 'Time'
 r.model.label_y = 'temp'
 r.model.header_line = 1
 r.experiment.file_name = "experimental_data.csv"
-r.experiment.label_x = '# time'
+r.experiment.label_x = 'time'
 r.experiment.label_y = 'temp'
 r.experiment.header_line = 0
-r.experiment.factor = 1
+r.fitness_method=pr.FitnessMethodRMSE(n_points=100)
 
 # create simulation setup object
 template_file = "cone_template.fds"
@@ -50,4 +50,5 @@ s = pr.SimulationSetup(name='cone_pmma',
 setups.append(s)
 
 # use default values for optimiser
-optimiser = pr.OptimiserProperties()
+optimiser = pr.OptimiserProperties(algorithm='sceua',
+                                   repetitions=10)
