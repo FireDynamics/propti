@@ -91,6 +91,7 @@ class SpotpySetup(object):
             shutil.rmtree(s.execution_dir)
 
         # return dummy data
+        # TODO: reconsider returning proper values
         return [1]
 
     def evaluation(self):
@@ -100,6 +101,7 @@ class SpotpySetup(object):
                 r.read_data(wd='.', target='experiment')
 
         # return dummy data
+        # TODO: reconsider returning proper values
         return [1]
 
     def objectivefunction(self, simulation, evaluation, params):
