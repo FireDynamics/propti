@@ -52,6 +52,7 @@ class FitnessMethodThreshold(FitnessMethodInterface):
         self.type = threshold_type
         self.value = threshold_value
         self.range = threshold_range
+        self.scale_fitness=scale_fitness
 
     def compute(self, x_e, y_e, x_m, y_m):
 
@@ -74,19 +75,19 @@ class FitnessMethodThreshold(FitnessMethodInterface):
                 x_m_threshold = np.min(x_m_threshold_lower, x_m_threshold_upper)
 
         # check if the experimental data returns a valid threshold evaluation
-        if x_e_threshold is None:
+        if len(x_e_threshold) == 0:
             print("rethink your fitness method choice")
 
         # if the model data never reaches the threshold, return maximal deviation w.r.t. the
         # experimental value, i.e. maximal model x-value minus experimental threshold position
-        if x_m_threshold is None:
-            x_m_max_distance = np.abs(np.max(x_m) - x_e_threshold)
+        if len(x_m_threshold) == 0:
+            x_m_max_distance = np.abs(np.max(x_m) - x_e_threshold[0])
             if self.scale_fitness:
-                return x_m_max_distance / x_e_threshold
+                return x_m_max_distance / x_e_threshold[0]
             else:
                 return x_m_max_distance
 
-        return np.abs(x_e_threshold - x_m_threshold)
+        return np.abs(x_e_threshold[0] - x_m_threshold[0])
 
 
     def simple_threshold(self, t, v, x, y):
