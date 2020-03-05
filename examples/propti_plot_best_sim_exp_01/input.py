@@ -43,15 +43,13 @@ setups = pr.SimulationSetupSet()
 r = pr.Relation()
 r.model.file_name = "{}_tga.csv".format(CHID)
 r.model.label_x = 'Time'
-r.model.label_y = 'MLR'
+r.model.label_y = 'Total MLR'
 r.model.header_line = 1
 r.experiment.file_name = "tga_experimental_data.csv"
 r.experiment.label_x = 'Time'
 r.experiment.label_y = 'MassLossRate'
 r.experiment.header_line = 0
-
-# define definition set for data comparison
-r.x_def = np.arange(0., TEND, 12)
+r.fitness_method=pr.FitnessMethodRMSE(n_points=100)
 
 # create simulation setup object
 template_file = "tga_analysis_01.fds"
