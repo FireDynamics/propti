@@ -131,15 +131,15 @@ print("* Loading information of the optimisation process.")
 print("----------------------")
 
 # Check if `propti.pickle.finish` exists, else use `propti.pickle.init`.
-# if os.path.isfile(os.path.join(cmdl_args.root_dir, 'propti.pickle.finished')):
-#     pickle_file = os.path.join(cmdl_args.root_dir, 'propti.pickle.finished')
-# elif os.path.isfile(os.path.join(cmdl_args.root_dir, 'propti.pickle.init')):
-#     pickle_file = os.path.join(cmdl_args.root_dir, 'propti.pickle.init')
-# else:
-#     sys.exit("Neither 'propti.pickle.finished' nor 'propti.pickle.init' "
-#              "detected. Script execution stopped.")
+if os.path.isfile(os.path.join(cmdl_args.root_dir, 'propti.pickle.finished')):
+     pickle_file = os.path.join(cmdl_args.root_dir, 'propti.pickle.finished')
+elif os.path.isfile(os.path.join(cmdl_args.root_dir, 'propti.pickle.init')):
+     pickle_file = os.path.join(cmdl_args.root_dir, 'propti.pickle.init')
+else:
+     sys.exit("Neither 'propti.pickle.finished' nor 'propti.pickle.init' "
+              "detected. Script execution stopped.")
 
-pickle_file = os.path.join(cmdl_args.root_dir, 'propti.pickle.init')
+#pickle_file = os.path.join(cmdl_args.root_dir, 'propti.pickle.finished')
 
 in_file = open(pickle_file, 'rb')
 
