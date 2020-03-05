@@ -434,7 +434,6 @@ def create_base_analysis_db(db_file_name,
         # Create new fitness headers.
         new_headers.append("Fit_{:03d}".format(fit_id))
         #
-        d
 
 
 
@@ -450,7 +449,7 @@ def create_base_analysis_db(db_file_name,
     # complexes for sce.
     iteration_ids = ["chain"]
 
-    create_column_headers()
+    #create_column_headers()
 
 
 

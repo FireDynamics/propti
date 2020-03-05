@@ -1,5 +1,3 @@
-import sys
-import logging
 import numpy as np
 
 class FitnessMethodInterface:
@@ -9,7 +7,6 @@ class FitnessMethodInterface:
 
     def compute(self, x_e, y_e, x_m, y_m):
         print("using undefined function")
-        pass
 
 class FitnessMethodRMSE(FitnessMethodInterface):
 
