@@ -17,6 +17,7 @@ class FitnessMethodRMSE(FitnessMethodInterface):
         self.n = n_points
         self.x_def = None
         self.x_def_range = x_def_range
+        self.scale_fitness=scale_fitness
         FitnessMethodInterface.__init__(self, scale_fitness=scale_fitness)
 
     def compute(self, x_e, y_e, x_m, y_m):
@@ -33,8 +34,11 @@ class FitnessMethodRMSE(FitnessMethodInterface):
         y_m_mapped = np.interp(self.x_def, x_m, y_m)
 
         rmse = np.sqrt(((y_e_mapped - y_m_mapped) ** 2).mean())
-        if self.scale_fitness:
-            # TODO implement various methods to scale the rmse
+        if self.scale_fitness == 'mean' or self.scale_fitness == True:
+            return rmse/np.abs(np.mean(y_e_mapped))
+        elif self.scale_fitness == 'minmax':
+            return rmse/(y_e_mapped[-1]-y_e_mapped[0])
+        elif self.scale_fitness == 'interquartile':
             return rmse
         else:
             return rmse
@@ -82,11 +86,12 @@ class FitnessMethodThreshold(FitnessMethodInterface):
         # experimental value, i.e. maximal model x-value minus experimental threshold position
         if len(x_m_threshold) == 0:
             x_m_max_distance = np.abs(np.max(x_m) - x_e_threshold[0])
-            if self.scale_fitness:
+            if self.scale_fitness == True:
                 return x_m_max_distance / x_e_threshold[0]
             else:
                 return x_m_max_distance
-
+        if self.scale_fitness == True:
+            return np.abs(x_e_threshold[0] - x_m_threshold[0])/x_e_threshold[0]
         return np.abs(x_e_threshold[0] - x_m_threshold[0])
 
 
