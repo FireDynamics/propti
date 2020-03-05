@@ -110,7 +110,7 @@ class SpotpySetup(object):
 
         for s in self.setups:
             for r in s.relations:
-                fitness_value += r.compute_fitness()
+                fitness_value += r.weight*r.compute_fitness()
 
         return fitness_value
 

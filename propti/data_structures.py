@@ -378,6 +378,7 @@ class Relation:
         self.fitness_method = fitness_method
         self.x_e = None
         self.y_e = None
+        self.weight=weight
 
     def read_data(self, wd: os.path, target: str = 'model'):
         """
