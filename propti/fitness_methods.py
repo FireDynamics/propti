@@ -34,7 +34,7 @@ class FitnessMethodRMSE(FitnessMethodInterface):
         if self.scale_fitness == 'mean' or self.scale_fitness == True:
             return rmse/np.abs(np.mean(y_e_mapped))
         elif self.scale_fitness == 'minmax':
-            return rmse/(y_e_mapped[-1]-y_e_mapped[0])
+            return rmse/np.abs(y_e_mapped[-1]-y_e_mapped[0])
         elif self.scale_fitness == 'interquartile':
             return rmse
         else:
@@ -84,11 +84,11 @@ class FitnessMethodThreshold(FitnessMethodInterface):
         if len(x_m_threshold) == 0:
             x_m_max_distance = np.abs(np.max(x_m) - x_e_threshold[0])
             if self.scale_fitness == True:
-                return x_m_max_distance / x_e_threshold[0]
+                return np.abs(x_m_max_distance / x_e_threshold[0])
             else:
                 return x_m_max_distance
         if self.scale_fitness == True:
-            return np.abs(x_e_threshold[0] - x_m_threshold[0])/x_e_threshold[0]
+            return np.abs((x_e_threshold[0] - x_m_threshold[0])/x_e_threshold[0])
         return np.abs(x_e_threshold[0] - x_m_threshold[0])
 
 
