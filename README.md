@@ -16,7 +16,7 @@ Basic functionality for data analysis of the inverse modelling process is provid
 
 ## Documentation and Examples
 
-Documentation is provided in [Wiki](https://github.com/FireDynamics/propti/wiki). The folder 'examples' contains application examples tested with FDS version 6.6.0. 
+Documentation is provided in [Wiki](https://github.com/FireDynamics/propti/wiki). The folder 'examples' contains application examples tested with FDS version 6.7.3. 
 
 ## Citation
 
