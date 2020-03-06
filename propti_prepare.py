@@ -70,10 +70,9 @@ for s in setups:
     # TODO: Re-think the copy behaviour. If file is identical, just keep one
     # instance?
     for r in s.relations:
-        sh.copy(os.path.join(input_file_directory, r.experiment.file_name),
-                cdir)
-        r.experiment.file_name = \
-            os.path.join(cdir, os.path.basename(r.experiment.file_name))
+        if r.experiment is not None:
+            sh.copy(os.path.join(input_file_directory, r.experiment.file_name), cdir)
+            r.experiment.file_name = os.path.join(cdir, os.path.basename(r.experiment.file_name))
 
 # check for potential non-unique model input files
 in_file_list = []
