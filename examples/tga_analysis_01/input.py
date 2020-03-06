@@ -45,9 +45,6 @@ r.experiment.label_y = 'MassLossRate'
 r.experiment.header_line = 0
 r.fitness_method=pr.FitnessMethodRMSE(n_points=100)
 
-# define definition set for data comparison
-r.x_def = np.arange(0., TEND, 12)
-
 # create simulation setup object
 template_file = "tga_analysis_01.fds"
 s = pr.SimulationSetup(name='tga_analysis_01',

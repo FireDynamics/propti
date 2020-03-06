@@ -50,9 +50,6 @@ for iso in ['Alu', 'ISO']:
     # modify a single value of model parameter
     mps[3].value = TEND
 
-    # define definition set for data comparison
-    r.x_def = np.arange(0., TEND, 1)
-
     # create simulation setup object
     template_file = "SimpleConeLaunchTest_{}_BestParaSet_Toast.fds".format(iso)
     s = pr.SimulationSetup(name='cone_{}'.format(iso),
