@@ -27,16 +27,27 @@ mps.append(pr.Parameter(name='chid', place_holder='CHID', value=CHID))
 setups = pr.SimulationSetupSet()
 
 # define model-experiment data relation
-r = pr.Relation()
-r.model.file_name = "{}_devc.csv".format(CHID)
-r.model.label_x = 'Time'
-r.model.label_y = 'temp'
-r.model.header_line = 1
-r.experiment.file_name = "experimental_data.csv"
-r.experiment.label_x = 'time'
-r.experiment.label_y = 'temp'
-r.experiment.header_line = 0
-r.fitness_method=pr.FitnessMethodRMSE(n_points=100)
+r1 = pr.Relation()
+r1.model.file_name = "{}_devc.csv".format(CHID)
+r1.model.label_x = 'Time'
+r1.model.label_y = 'temp'
+r1.model.header_line = 1
+r1.experiment.file_name = "experimental_data.csv"
+r1.experiment.label_x = 'time'
+r1.experiment.label_y = 'temp'
+r1.experiment.header_line = 0
+r1.fitness_method=pr.FitnessMethodRMSE(n_points=100)
+
+r2 = pr.Relation()
+r2.model.file_name = "{}_devc.csv".format(CHID)
+r2.model.label_x = 'Time'
+r2.model.label_y = 'temp'
+r2.model.header_line = 1
+r2.experiment.file_name = "experimental_data.csv"
+r2.experiment.label_x = 'time'
+r2.experiment.label_y = 'temp'
+r2.experiment.header_line = 0
+r2.fitness_method=pr.FitnessMethodThreshold("upper",400)
 
 # create simulation setup object
 template_file = "cone_template.fds"
@@ -45,7 +56,7 @@ s = pr.SimulationSetup(name='cone_pmma',
                        model_template=template_file,
                        model_parameter=mps,
                        model_executable='fds',
-                       relations=r)
+                       relations=[r1,r2])
 
 setups.append(s)
 

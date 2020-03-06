@@ -106,13 +106,16 @@ class SpotpySetup(object):
 
     def objectivefunction(self, simulation, evaluation, params):
 
-        fitness_value = 0
-
+        global_fitness_value = 0
+        individual_fitness_values = list()
+        
         for s in self.setups:
             for r in s.relations:
-                fitness_value += r.weight*r.compute_fitness()
-
-        return fitness_value
+                current_fitness = r.weight * r.compute_fitness()
+                global_fitness_value += current_fitness
+                individual_fitness_values.append(current_fitness)
+                
+        return [global_fitness_value] + individual_fitness_values
 
 
 def run_optimisation(params: ParameterSet,
