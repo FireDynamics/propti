@@ -362,7 +362,7 @@ class Relation:
                  model: DataSource=None,
                  experiment: DataSource=None,
                  fitness_method: FitnessMethodInterface=None,
-                 weight: float=1.0):
+                 fitness_weight: float=1.0):
         """
         Set up a relation between the model and experiment data sources.
 
@@ -370,7 +370,7 @@ class Relation:
         :param model: model data source
         :param experiment: experiment data source
         :param fitness_method: set fitness method
-        :param weight:
+        :param fitness_weight:
         """
 
         self.model = model if model else DataSource()
@@ -378,7 +378,7 @@ class Relation:
         self.fitness_method = fitness_method
         self.x_e = None
         self.y_e = None
-        self.weight=weight
+        self.fitness_weight=fitness_weight
 
     def read_data(self, wd: os.path, target: str = 'model'):
         """
