@@ -6,6 +6,10 @@ import numpy as np
 import pandas as pd
 import subprocess
 import spotpy
+from .fitness_methods import FitnessMethodInterface
+
+
+import propti as pr
 
 from typing import List
 
@@ -155,7 +159,7 @@ class Parameter:
         Constructor.
 
         :param name: name of parameter
-        :param units: units, default: None
+        :param units: units as a string, default: None
         :param place_holder: place holder string used in templates, if not set,
             name is used
         :param value: holds current parameter value, which may also be the
@@ -355,20 +359,26 @@ class Relation:
     """
 
     def __init__(self,
-                 x_def: np.ndarray = None,
-                 model: DataSource = None,
-                 experiment: DataSource = None):
+                 model: DataSource=None,
+                 experiment: DataSource=None,
+                 fitness_method: FitnessMethodInterface=None,
+                 weight: float=1.0):
         """
         Set up a relation between the model and experiment data sources.
 
         :param x_def: definition range for both sources
         :param model: model data source
         :param experiment: experiment data source
+        :param fitness_method: set fitness method
+        :param weight:
         """
 
         self.model = model if model else DataSource()
         self.experiment = experiment if experiment else DataSource()
-        self.x_def = x_def
+        self.fitness_method = fitness_method
+        self.x_e = None
+        self.y_e = None
+        self.weight=weight
 
     def read_data(self, wd: os.path, target: str = 'model'):
         """
@@ -410,48 +420,21 @@ class Relation:
 
         # assign data from file to data source arrays
         ds.x = data[ds.label_x].dropna().values
-        ds.y = data[ds.label_y].dropna().values
+        ds.y = data[ds.label_y].dropna().values * ds.factor + ds.offset
 
-    def map_to_def(self,
-                   target: str = 'model',
-                   mode: str = 'average',
-                   len_only: bool = False):
-        """
-        Maps the data of a data source to a definition set.
+    def compute_fitness(self):
 
-        :param target: choose data source, i.e. experiment or model,
-            default: model, range: [model, experiment]
-        :param mode: choose if data should be processed, default: average,
-            range: [average]
-        :param len_only: if set, return only the length of the resulting array,
-            without creating the array
-        :return: mapped data array or length of array
-        """
-
-        # set ds to none and if it stays none, something went wrong
-        ds = None
-        if target == 'model':
-            ds = self.model
-        if target == 'experiment':
-            ds = self.experiment
-        if ds is None:
-            logging.error("* Wrong data read target: {}".format(target))
+        # error handling
+        if self.fitness_method is None:
+            logging.error("Specify fitness method!")
             sys.exit()
 
-        # which mode?
-        if mode == 'average':
-            # if length is only required, return just the length of the
-            # definition set
-            if len_only:
-                return len(self.x_def)
+        ds_m = self.model
+        ds_e = self.experiment
 
-            # interpolate data on the definition set and return it
-            return np.interp(self.x_def, ds.x,
-                             ds.y) * ds.factor + ds.offset
+        return self.fitness_method.compute(ds_e.x,ds_e.y, ds_m.x, ds_m.y)
 
-        # wrong mode was chosen
-        logging.error("* Wrong data mapping mode: {}".format(mode))
-        sys.exit()
+
 
     def __str__(self) -> str:
         """
@@ -500,28 +483,65 @@ def test_read_map_data():
     print(r.x_def, res)
 
 
+#################
+# EVALUATION METHOD CLASS
+class EvaluationMethod:
+    """
+    Stores general parameter values and meta data.
+
+    This class is used for the parameters that the optimisation algorithm
+    shall work with.
+    Furthermore, it is used for meta data that could, for instance, describe
+    the simulation environment (experimental conditions) but ARE NOT
+    parameters that are optimised.
+    """
+
+    def __init__(self, name: str="Eval_01"):
+        pass
+
+
+#################
+# FITNESS METHOD CLASS
+class FitnessMethod:
+    """
+    Stores general parameter values and meta data.
+
+    This class is used for the parameters that the optimisation algorithm
+    shall work with.
+    Furthermore, it is used for meta data that could, for instance, describe
+    the simulation environment (experimental conditions) but ARE NOT
+    parameters that are optimised.
+    """
+
+    def __init__(self, name: str="RMSE"):
+        pass
+
+
+
+
 ########################
 # SIMULATION SETUP CLASS
-
 class SimulationSetup:
     """
     A simulation setup is a collection of information to perform one
     optimisation run. Suppose you have three experiments, you would set up
-    three simulation setups.
-    They are collected later in a SimulationSetupSet.
+    three simulation setups, e.g. TGA, DSC and Cone Calorimeter.
+    They are collected later to form a SimulationSetupSet.
     """
     def __init__(self,
                  name: str,
                  work_dir: os.path = os.path.join('.'),
-                 model_template: os.path = None,
-                 model_input_file: os.path = 'model_input.file',
-                 model_parameter: ParameterSet = None,
-                 model_executable: os.path = None,
-                 execution_dir: os.path = None,
-                 execution_dir_prefix: os.path = None,
-                 best_dir: os.path = 'best_para',
-                 analyser_input_file: os.path = 'input_analyser.py',
-                 relations: List[Relation] = None):
+                 model_template: os.path=None,
+                 model_input_file: os.path='model_input.file',
+                 model_parameter: ParameterSet=None,
+                 model_executable: os.path=None,
+                 execution_dir: os.path=None,
+                 execution_dir_prefix: os.path=None,
+                 best_dir: os.path='best_para',
+                 analyser_input_file: os.path='input_analyser.py',
+                 relations: List[Relation]=None,
+                 evaluation_method: EvaluationMethod=None,
+                 fitness_method: FitnessMethod=None):
         """
         Constructor.
 
@@ -537,6 +557,8 @@ class SimulationSetup:
             parameter set
         :param analyser_input_file: name for analyser input file
         :param relations: relations between experimental and model data
+        :param evaluation_method:
+        :param fitness_method:
         """
 
         self.name = name

@@ -85,7 +85,7 @@ CHRISTIFIRE Phase 1 (25 kW, 50 kW and 75 kW).
       MATL_ID(1,1)          = 'ResidueJacket'
       NU_SPEC(1,1)          = 0.54
       SPEC_ID(1,1)          = 'TOLUENE'
-      HEAT_OF_COMBUSTION(1) = 29091.8418822
+      HEAT_OF_COMBUSTION    = 29091.8418822
       HEAT_OF_REACTION(1)   = 1348.76323363 /
 
 &MATL ID                    = 'Cable 219 Jacket Component B'
@@ -101,7 +101,7 @@ CHRISTIFIRE Phase 1 (25 kW, 50 kW and 75 kW).
       MATL_ID(1,1)          = 'ResidueJacket'
       NU_SPEC(1,1)          = 0.54
       SPEC_ID(1,1)          = 'TOLUENE'
-      HEAT_OF_COMBUSTION(1) = 29091.8418822
+      HEAT_OF_COMBUSTION    = 29091.8418822
       HEAT_OF_REACTION(1)   = 1348.76323363 /
 
 &MATL ID                    = 'ResidueJacket'
@@ -125,7 +125,7 @@ CHRISTIFIRE Phase 1 (25 kW, 50 kW and 75 kW).
       MATL_ID(1,1)          = 'ResidueInsulator'
       NU_SPEC(1,1)          = 0.51
       SPEC_ID(1,1)          = 'TOLUENE'
-      HEAT_OF_COMBUSTION(1) = 40669.5835367
+      HEAT_OF_COMBUSTION    = 40669.5835367
       HEAT_OF_REACTION(1)   = 777.615793651 /
 
 &MATL ID                    = 'Cable 219 Insulation Component B'
@@ -141,7 +141,7 @@ CHRISTIFIRE Phase 1 (25 kW, 50 kW and 75 kW).
       MATL_ID(1,1)          = 'ResidueInsulator'
       NU_SPEC(1,1)          = 0.51
       SPEC_ID(1,1)          = 'TOLUENE'
-      HEAT_OF_COMBUSTION(1) = 40669.5835367
+      HEAT_OF_COMBUSTION    = 40669.5835367
       HEAT_OF_REACTION(1)   = 777.615793651 /	  
 	  
 &MATL ID                    = 'ResidueInsulator'

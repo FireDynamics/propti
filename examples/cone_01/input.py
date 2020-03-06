@@ -41,6 +41,7 @@ for iso in ['Alu', 'ISO']:
     r.experiment.label_y = 'SG_{}_75'.format(iso)
     r.experiment.header_line = 0
     r.experiment.factor = 1e-3
+    r.fitness_method=pr.FitnessMethodRMSE(n_points=100)
 
     # use above model prototype (mps0) as template
     mps = copy.deepcopy(mps0)
@@ -48,9 +49,6 @@ for iso in ['Alu', 'ISO']:
     TEND = 600
     # modify a single value of model parameter
     mps[3].value = TEND
-
-    # define definition set for data comparison
-    r.x_def = np.arange(0., TEND, 1)
 
     # create simulation setup object
     template_file = "SimpleConeLaunchTest_{}_BestParaSet_Toast.fds".format(iso)

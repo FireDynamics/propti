@@ -85,55 +85,34 @@ class SpotpySetup(object):
             logging.debug("start data extraction")
             extract_simulation_data(s)
 
-        # determine the length of all data sets
-        n = 0
-        for s in self.setups:
-            for r in s.relations:
-                n += r.map_to_def(len_only=True)
 
-        res = np.zeros(n)
-        index = 0
-        for s in self.setups:
-            for r in s.relations:
-                n = r.map_to_def(len_only=True)
-                res[index:index + n] = r.map_to_def()
-                index += n
-
+        # clean up temporary execution directories
         for s in self.setups:
             shutil.rmtree(s.execution_dir)
 
-        return res
+        # return dummy data
+        # TODO: reconsider returning proper values
+        return [1]
 
     def evaluation(self):
         logging.debug("evaluation")
         for s in self.setups:
             for r in s.relations:
                 r.read_data(wd='.', target='experiment')
-        # determine the length of all data sets
-        n = 0
+
+        # return dummy data
+        # TODO: reconsider returning proper values
+        return [1]
+
+    def objectivefunction(self, simulation, evaluation, params):
+
+        fitness_value = 0
+
         for s in self.setups:
             for r in s.relations:
-                n += r.map_to_def(target='experiment', len_only=True)
+                fitness_value += r.weight*r.compute_fitness()
 
-        res = np.zeros(n)
-        index = 0
-        for s in self.setups:
-            for r in s.relations:
-                n = r.map_to_def(target='experiment', len_only=True)
-                res[index:index + n] = r.map_to_def(target='experiment')
-                index += n
-
-        # Saves the data that is actually used for the evaluation. Allows
-        # comparison and error tracking.
-        np.savetxt("evaluation_data.csv", res)
-
-        return res
-
-    def objectivefunction(self, simulation, evaluation):
-
-        objectivefunction = spotpy.objectivefunctions.rmse(evaluation,
-                                                            simulation)
-        return objectivefunction
+        return fitness_value
 
 
 def run_optimisation(params: ParameterSet,
@@ -163,7 +142,7 @@ def run_optimisation(params: ParameterSet,
             # Set amount of parameters as default for number of complexes
             # if not explicitly specified.
             opt.ngs = ngs
-
+        results=sampler.sample(opt.repetitions, ngs=ngs)
     elif opt.algorithm == 'fscabc':
         sampler = spotpy.algorithms.fscabc(spot,
                                           dbname=opt.db_name,
@@ -178,7 +157,7 @@ def run_optimisation(params: ParameterSet,
             # Set amount of parameters as default for number of complexes
             # if not explicitly specified.
             opt.eb = eb
-
+        results=sampler.sample(opt.repetitions, eb=eb)
     elif opt.algorithm == 'abc':
         sampler = spotpy.algorithms.abc(spot,
                                           dbname=opt.db_name,
@@ -192,39 +171,35 @@ def run_optimisation(params: ParameterSet,
             # Set amount of parameters as default for number of complexes
             # if not explicitly specified.
             opt.eb = eb
-
+        results=sampler.sample(opt.repetitions, eb=eb)
     elif opt.algorithm == 'mc':
         sampler = spotpy.algorithms.mc(spot,
                                           dbname=opt.db_name,
                                           dbformat=opt.db_type,
                                           parallel=parallel)
-        ##                                  breakpoint=break_point,
-        ##                                  backup_every_rep=opt.backup_every)
+        results=sampler.sample(opt.repetitions)
 
     elif opt.algorithm == 'dream':
         sampler = spotpy.algorithms.dream(spot,
                                           dbname=opt.db_name,
                                           dbformat=opt.db_type,
                                           parallel=parallel)
-        ##                                  breakpoint=break_point,
-        ##                                  backup_every_rep=opt.backup_every)
+        results=sampler.sample(opt.repetitions)
 
     elif opt.algorithm == 'demcz':
         sampler = spotpy.algorithms.demcz(spot,
                                           dbname=opt.db_name,
                                           dbformat=opt.db_type,
+                                          alt_objfun=None,
                                           parallel=parallel)
-        ##                                  breakpoint=break_point,
-        ##                                  backup_every_rep=opt.backup_every)
-
+        results=sampler.sample(opt.repetitions)
     elif opt.algorithm == 'mcmc':
         sampler = spotpy.algorithms.mcmc(spot,
                                           dbname=opt.db_name,
                                           dbformat=opt.db_type,
+                                          alt_objfun=None,
                                           parallel=parallel)
-        ##                                  breakpoint=break_point,
-        ##                                  backup_every_rep=opt.backup_every)
-
+        results=sampler.sample(opt.repetitions)
     elif opt.algorithm == 'mle':
         sampler = spotpy.algorithms.mle(spot,
                                           dbname=opt.db_name,
@@ -232,30 +207,27 @@ def run_optimisation(params: ParameterSet,
                                           parallel=parallel)
         ##                                  breakpoint=break_point,
         ##                                  backup_every_rep=opt.backup_every)
+        results=sampler.sample(opt.repetitions)
 
     elif opt.algorithm == 'sa':
         sampler = spotpy.algorithms.sa(spot,
                                           dbname=opt.db_name,
                                           dbformat=opt.db_type,
                                           parallel=parallel)
-        ##                                  breakpoint=break_point,
-        ##                                  backup_every_rep=opt.backup_every)
-
+        results=sampler.sample(opt.repetitions)
     elif opt.algorithm == 'rope':
         sampler = spotpy.algorithms.rope(spot,
                                           dbname=opt.db_name,
                                           dbformat=opt.db_type,
                                           parallel=parallel)
-        ##                                  breakpoint=break_point,
-        ##                                  backup_every_rep=opt.backup_every)
+        results=sampler.sample(opt.repetitions)
 
     elif opt.algorithm == 'mc':
         sampler = spotpy.algorithms.mc(spot,
                                           dbname=opt.db_name,
                                           dbformat=opt.db_type,
                                           parallel=parallel)
-        ##                                  breakpoint=break_point,
-        ##                                  backup_every_rep=opt.backup_every)
+        results=sampler.sample(opt.repetitions)
 
     elif opt.algorithm == 'fast':
         sampler = spotpy.algorithms.fast(spot,
@@ -264,19 +236,16 @@ def run_optimisation(params: ParameterSet,
                                          parallel=parallel,
                                          breakpoint=break_point,
                                          backup_every_rep=opt.backup_every)
+        results=sampler.sample(opt.repetitions)
+    else:
+        return(print('No valid optimization algorithm selected'))
 
-    sampler.sample(opt.repetitions)
-    #results = sampler.sample(opt.repetitions)
-    if sampler.status.optimization_direction == 'minimize': 
-        print(sampler.status.params_min)
-    if sampler.status.optimization_direction == 'maximize': 
-        print(sampler.status.params_max)
-
+    if sampler.status.optimization_direction == 'minimize':
+        pars=sampler.status.params_min
+    elif sampler.status.optimization_direction == 'maximize':
+        pars=sampler.status.params_max
     for i in range(len(params)):
-        if sampler.status.optimization_direction == 'minimize': 
-            params[i].value = sampler.status.params_min[i]
-        if sampler.status.optimization_direction == 'maximize': 
-            params[i].value = sampler.status.params_max[i]
+        params[i].value = pars[i]
     for s in setups:
         s.model_parameter.update(params)
     return params

@@ -86,6 +86,12 @@ parser.add_argument("--plot_para_vs_fitness",
                     help="Plots each parameter against the fitness values, "
                          "colour coded by repetition.",
                     action="store_true")
+# Prototyping of ne analysis script.
+parser.add_argument("--create_new_database",
+                    help="Creates a new database file from the spotpy data "
+                         "base CSV (propti_db.csv)",
+                    action="store_true")
+
 cmdl_args = parser.parse_args()
 
 ver = None  # type: pr.Version
@@ -125,15 +131,13 @@ print("* Loading information of the optimisation process.")
 print("----------------------")
 
 # Check if `propti.pickle.finish` exists, else use `propti.pickle.init`.
-# if os.path.isfile(os.path.join(cmdl_args.root_dir, 'propti.pickle.finished')):
-#     pickle_file = os.path.join(cmdl_args.root_dir, 'propti.pickle.finished')
-# elif os.path.isfile(os.path.join(cmdl_args.root_dir, 'propti.pickle.init')):
-#     pickle_file = os.path.join(cmdl_args.root_dir, 'propti.pickle.init')
-# else:
-#     sys.exit("Neither 'propti.pickle.finished' nor 'propti.pickle.init' "
-#              "detected. Script execution stopped.")
-
-pickle_file = os.path.join(cmdl_args.root_dir, 'propti.pickle.finished')
+if os.path.isfile(os.path.join(cmdl_args.root_dir, 'propti.pickle.finished')):
+     pickle_file = os.path.join(cmdl_args.root_dir, 'propti.pickle.finished')
+elif os.path.isfile(os.path.join(cmdl_args.root_dir, 'propti.pickle.init')):
+     pickle_file = os.path.join(cmdl_args.root_dir, 'propti.pickle.init')
+else:
+     sys.exit("Neither 'propti.pickle.finished' nor 'propti.pickle.init' "
+              "detected. Script execution stopped.")
 
 in_file = open(pickle_file, 'rb')
 
@@ -1300,5 +1304,47 @@ if cmdl_args.func_test:
 
     print("")
     print("* Functionality test completed.")
+    print("")
+    print("")
+
+
+######################################
+# Run Simulation of Best Parameter Set
+if cmdl_args.create_new_database:
+    """
+    Extracts information from the `propti_db.csv` and creates a new database 
+    used for subsequent analysis procedures. 
+    """
+
+    # Get file name of the `propti_db`
+    db_file_name = os.path.join(cmdl_args.root_dir,
+                                '{}.{}'.format(optimiser.db_name,
+                                               optimiser.db_type))
+
+    # Check if a directory for the result files exists. If not create it.
+    results_dir = check_directory(['Analysis', 'Plots', 'Para_vs_Fitness'])
+
+    # Create list of column headers to read the parameters.
+    para_labels = list()
+    for parameter in ops:
+        para_label = "par{}".format(parameter.place_holder)
+        para_labels.append(para_label)
+
+    # New file name.
+    new_db_file_name = "new_db"
+
+    # Create new database file.
+    ppm.create_base_analysis_db(db_file_name=db_file_name,
+                                new_file_name=new_db_file_name,
+                                output_dir=results_dir,
+                                parameter_headers=para_labels,
+                                fitness_headers=["like1"],
+                                progress_headers=["chain"],
+                                new_file_type="csv")
+
+
+    print("")
+    print("* Create new database file.")
+    # print("----------------------")
     print("")
     print("")

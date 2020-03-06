@@ -93,7 +93,7 @@ for i in range(len(HeatingRatesTGA)):
     relation.model.file_name = '{}_{}K_tga.csv'.format(CHID,
                                                        str(HeatingRatesTGA[i]))
     relation.model.label_x = 'Time'
-    relation.model.label_y = 'MLR'
+    relation.model.label_y = 'Total MLR'
     relation.model.header_line = 1
 
     # Information on experimental data.
@@ -103,9 +103,8 @@ for i in range(len(HeatingRatesTGA)):
     relation.experiment.header_line = 0
 
     # Define definition set for data comparison. Basically providing the
-    # amount and position of data points in x-axis, by determining the range
-    # (from 0. to TEND) and providing a delta between the points (12).
-    relation.x_def = np.arange(0., TEND, 12)
+    # amount of data points in x-axis.
+    relation.fitness_method=pr.FitnessMethodRMSE(n_points=(TEND/12))
 
     # Collect the different relations.
     r.append(relation)
