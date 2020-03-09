@@ -335,8 +335,10 @@ class DataSource:
         # self.column_y = None
         self.x = None
         self.y = None
-        self.factor = 1.0
-        self.offset = 0.0
+        self.xfactor = 1.0
+        self.xoffset = 0.0
+        self.yfactor = 1.0
+        self.yoffset = 0.0
 
         """
         :param file_name: file name which contains the information
@@ -419,8 +421,8 @@ class Relation:
         logging.debug("* last data values: x={} y={}".format(data[ds.label_x].dropna().values[-1], data[ds.label_y].dropna().values[-1]))
 
         # assign data from file to data source arrays
-        ds.x = data[ds.label_x].dropna().values
-        ds.y = data[ds.label_y].dropna().values * ds.factor + ds.offset
+        ds.x = data[ds.label_x].dropna().values * ds.xfactor + ds.xoffset
+        ds.y = data[ds.label_y].dropna().values * ds.yfactor + ds.yoffset
 
     def compute_fitness(self):
 
