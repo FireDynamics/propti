@@ -20,12 +20,13 @@ RUN apt-get install -y python3-pip
 # install python packages
 RUN pip3 install numpy
 RUN pip3 install scipy
+RUN pip3 install pandas
 RUN pip3 install spotpy
 
 # install git
-RUN apt-get git
+RUN apt-get install -y git
 
 # install propti
-RUN git clone git@github.com:FireDynamics/propti.git /root/propti
+RUN git clone https://github.com/FireDynamics/propti.git /root/propti/
 
 WORKDIR /workdir
