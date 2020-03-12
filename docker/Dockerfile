@@ -43,5 +43,6 @@ RUN git clone https://github.com/FireDynamics/propti.git /root/propti/
 
 RUN echo "alias propti_prepare='python3 /root/propti/propti_prepare.py'" >> /root/.bashrc
 RUN echo "alias propti_run='python3 /root/propti/propti_run.py'" >> /root/.bashrc
+RUN echo "source /root/FDS/FDS6/bin/FDS6VARS.sh" >> /root/.bashrc
 
 WORKDIR /workdir
