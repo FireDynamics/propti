@@ -90,9 +90,21 @@ class SpotpySetup(object):
         for s in self.setups:
             shutil.rmtree(s.execution_dir)
 
-        # return dummy data
-        # TODO: reconsider returning proper values
-        return [1]
+        # compute fitness values
+        global_fitness_value = 0
+        individual_fitness_values = list()
+
+        for s in self.setups:
+            for r in s.relations:
+                current_fitness = r.weight * r.compute_fitness()
+                global_fitness_value += current_fitness
+                individual_fitness_values.append(current_fitness)
+
+        # first element of returned list is the global fitness value
+        # note: in general this should be the simulation data, which is returned
+        # due to our data structure, the passing of the fitness values, i.e. result
+        # of the objective function, is most convenient approach here
+        return [global_fitness_value] + individual_fitness_values
 
     def evaluation(self):
         logging.debug("evaluation")
@@ -106,17 +118,10 @@ class SpotpySetup(object):
 
     def objectivefunction(self, simulation, evaluation, params):
 
-        global_fitness_value = 0
-        individual_fitness_values = list()
-        
-        for s in self.setups:
-            for r in s.relations:
-                current_fitness = r.weight * r.compute_fitness()
-                global_fitness_value += current_fitness
-                individual_fitness_values.append(current_fitness)
-                
-        return [global_fitness_value] + individual_fitness_values
-
+        # the simulation function does not return simulation data, but directly the
+        # fitness values, just pass these values
+        fitness_value = simulation
+        return fitness_value
 
 def run_optimisation(params: ParameterSet,
                      setups: SimulationSetupSet,
