@@ -399,6 +399,11 @@ class Relation:
         if target == 'experiment':
             ds = self.experiment
 
+        # if experimental data was explicitly set to None, like in case of an explicit
+        # threshold fitness method, return, as there is no data to be read
+        if ds is None:
+            return
+
         # error handling
         if ds is None:
             logging.error("wrong data read target: {}".format(target))
@@ -434,7 +439,15 @@ class Relation:
         ds_m = self.model
         ds_e = self.experiment
 
-        return self.fitness_method.compute(ds_e.x,ds_e.y, ds_m.x, ds_m.y)
+        # handle cases in which there is no experimental data set
+        if ds_e is None:
+            ds_e_x = None
+            ds_e_y = None
+        else:
+            ds_e_x = ds_e.x
+            ds_e_y = ds_e.y
+
+        return self.fitness_method.compute(ds_e_x, ds_e_y, ds_m.x, ds_m.y)
 
 
 

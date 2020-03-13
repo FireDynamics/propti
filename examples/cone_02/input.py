@@ -43,11 +43,8 @@ r2.model.file_name = "{}_devc.csv".format(CHID)
 r2.model.label_x = 'Time'
 r2.model.label_y = 'temp'
 r2.model.header_line = 1
-r2.experiment.file_name = "experimental_data.csv"
-r2.experiment.label_x = 'time'
-r2.experiment.label_y = 'temp'
-r2.experiment.header_line = 0
-r2.fitness_method=pr.FitnessMethodThreshold("upper",400)
+r2.experiment = None
+r2.fitness_method=pr.FitnessMethodThreshold("upper", threshold_target_value=90, threshold_value=400)
 
 # create simulation setup object
 template_file = "cone_template.fds"
