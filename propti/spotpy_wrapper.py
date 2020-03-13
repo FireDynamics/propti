@@ -123,7 +123,6 @@ class SpotpySetup(object):
         fitness_value = simulation
         return fitness_value
 
-
 def run_optimisation(params: ParameterSet,
                      setups: SimulationSetupSet,
                      opt: OptimiserProperties) -> ParameterSet:
