@@ -443,8 +443,8 @@ class Relation:
         
         # Debug information to check length of model response and 
         # experimental data.
-        logging.debug("* length model: {}".format(len(ds_m)))
-        logging.debug("* length experiment: {}".format(len(ds_e)))
+        logging.debug("* model data: {}".format(ds_m))
+        logging.debug("* experiment data: {}".format(ds_e))
 
 
         # handle cases in which there is no experimental data set
