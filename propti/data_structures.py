@@ -430,6 +430,8 @@ class Relation:
         ds.y = data[ds.label_y].dropna().values * ds.yfactor + ds.yoffset
 
     def compute_fitness(self):
+        
+        logging.debug("* compute fitness")
 
         # error handling
         if self.fitness_method is None:
@@ -438,6 +440,12 @@ class Relation:
 
         ds_m = self.model
         ds_e = self.experiment
+        
+        # Debug information to check length of model response and 
+        # experimental data.
+        logging.debug("* length model: {}".format(len(ds_m)))
+        logging.debug("* length experiment: {}".format(len(ds_e)))
+
 
         # handle cases in which there is no experimental data set
         if ds_e is None:
