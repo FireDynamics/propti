@@ -19,7 +19,7 @@ import scipy.signal as sign
 from scipy.stats import norm
 from scipy import stats
 import matplotlib as mpl
-mpl.use('pdf')
+#mpl.use('pdf')
 
 
 import matplotlib.pyplot as plt
@@ -78,7 +78,9 @@ def run_best_para(setups_bp, ops_bp, optimiser_bp, pickle_object):
 
 
 def plot_template(exp_data, sim_data, legend_labels=None,
-                  plot_labels=None, pdf_name='Plot name', n_colors=10):
+                  plot_labels=None, file_name='Plot name',
+                  file_type='png', dpi_value=320, fontsize=13,
+                  scaling=0.88, fig_size_x=6.5, fig_size_y=5.5, n_colors=10):
 
     if plot_labels is None:
         print('* Specify plot_labels=[x-label, y-label, title], all as string.')
@@ -88,8 +90,13 @@ def plot_template(exp_data, sim_data, legend_labels=None,
         print('* Specify legend_labels as list of strings.')
         legend_labels = ['dummy label']
 
+    # Set font size and font type for plot.
+    plt.rcParams.update({'font.size': fontsize})
+    plt.rcParams.update({'font.family': 'serif'})
+
     # Prepare plotting of multiple plots in one diagram.
-    multi_plot = plt.figure()
+    multi_plot = plt.figure(figsize=(fig_size_x * scaling,
+                                     fig_size_y * scaling))
 
     # Call the subplots.
     ax = multi_plot.add_subplot(111)
@@ -97,7 +104,7 @@ def plot_template(exp_data, sim_data, legend_labels=None,
     # Set default color map to viridis.
     # https://www.youtube.com/watch?v=xAoljeRJ3lU&feature=youtu.be
     colormap = plt.get_cmap('viridis')
-    ax.set_color_cycle([colormap(k) for k in np.linspace(0, 1, n_colors)])
+    #ax.set_color_cycle([colormap(k) for k in np.linspace(0, 1, n_colors)])
     # ax.set_prop_cycle('viridis', plt.cm.spectral(np.linspace(0, 1, 30)))
 
     for i in range(len(exp_data)):
@@ -120,7 +127,8 @@ def plot_template(exp_data, sim_data, legend_labels=None,
     plt.title(plot_labels[2])
     plt.grid()
 
-    plt.savefig(pdf_name + '.pdf')
+    plt.savefig(file_name + '.' + file_type,
+                dpi=dpi_value)
     plt.close(multi_plot)
     print('Plot saved.')
     print('')
@@ -128,7 +136,7 @@ def plot_template(exp_data, sim_data, legend_labels=None,
 
 
 def plot_hist(data_label, data_frame, plot_title, file_name, file_path,
-              bin_num=100,
+              bin_num=100, file_type='png',
               y_label=None):
 
     """
@@ -144,6 +152,7 @@ def plot_hist(data_label, data_frame, plot_title, file_name, file_path,
     :param file_name: name of the created PDF-file
     :param file_path: path to the location where the file shall be written
     :param bin_num: number of bins for the histogram, default: 100
+    :param file_type: file type of the file to be saved, default: 'png'
     :param y_label: label for the y-axis, default: data_label
     :return: saves histogram plot as PDF-file
     """
@@ -165,9 +174,10 @@ def plot_hist(data_label, data_frame, plot_title, file_name, file_path,
     if file_name is not None:
         if file_path is not None:
 
-            new_path = os.path.join(file_path, file_name + '_histogram.pdf')
+            new_path = os.path.join(file_path,
+                                    file_name + '_histogram.' + file_type)
         else:
-            new_path = os.path.join(file_name + '_histogram.pdf')
+            new_path = os.path.join(file_name + '_histogram.' + file_type)
         plt.savefig(new_path)
     plt.close()
 

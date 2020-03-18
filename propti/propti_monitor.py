@@ -42,7 +42,9 @@ import os
 #                               file_name=None, y_label=None, skip_lines=1):
 
 def plot_best_para_generation(data_label, data_frame, para_to_optimise,
-                              num_complex, file_path):
+                              num_complex, file_path, file_type='png',
+                              dpi_value=320, fontsize=13, scaling=0.88,
+                              fig_size_x=6.5, fig_size_y=5.5):
 
     # Extract the total amount of individuals over all generations,
     # the very first individual will be skipped.
@@ -58,6 +60,14 @@ def plot_best_para_generation(data_label, data_frame, para_to_optimise,
     # only partly complete it will be skipped.
     generations = individuals_total // generation_size
     print("Generations: {}".format(generations))
+
+    # Set font size and font type for plot.
+    plt.rcParams.update({'font.size': fontsize})
+    plt.rcParams.update({'font.family': 'serif'})
+
+    # Prepare plotting of multiple plots in one diagram.
+    plt.figure(figsize=(fig_size_x * scaling,
+                        fig_size_y * scaling))
 
     # Find best fitness parameter per generation and collect them.
     local_best_locations = []
@@ -93,16 +103,18 @@ def plot_best_para_generation(data_label, data_frame, para_to_optimise,
         plt.ylabel(data_label[2 + col_label])
         plt.grid()
 
-        new_path = os.path.join(file_path, data_label[2 + col_label] + '.jpg')
+        new_path = os.path.join(file_path,
+                                data_label[2 + col_label] + '.' + file_type)
         print(new_path)
-        plt.savefig(new_path, dpi=400)
+        plt.savefig(new_path, dpi=dpi_value)
         plt.show()
         plt.close()
 
 
 def plot_scatter(data_label, data_frame, plot_title,
                  file_name=None, file_path=None, y_label=None, skip_lines=1,
-                 version=None,):
+                 version=None, file_type='png', dpi_value=320, fontsize=13,
+                 scaling=0.88, fig_size_x=6.5, fig_size_y=5.5):
 
     """
     :param data_label: column label for Pandas data frame
@@ -114,6 +126,14 @@ def plot_scatter(data_label, data_frame, plot_title,
     :param y_label: label for the y-axis, default: data_label
     :param skip_lines: used to create plots while omitting the first lines
                        of the data frame
+    :param file_type: type of the file to be saved
+    :param dpi_value: dpi value for the image
+    :param fontsize: font size for text in the plot
+    :param scaling: scales the overall plot,
+                    in concert with fig_size_x and fig_size_y
+    :param fig_size_x: figure size along x-axis, in inch
+    :param fig_size_y: figure size along y-axis, in inch
+
     :return: creates a plot and saves it as PDF-file
     """
 
@@ -128,8 +148,14 @@ def plot_scatter(data_label, data_frame, plot_title,
     # Skip first entry.
     rmse_values = data_frame[data_label][skip_lines:]
 
+    # Set font size and font type for plot.
+    plt.rcParams.update({'font.size': fontsize})
+    plt.rcParams.update({'font.family': 'serif'})
+
     # Plot the RMSE values.
-    fig = plt.figure()
+    fig = plt.figure(figsize=(fig_size_x * scaling,
+                              fig_size_y * scaling))
+
     plt.plot(rmse_values, color='black', marker='.', linestyle='None')
     # Finish the plot
     # pl.rcParams['figure.figsize'] = 16, 12
@@ -159,10 +185,11 @@ def plot_scatter(data_label, data_frame, plot_title,
     if file_name is not None:
         if file_path is not None:
 
-            new_path = os.path.join(file_path, file_name + '_scatter.pdf')
+            new_path = os.path.join(file_path,
+                                    file_name + '_scatter.' + file_type)
         else:
-            new_path = os.path.join(file_name + '_scatter.pdf')
-        plt.savefig(new_path)
+            new_path = os.path.join(file_name + '_scatter.' + file_type)
+        plt.savefig(new_path, dpi=dpi_value)
     plt.close(fig)
 
     print("Plot '{}_scatter.pdf' has been created.".format(file_name))
@@ -176,7 +203,8 @@ def plot_scatter(data_label, data_frame, plot_title,
 def plot_scatter2(x_data, y_data, plot_title,
                   colour_data=None, file_name=None, file_path=None,
                   x_label=None, y_label=None, colour_label=None,
-                  version=None):
+                  version=None, file_type='png', dpi_value=320, fontsize=13,
+                 scaling=0.88, fig_size_x=6.5, fig_size_y=5.5):
     """
 
     :param x_data: the x-values for the plot
@@ -190,12 +218,16 @@ def plot_scatter2(x_data, y_data, plot_title,
     :param colour_label: label of the data series that is used to colour the
         data points
     :param version: conveys (PROPTI) version information to the plot
+    :param file_type: type of the file to be saved
+    :param dpi_value: dpi value for the image
+    :param fontsize: font size for text in the plot
+    :param scaling: scales the overall plot,
+                    in concert with fig_size_x and fig_size_y
+    :param fig_size_x: figure size along x-axis, in inch
+    :param fig_size_y: figure size along y-axis, in inch
 
     :return: creates a plot and saves it as PNG-file.
     """
-
-    # Set a file name ending, includes the file type.
-    file_name_end = '_scatter.png'
 
     # Set a label for the color bar if none is provided.
     if colour_label is None:
@@ -206,8 +238,14 @@ def plot_scatter2(x_data, y_data, plot_title,
                                                                 x_label,
                                                                 colour_label))
 
+    # Set font size and font type for plot.
+    plt.rcParams.update({'font.size': fontsize})
+    plt.rcParams.update({'font.family': 'serif'})
+
     # Create the scatter plots.
-    fig = plt.figure()
+    fig = plt.figure(figsize=(fig_size_x * scaling,
+                              fig_size_y * scaling))
+
     plt.scatter(x_data, y_data, c=colour_data)
 
     # Finish the plot
@@ -234,13 +272,15 @@ def plot_scatter2(x_data, y_data, plot_title,
     if file_name is not None:
         if file_path is not None:
 
-            new_path = os.path.join(file_path, file_name + file_name_end)
+            new_path = os.path.join(file_path,
+                                    file_name + '_scatter' + file_type)
         else:
-            new_path = os.path.join(file_name + file_name_end)
-        plt.savefig(new_path)
+            new_path = os.path.join(file_name + '_scatter' + file_type)
+        plt.savefig(new_path, dpi=dpi_value)
     plt.close(fig)
 
-    print("Plot '{}{}' has been created.".format(file_name, file_name_end))
+    print("Plot '{}{}' has been created.".format(file_name,
+                                                 '_scatter' + file_type))
 
     # # Message to indicate that the job is done.
     # print("--------------")
@@ -249,6 +289,15 @@ def plot_scatter2(x_data, y_data, plot_title,
 
 def plot_para_vs_fitness(data_frame, fitness_label, parameter_labels,
                          file_path=None, version=None):
+    """
+
+    :param data_frame:
+    :param fitness_label:
+    :param parameter_labels:
+    :param file_path:
+    :param version:
+    :return:
+    """
 
     # Read fitness values.
     fitness_values = data_frame[fitness_label]
@@ -274,7 +323,9 @@ def plot_para_vs_fitness(data_frame, fitness_label, parameter_labels,
 
 def plot_semilogx_scatter(data_label, data_frame, plot_title,
                           file_name=None, file_path=None, y_label=None,
-                          skip_lines=1, version=None,):
+                          skip_lines=1, version=None, file_type='png',
+                          dpi_value=320, fontsize=13, scaling=0.88,
+                          fig_size_x=6.5, fig_size_y=5.5):
 
     """
     :param data_label: column label for Pandas data frame
@@ -286,6 +337,14 @@ def plot_semilogx_scatter(data_label, data_frame, plot_title,
     :param y_label: label for the y-axis, default: data_label
     :param skip_lines: used to create plots while omitting the first lines
                        of the data frame
+    :param file_type: type of the file to be saved
+    :param dpi_value: dpi value for the image
+    :param fontsize: font size for text in the plot
+    :param scaling: scales the overall plot,
+                    in concert with fig_size_x and fig_size_y
+    :param fig_size_x: figure size along x-axis, in inch
+    :param fig_size_y: figure size along y-axis, in inch
+
     :return: creates a plot and saves it as PDF-file
     """
 
@@ -300,8 +359,14 @@ def plot_semilogx_scatter(data_label, data_frame, plot_title,
     # Skip first entry.
     rmse_values = data_frame[data_label][skip_lines:]
 
+    # Set font size and font type for plot.
+    plt.rcParams.update({'font.size': fontsize})
+    plt.rcParams.update({'font.family': 'serif'})
+
     # Plot the RMSE values.
-    fig = plt.figure()
+    fig = plt.figure(figsize=(fig_size_x * scaling,
+                              fig_size_y * scaling))
+
     plt.semilogx(rmse_values, color='black', marker='.', linestyle='None')
     # Finish the plot
     # pl.rcParams['figure.figsize'] = 16, 12
@@ -332,13 +397,14 @@ def plot_semilogx_scatter(data_label, data_frame, plot_title,
         if file_path is not None:
 
             new_path = os.path.join(file_path,
-                                    file_name + '_semilogx_scatter.pdf')
+                                    file_name + '_semilogx_scatter' + file_type)
         else:
-            new_path = os.path.join(file_name + '_semilogx_scatter.pdf')
-        plt.savefig(new_path)
+            new_path = os.path.join(file_name + '_semilogx_scatter' + file_type)
+        plt.savefig(new_path, dpi=dpi_value)
     plt.close(fig)
 
-    print("Plot '{}_semilogx_scatter.pdf' has been created.".format(file_name))
+    print("Plot '{}_semilogx_scatter.{}' has been created.".format(file_name,
+                                                                   file_type))
 
     # Message to indicate that the job is done.
     print("--------------")
@@ -348,7 +414,9 @@ def plot_semilogx_scatter(data_label, data_frame, plot_title,
 
 def plot_semilogy_scatter(data_label, data_frame, plot_title,
                           file_name=None, file_path=None, y_label=None,
-                          skip_lines=1, version=None,):
+                          skip_lines=1, version=None, file_type='png',
+                          dpi_value=320, fontsize=13, scaling=0.88,
+                          fig_size_x=6.5, fig_size_y=5.5):
 
     """
     :param data_label: column label for Pandas data frame
@@ -360,6 +428,14 @@ def plot_semilogy_scatter(data_label, data_frame, plot_title,
     :param y_label: label for the y-axis, default: data_label
     :param skip_lines: used to create plots while omitting the first lines
                        of the data frame
+    :param file_type: type of the file to be saved
+    :param dpi_value: dpi value for the image
+    :param fontsize: font size for text in the plot
+    :param scaling: scales the overall plot,
+                    in concert with fig_size_x and fig_size_y
+    :param fig_size_x: figure size along x-axis, in inch
+    :param fig_size_y: figure size along y-axis, in inch
+
     :return: creates a plot and saves it as PDF-file
     """
 
@@ -374,8 +450,14 @@ def plot_semilogy_scatter(data_label, data_frame, plot_title,
     # Skip first entry.
     rmse_values = data_frame[data_label][skip_lines:]
 
+    # Set font size and font type for plot.
+    plt.rcParams.update({'font.size': fontsize})
+    plt.rcParams.update({'font.family': 'serif'})
+
     # Plot the RMSE values.
-    fig = plt.figure()
+    fig = plt.figure(figsize=(fig_size_x * scaling,
+                              fig_size_y * scaling))
+
     plt.semilogy(rmse_values, color='black', marker='.', linestyle='None')
     # Finish the plot
     # pl.rcParams['figure.figsize'] = 16, 12
@@ -406,13 +488,14 @@ def plot_semilogy_scatter(data_label, data_frame, plot_title,
         if file_path is not None:
 
             new_path = os.path.join(file_path,
-                                    file_name + '_semilogy_scatter.pdf')
+                                    file_name + '_semilogy_scatter.' + file_type)
         else:
-            new_path = os.path.join(file_name + '_semilogy_scatter.pdf')
-        plt.savefig(new_path)
+            new_path = os.path.join(file_name + '_semilogy_scatter.' + file_type)
+        plt.savefig(new_path, dpi=dpi_value)
     plt.close(fig)
 
-    print("Plot '{}_semilogy_scatter.pdf' has been created.".format(file_name))
+    print("Plot '{}_semilogy_scatter.{}' has been created.".format(file_name,
+                                                                   file_type))
 
     # Message to indicate that the job is done.
     print("--------------")
@@ -492,7 +575,9 @@ def plot_semilogy_scatter(data_label, data_frame, plot_title,
 
 
 def plot_box_rmse(df_name, plot_title, para_to_optimise,
-                  num_complex, file_name=None, file_path=None):
+                  num_complex, file_name=None, file_path=None,
+                  file_type='png', dpi_value=320, fontsize=13,
+                  scaling=0.88, fig_size_x=6.5, fig_size_y=5.5):
 
     """
     Create a collection of box plots, one for each generation of the sceua.
@@ -504,6 +589,14 @@ def plot_box_rmse(df_name, plot_title, para_to_optimise,
     :param num_complex: number of complexes of the IMP, using Spotpy SCEUA
     :param file_name: name of the PDF-file to be created
     :param file_path: path to the location where the file shall be written
+    :param file_type: type of the file to be saved
+    :param dpi_value: dpi value for the image
+    :param fontsize: font size for text in the plot
+    :param scaling: scales the overall plot,
+                    in concert with fig_size_x and fig_size_y
+    :param fig_size_x: figure size along x-axis, in inch
+    :param fig_size_y: figure size along y-axis, in inch
+
     :return: creates a plot and saves it as PDF-file
     """
 
@@ -558,8 +651,13 @@ def plot_box_rmse(df_name, plot_title, para_to_optimise,
         # Collect the lists for later plotting.
         data_series_multi.append(new_data)
 
+    # Set font size and font type for plot.
+    plt.rcParams.update({'font.size': fontsize})
+    plt.rcParams.update({'font.family': 'serif'})
+
     # Prepare plotting of multiple boxplots in one diagramm.
-    multi_plot = plt.figure()
+    multi_plot = plt.figure(figsize=(fig_size_x * scaling,
+                                     fig_size_y * scaling))
     # Call the subplots.
     ax = multi_plot.add_subplot(111)
     # Create multiple boxplots
@@ -584,13 +682,15 @@ def plot_box_rmse(df_name, plot_title, para_to_optimise,
     if file_name is not None:
         if file_path is not None:
 
-            new_path = os.path.join(file_path, file_name + '_boxplot.pdf')
+            new_path = os.path.join(file_path,
+                                    file_name + '_boxplot.' + file_type)
         else:
-            new_path = os.path.join(file_name + '_boxplot.pdf')
-        plt.savefig(new_path)
+            new_path = os.path.join(file_name + '_boxplot.' + file_type)
+        plt.savefig(new_path, dpi=dpi_value)
     plt.close(multi_plot)
 
-    print("Plot '{}_boxplot.pdf' has been created.".format(file_name))
+    print("Plot '{}_boxplot.{}' has been created.".format(file_name,
+                                                          file_type))
     # Message to indicate that the job is done.
     print("--------------")
     print("Queue of plotting tasks finished.")
