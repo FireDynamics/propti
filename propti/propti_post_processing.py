@@ -105,7 +105,7 @@ def plot_template(exp_data, sim_data, legend_labels=None,
     # https://www.youtube.com/watch?v=xAoljeRJ3lU&feature=youtu.be
     colormap = plt.get_cmap('viridis')
     #ax.set_color_cycle([colormap(k) for k in np.linspace(0, 1, n_colors)])
-    # ax.set_prop_cycle('viridis', plt.cm.spectral(np.linspace(0, 1, 30)))
+    #ax.set_prop_cycle('viridis', plt.cm.spectral(np.linspace(0, 1, 30)))
 
     for i in range(len(exp_data)):
         # Create multiple plots
@@ -391,12 +391,11 @@ def plot_best_sim_exp(setup_plot, pickle_object):
                                             usecols=[r.experiment.label_x,
                                                      r.experiment.label_y])
 
-        md_interm = [model_data_raw[r.model.label_x].tolist(),
-                     model_data_raw[r.model.label_y].tolist()]
+        md_interm = [(model_data_raw[r.model.label_x]*r.model.xfactor+r.model.xoffset).tolist(),
+                     (model_data_raw[r.model.label_y]*r.model.yfactor+r.model.yoffset).tolist()]
 
-        ed_interm = [experimental_data_raw[r.experiment.label_x].tolist(),
-                     experimental_data_raw[r.experiment.label_y].tolist()]
-
+        ed_interm = [(experimental_data_raw[r.experiment.label_x]*r.experiment.xfactor+r.experiment.xoffset).tolist(),
+                     (experimental_data_raw[r.experiment.label_y]*r.experiment.yfactor+r.experiment.yoffset).tolist()]
         model_data.append(md_interm)
         experimental_data.append(ed_interm)
 
