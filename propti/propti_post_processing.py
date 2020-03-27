@@ -38,7 +38,7 @@ def run_best_para(setups_bp, ops_bp, optimiser_bp, pickle_object):
         input_file_directory = s.work_dir
 
         root_dir = os.path.dirname(os.path.abspath(pickle_object))
-        cdir = os.path.join(root_dir, s.best_dir)
+        cdir = os.path.join(root_dir, 'Analysis', 'RunBestPara', s.name)
 
         # create best parameter simulation directories
         if not os.path.exists(cdir):

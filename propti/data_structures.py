@@ -550,7 +550,7 @@ class SimulationSetup:
                  model_executable: os.path=None,
                  execution_dir: os.path=None,
                  execution_dir_prefix: os.path=None,
-                 best_dir: os.path='best_para',
+                 # best_dir: os.path='best_para',
                  analyser_input_file: os.path='input_analyser.py',
                  relations: List[Relation]=None,
                  evaluation_method: EvaluationMethod=None,
@@ -566,8 +566,8 @@ class SimulationSetup:
         :param model_executable: call to invoke the model
         :param execution_dir: directory where the model execution will be
             carried out, mostly in temporally created directories
-        :param best_dir: directory for performing simulation(s) with the best
-            parameter set
+        # :param best_dir: directory for performing simulation(s) with the best
+        #     parameter set
         :param analyser_input_file: name for analyser input file
         :param relations: relations between experimental and model data
         :param evaluation_method:
@@ -586,7 +586,7 @@ class SimulationSetup:
         self.model_executable = model_executable
         self.execution_dir = execution_dir
         self.execution_dir_prefix = execution_dir_prefix
-        self.best_dir = best_dir
+        # self.best_dir = best_dir
         self.analyser_input_file = analyser_input_file
 
         # if relations are set, check if a list is passed, otherwise create
