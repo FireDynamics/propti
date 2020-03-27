@@ -232,6 +232,11 @@ class ParameterSet:
         # if set, deep copy the passed parameter into the self list
         if params:
             for p in params:
+                # check for existing parameter name
+                for tp in self.parameters:
+                    if tp.name == p.name:
+                        logging.error("Paramer with same names detected: {}".format(p.name))
+                        sys.exit(1)
                 self.parameters.append(copy.deepcopy(p))
 
     def upgrade(self) -> List:
@@ -276,6 +281,13 @@ class ParameterSet:
         :param p: parameter to be appended
         :return:
         """
+
+        # check for existing parameter name
+        for tp in self.parameters:
+            if tp.name == p.name:
+                logging.error("Paramer with same names detected: {}".format(p.name))
+                sys.exit(1)
+
         self.parameters.append(copy.deepcopy(p))
 
     def __getitem__(self, item: int) -> Parameter:
