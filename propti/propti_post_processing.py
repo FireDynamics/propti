@@ -10,6 +10,7 @@ import os
 import sys
 import shutil as sh
 import logging
+import subprocess
 
 import propti as pr
 
@@ -21,7 +22,6 @@ from scipy import stats
 import matplotlib as mpl
 mpl.use('pdf')
 
-
 import matplotlib.pyplot as plt
 
 
@@ -31,50 +31,135 @@ optimiser = None  # type: pr.OptimiserProperties
 
 
 def run_best_para(setups_bp, ops_bp, optimiser_bp, pickle_object):
+    """
+
+    :param setups_bp:
+    :param ops_bp:
+    :param optimiser_bp:
+    :param pickle_object:
+    :return:
+    """
+
     print(setups_bp, ops_bp, optimiser_bp)
 
-    for s in setups_bp:
+    # Find most recent model input files created by `--create_best_input`.
+    root_dir = os.path.dirname(os.path.abspath(pickle_object))
+    run_best_para_dir = os.path.join(root_dir, 'Analysis', 'Extractor',
+                                     'CurrentBestParameter')
+    print(run_best_para_dir)
 
-        input_file_directory = s.work_dir
+    rep_dir_paths = [f.name for f in os.scandir(run_best_para_dir) if f.is_dir()]
+    rep_dir_paths.sort()
+    print(rep_dir_paths)
 
-        root_dir = os.path.dirname(os.path.abspath(pickle_object))
-        cdir = os.path.join(root_dir, 'Analysis', 'RunBestPara', s.name)
+    current_rep = rep_dir_paths[-1]
+    current_dir = os.path.join(run_best_para_dir, current_rep)
+    print(current_dir)
 
-        # create best parameter simulation directories
-        if not os.path.exists(cdir):
-            os.mkdir(cdir)
+    # Iterate over the sub-directories (simulation setups) und run the
+    # simulations of the respective model input file.
+    print("* Run best parameter simulations for {} SimulationSetups.".format(
+        len(setups_bp)))
+    print('-----')
+    for s_id, s in enumerate(setups_bp):
+        sim_setup_name = s.name
+        print("  Setup {} ({}).".format(s_id, sim_setup_name))
 
-        # copy model template
-        pt = os.path.abspath(input_file_directory)
-        sh.copy(os.path.join(pt, s.model_template.split('/')[-1]), cdir)
+        work_dir = os.path.join(current_dir, sim_setup_name)
+        # print('*', work_dir)
+        exec_file = s.model_executable
+        # print('*', exec_file)
+        in_file = "{}_rep{}.fds".format(sim_setup_name,
+                                        current_rep.split('_')[-1])
+        # print('*', in_file)
 
-        s.model_template = os.path.join(cdir,
-                                        os.path.basename(s.model_template))
+        log_file = open(os.path.join(work_dir, "execution.log"), "w")
 
-        # copy all experimental data
-        for r in s.relations:
-            sh.copy(os.path.join(pt, r.experiment.file_name.split('/')[-1]),
-                    cdir)
-            r.experiment.file_name = \
-                os.path.join(cdir,
-                             os.path.basename(
-                                 r.experiment.file_name.split('/')[-1]))
+        cmd = 'cd {} && {} {}'.format(work_dir, exec_file, in_file)
 
-    # check for potential non-unique model input files
-    in_file_list = []
-    for s in setups_bp:
-        tpath = os.path.join(s.work_dir, s.model_input_file)
-        logging.debug("check if {} is in {}".format(tpath, in_file_list))
-        if tpath in in_file_list:
-            logging.error("non unique module input file path: {}".format(tpath))
-            sys.exit()
-        in_file_list.append(tpath)
+        # logging.debug("* Run Best Parameter Simulation.")
+        # logging.debug("executing command: {}".format(cmd))
+        print('  Run Best Parameter Simulation...')
+        subprocess.check_call(cmd, shell=True, stdout=log_file, stderr=log_file)
+        log_file.close()
+        print('  Done.')
+        print('-----')
 
-    for s in setups_bp:
-        pr.create_input_file(s, work_dir='best')
+    print('* Best parameter simulations finished.')
 
-    pr.run_simulations(setups_bp, best_para_run=True)
-    pass
+
+    # for s in setups_bp:
+    #
+    #     # input_file_directory = s.work_dir
+    #     # root_dir = os.path.dirname(os.path.abspath(pickle_object))
+    #
+    #     # Define the directory for the SimulationSetup.
+    #     sim_setup_run_best_dir = os.path.join(root_dir, 'Analysis',
+    #                                           'RunBestPara', s.name)
+    #
+    #     # Create best parameter simulation directory.
+    #     if not os.path.exists(sim_setup_run_best_dir):
+    #         os.mkdir(sim_setup_run_best_dir)
+    #
+    #     # Get the model template file.
+    #     model_temp_file = os.path.join(root_dir,
+    #                                    os.path.basename(s.model_template))
+    #
+    #     # Create best input file.
+    #     pr.create_input_file(s, work_dir='best')
+    #
+    #     # Run best parameter set.
+    #     pr.run_simulations(setups_bp, best_para_run=True)
+
+
+
+
+# def run_best_para(setups_bp, ops_bp, optimiser_bp, pickle_object):
+#     print(setups_bp, ops_bp, optimiser_bp)
+#
+#     for s in setups_bp:
+#
+#         input_file_directory = s.work_dir
+#
+#         root_dir = os.path.dirname(os.path.abspath(pickle_object))
+#         cdir = os.path.join(root_dir, 'Analysis', 'RunBestPara', s.name)
+#
+#         # create best parameter simulation directories
+#         if not os.path.exists(cdir):
+#             os.mkdir(cdir)
+#
+#         # copy model template
+#         # pt = os.path.abspath(input_file_directory)
+#         pt = os.path.abspath(cdir)
+#         sh.copy(os.path.join(pt, s.model_template.split('/')[-1]), cdir)
+#
+#         s.model_template = os.path.join(cdir,
+#                                         os.path.basename(s.model_template))
+#
+#         # copy all experimental data
+#         for r in s.relations:
+#             sh.copy(os.path.join(pt, r.experiment.file_name.split('/')[-1]),
+#                     cdir)
+#             r.experiment.file_name = \
+#                 os.path.join(cdir,
+#                              os.path.basename(
+#                                  r.experiment.file_name.split('/')[-1]))
+#
+#     # check for potential non-unique model input files
+#     in_file_list = []
+#     for s in setups_bp:
+#         tpath = os.path.join(s.work_dir, s.model_input_file)
+#         logging.debug("check if {} is in {}".format(tpath, in_file_list))
+#         if tpath in in_file_list:
+#             logging.error("non unique module input file path: {}".format(tpath))
+#             sys.exit()
+#         in_file_list.append(tpath)
+#
+#     for s in setups_bp:
+#         pr.create_input_file(s, work_dir='best')
+#
+#     pr.run_simulations(setups_bp, best_para_run=True)
+#     pass
 
 
 def plot_template(exp_data, sim_data, legend_labels=None,
@@ -501,24 +586,3 @@ def create_base_analysis_db(db_file_name,
     output = os.path.join(output_dir, new_db_name)
 
     return
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

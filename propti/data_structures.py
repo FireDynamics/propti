@@ -55,7 +55,7 @@ class OptimiserProperties:
             default: None
         :param db_name: name of spotpy database file, default: propti_db
         :param db_type: type of database, default: csv, range: [csv]
-        :param db_precision: desired precision of the values to be written into 
+        :param db_precision: desired precision of the values to be written into
             the data base, default: np.float64
         :param num_subprocesses: Used to set the number of sub processes
             that need to be run for each task.
@@ -340,10 +340,10 @@ class DataSource:
 
         """
         :param file_name: file name which contains the information
-        :param header_line: row that containts the labels (pandas data frames) 
-        :param label_x: label of the row which contains the information of the 
+        :param header_line: row that containts the labels (pandas data frames)
+        :param label_x: label of the row which contains the information of the
             x-axis (pandas data frames)
-        :param label_y:label of the row which contains the information of the 
+        :param label_y:label of the row which contains the information of the
             y-axis (pandas data frames)
         :param x: data of the x-axis (based on above label)
         :param y: data of the y-axis (based on above label)
@@ -566,8 +566,8 @@ class SimulationSetup:
         :param model_executable: call to invoke the model
         :param execution_dir: directory where the model execution will be
             carried out, mostly in temporally created directories
-        # :param best_dir: directory for performing simulation(s) with the best
-        #     parameter set
+        :param best_dir: directory for performing simulation(s) with the best
+            parameter set
         :param analyser_input_file: name for analyser input file
         :param relations: relations between experimental and model data
         :param evaluation_method:
@@ -586,7 +586,7 @@ class SimulationSetup:
         self.model_executable = model_executable
         self.execution_dir = execution_dir
         self.execution_dir_prefix = execution_dir_prefix
-        # self.best_dir = best_dir
+        self.best_dir = os.path.join('Analysis', 'RunBestPara', self.name)
         self.analyser_input_file = analyser_input_file
 
         # if relations are set, check if a list is passed, otherwise create
@@ -763,7 +763,7 @@ class Version:
             self.flag_propti = 1
             return "Undetermined"
 
-    def exec_versionCall(self, executable) -> str:  
+    def exec_versionCall(self, executable) -> str:
         ''' Look for executable version.
             Look for fds revision by calling fds without parameters
             and return its revision in use.
@@ -777,7 +777,7 @@ class Version:
 
             # TODO: make the parsing more general
             # This bit is only specfic to fds
-            
+
             # define maximal number of line to be parsed
             lines_count = 100
             while True:
@@ -793,7 +793,7 @@ class Version:
         except subprocess.CalledProcessError:
             self.flag_exec = 1
             return "!! No Executable Present !!"
-            
+
 
     def __repr__(self) -> str:
         string = self.ver_propti + ', ' + self.ver_exec

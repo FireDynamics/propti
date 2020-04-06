@@ -230,6 +230,11 @@ if cmdl_args.run_best:
     db_file_name = os.path.join(cmdl_args.root_dir,
                                 '{}.{}'.format(optimiser.db_name,
                                                optimiser.db_type))
+    
+    
+    # Check if a directory for the result files exists. If not, create it.
+    results_dir = check_directory([p1, 'RunBestPara'])
+
 
     print("")
     print("* Run simulation(s) of best parameter set")
