@@ -325,12 +325,12 @@ def collect_best_para_multi(data_file, label_list, distance=0.8e-4):
     fit_vals_raw = pd.read_csv(data_file, usecols=label_list)
     fit_vals = fit_vals_raw[label_list[0]].values
 
-    # Find max value in the array.
-    fit_max = max(fit_vals)
+    # Find min value in the array.
+    fit_min = min(fit_vals)
 
     # Calculate the range in which to collect the samples.
-    upper = fit_max + distance
-    lower = fit_max - distance
+    upper = fit_min + distance
+    lower = fit_min - distance
 
     # Collect indices and values.
     multi_fit = []
@@ -346,7 +346,7 @@ def collect_best_para_multi(data_file, label_list, distance=0.8e-4):
     print('-------------')
     print('Range around the best fitness value')
     print('----')
-    print('Best fitness: {}'.format(fit_max))
+    print('Best fitness: {}'.format(fit_min))
     print('Distance: {}'.format(distance))
     print('Upper bound: {}'.format(upper))
     print('Lower bound: {}'.format(lower))

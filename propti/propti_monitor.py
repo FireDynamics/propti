@@ -75,7 +75,7 @@ def plot_best_para_generation(data_label, data_frame, para_to_optimise,
         start = 0 + i * generation_size
         end = 0 + (i+1) * generation_size
 
-        local_best = data_frame.iloc[start:end]['like1'].idxmax()
+        local_best = data_frame.iloc[start:end]['like1'].idxmin()
         local_best_locations.append(local_best)
         print('Local best, gen. {}: {}'.format(i, local_best))
         print("Sample length: {}".format(
@@ -749,7 +749,7 @@ def data_extractor(data_label, data_frame, para_to_optimise, num_complex,
         if generations < 1:
             start = 0
             end = individuals_total
-            local_best = data_frame.iloc[start:end]['like1'].idxmax()
+            local_best = data_frame.iloc[start:end]['like1'].idxmin()
             local_best_locations.append(local_best)
             print('Local best, gen. {} not complete: {}'.format(0, local_best))
             print("Sample length: {}".format(
@@ -760,7 +760,7 @@ def data_extractor(data_label, data_frame, para_to_optimise, num_complex,
                 start = 0 + i * generation_size
                 end = 0 + (i + 1) * generation_size
 
-                local_best = data_frame.iloc[start:end]['like1'].idxmax()
+                local_best = data_frame.iloc[start:end]['like1'].idxmin()
                 local_best_locations.append(local_best)
                 print('Local best, gen. {}: {}'.format(i, local_best))
                 print("Sample length: {}".format(

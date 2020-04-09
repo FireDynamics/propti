@@ -270,8 +270,8 @@ if cmdl_args.create_best_input:
     print("---")
 
     fitness_values = pd.read_csv(db_file_name, usecols=['like1'])
-    best_fitness_index = fitness_values.idxmax().iloc[0]
-    best_fitness_value = fitness_values.max().iloc[0]
+    best_fitness_index = fitness_values.idxmin().iloc[0]
+    best_fitness_value = fitness_values.min().iloc[0]
 
     print("Best fitness index: line {}".format(best_fitness_index))
     print("Best fitness value: {}".format(best_fitness_value))
