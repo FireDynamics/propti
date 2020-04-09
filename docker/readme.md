@@ -2,4 +2,5 @@
 docker build -t propti .
 
 * run command:
-docker run -ti -v $PWD:/workdir propti
+[Linux]   docker run -ti -v $PWD:/workdir propti
+[Windows / Powershell] docker run -ti -v ${PWD}:/workdir propti

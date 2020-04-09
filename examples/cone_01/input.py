@@ -40,7 +40,7 @@ for iso in ['Alu', 'ISO']:
     r.experiment.label_x = '# Time_{}_75'.format(iso)
     r.experiment.label_y = 'SG_{}_75'.format(iso)
     r.experiment.header_line = 0
-    r.experiment.factor = 1e-3
+    r.experiment.yfactor = 1e-3
     r.fitness_method=pr.FitnessMethodRMSE(n_points=100)
 
     # use above model prototype (mps0) as template
