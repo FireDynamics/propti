@@ -239,7 +239,7 @@ class ParameterSet:
                 # check for existing parameter name
                 for tp in self.parameters:
                     if tp.name == p.name:
-                        logging.error("Paramer with same names detected: {}".format(p.name))
+                        logging.error("Parameters with same names detected: {}".format(p.name))
                         sys.exit(1)
                 self.parameters.append(copy.deepcopy(p))
 
@@ -289,7 +289,7 @@ class ParameterSet:
         # check for existing parameter name
         for tp in self.parameters:
             if tp.name == p.name:
-                logging.error("Paramer with same names detected: {}".format(p.name))
+                logging.error("Parameters with same names detected: {}".format(p.name))
                 sys.exit(1)
 
         self.parameters.append(copy.deepcopy(p))
