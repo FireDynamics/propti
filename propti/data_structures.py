@@ -31,6 +31,7 @@ class OptimiserProperties:
                  algorithm: str = 'sceua',
                  repetitions: int = 1,
                  backup_every: int = 100,
+                 max_loop_inc: int = None,
                  ngs: int = None,  # will be set to len(ops) during
                                    # propti_prepare, if no value is provided
                  eb: int = None,
@@ -47,6 +48,7 @@ class OptimiserProperties:
         :param repetitions: number of sampling repetitions, default: 1
         :param backup_every: How many repetitions before backup is performed,
             default: 100
+        :param max_loop_inc: How many loop iteration per sample call, default: None
         :param ngs: number of complexes, if None then set to len(para),
             only applys to SCEUA
             default: None
@@ -72,6 +74,7 @@ class OptimiserProperties:
         self.algorithm = algorithm
         self.repetitions = repetitions
         self.backup_every = backup_every
+        self.max_loop_inc = max_loop_inc
         self.ngs = ngs
         self.eb = eb
         self.db_name = db_name
@@ -117,7 +120,7 @@ class OptimiserProperties:
 
         return "\noptimiser properties\n" \
                "--------------------\n" \
-               "alg: {}\nrep: {}\nrep_backup: {}\nngs: {}" \
+               "alg: {}\nrep: {}\nrep_backup: {}\nmax_loop_inc: {}\nngs: {}" \
                "\ndb_name: {}\ndb_type: {}" \
                "\ndb_precision: {}" \
                "\nexecution mode: {}" \
@@ -125,6 +128,7 @@ class OptimiserProperties:
                "\nmpi mode: {}\n".format(self.algorithm,
                                          self.repetitions,
                                          be,
+                                         self.max_loop_inc,
                                          self.ngs,
                                          self.db_name,
                                          self.db_type,
