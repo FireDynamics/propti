@@ -44,6 +44,79 @@ class FitnessMethodRMSE(FitnessMethodInterface):
         else:
             return rmse
 
+class FitnessMethodRangeRMSE(FitnessMethodInterface):
+
+    def __init__(self, n_points=None, x_def_range=None, y_relative_range=None, scale_fitness=True):
+        self.n = n_points
+        self.x_def = None
+        self.x_def_range = x_def_range
+        self.scale_fitness = scale_fitness
+        if y_relative_range==None:
+            self.y_relative_range=0.05
+        else:
+            self.y_relative_range=abs(y_relative_range)
+        FitnessMethodInterface.__init__(self, scale_fitness=scale_fitness)
+
+    def compute(self, x_e, y_e, x_m, y_m):
+        # compute x array on which the data sets shall be mapped to in order to compute the RMSE on the
+        # same definition range
+        if self.x_def is None:
+            if self.x_def_range is None:
+                x_min = np.max([np.min(x_e), np.min(x_m)])
+                x_max = np.min([np.max(x_e), np.max(x_m)])
+                self.x_def_range = [x_min, x_max]
+            self.x_def = np.linspace(self.x_def_range[0], self.x_def_range[1], self.n, endpoint=True)
+
+        y_e_mapped = np.interp(self.x_def, x_e, y_e)
+        y_m_mapped = np.interp(self.x_def, x_m, y_m)
+        y_rmse=np.zeroes(y_e_mapped.shape)
+        for i,value in enumerate(y_e_mapped):
+            if (y_e_mapped[i]*(1-y_relative_range) <= y_m_mapped[i] <= y_e_mapped[i]*(1-y_relative_range)):
+                y_rmse[i]=0
+            else:
+                y_rmse[i]=(y_e_mapped[i] - y_m_mapped[i]) ** 2
+        rmse = np.sqrt(y_rmse.mean())
+        if self.scale_fitness == 'mean' or self.scale_fitness == True:
+            return rmse / np.abs(np.mean(y_e_mapped))
+        elif self.scale_fitness == 'minmax':
+            return rmse / np.abs(y_e_mapped[-1] - y_e_mapped[0])
+        elif self.scale_fitness == 'interquartile':
+            return rmse
+        else:
+            return rmse
+
+class FitnessMethodRangeBandRMSE(FitnessMethodInterface):
+
+    def __init__(self, n_points=None, x_def_range=None, scale_fitness=True):
+        self.n = n_points
+        self.x_def = None
+        self.x_def_range = x_def_range
+        self.scale_fitness = scale_fitness
+        FitnessMethodInterface.__init__(self, scale_fitness=scale_fitness)
+
+    def compute(self, x_e, y_e, x_m, y_m):
+        # compute x array on which the data sets shall be mapped to in order to compute the RMSE on the
+        # same definition range
+        if self.x_def is None:
+            if self.x_def_range is None:
+                x_min = np.max([np.min(x_e), np.min(x_m)])
+                x_max = np.min([np.max(x_e), np.max(x_m)])
+                self.x_def_range = [x_min, x_max]
+            self.x_def = np.linspace(self.x_def_range[0], self.x_def_range[1], self.n, endpoint=True)
+
+        y_e_mapped = np.interp(self.x_def, x_e, y_e)
+        y_e_mapped_b2 = np.interp(self.x_def, x_e, y_e_2)
+        y_m_mapped = np.interp(self.x_def, x_m, y_m)
+        rmse = np.sqrt(((y_e_mapped - y_m_mapped) ** 2).mean())
+        if self.scale_fitness == 'mean' or self.scale_fitness == True:
+            return rmse / np.abs(np.mean(y_e_mapped))
+        elif self.scale_fitness == 'minmax':
+            return rmse / np.abs(y_e_mapped[-1] - y_e_mapped[0])
+        elif self.scale_fitness == 'interquartile':
+            return rmse
+        else:
+            return rmse
+
 
 class FitnessMethodThreshold(FitnessMethodInterface):
 
