@@ -69,9 +69,9 @@ class FitnessMethodRangeRMSE(FitnessMethodInterface):
 
         y_e_mapped = np.interp(self.x_def, x_e, y_e)
         y_m_mapped = np.interp(self.x_def, x_m, y_m)
-        y_rmse=np.zeroes(y_e_mapped.shape)
+        y_rmse=np.zeros(y_e_mapped.shape)
         for i,value in enumerate(y_e_mapped):
-            if (y_e_mapped[i]*(1-y_relative_range) <= y_m_mapped[i] <= y_e_mapped[i]*(1-y_relative_range)):
+            if (y_e_mapped[i]*(1-self.y_relative_range)) <= y_m_mapped[i] <= (y_e_mapped[i]*(1-self.y_relative_range)):
                 y_rmse[i]=0
             else:
                 y_rmse[i]=(y_e_mapped[i] - y_m_mapped[i]) ** 2
@@ -107,7 +107,13 @@ class FitnessMethodRangeBandRMSE(FitnessMethodInterface):
         y_e_mapped = np.interp(self.x_def, x_e, y_e)
         y_e_mapped_b2 = np.interp(self.x_def, x_e, y_e_2)
         y_m_mapped = np.interp(self.x_def, x_m, y_m)
-        rmse = np.sqrt(((y_e_mapped - y_m_mapped) ** 2).mean())
+        y_rmse=np.zeros(y_e_mapped.shape)
+        for i,value in enumerate(y_e_mapped):
+            if np.min(y_e_mapped[i],y_e_mapped_b2[i]) <= y_m_mapped[i] <= np.max(y_e_mapped[i],y_e_mapped_b2[i]):
+                y_rmse[i]=0
+            else:
+                y_rmse[i]=np.min(((y_e_mapped[i] - y_m_mapped[i]) ** 2),((y_e_mapped_b2[i] - y_m_mapped[i]) ** 2))
+        rmse = np.sqrt(y_rmse.mean())
         if self.scale_fitness == 'mean' or self.scale_fitness == True:
             return rmse / np.abs(np.mean(y_e_mapped))
         elif self.scale_fitness == 'minmax':
