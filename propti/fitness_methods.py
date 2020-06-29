@@ -8,7 +8,7 @@ class FitnessMethodInterface:
     def __init__(self, scale_fitness=True):
         self.scale_fitness = scale_fitness
 
-    def compute(self, x_e, y_e, x_m, y_m):
+    def compute(self, x_e, y_e, y2_e, x_m, y_m):
         print("using undefined function")
 
 
@@ -21,7 +21,7 @@ class FitnessMethodRMSE(FitnessMethodInterface):
         self.scale_fitness = scale_fitness
         FitnessMethodInterface.__init__(self, scale_fitness=scale_fitness)
 
-    def compute(self, x_e, y_e, x_m, y_m):
+    def compute(self, x_e, y_e, y2_e, x_m, y_m):
         # compute x array on which the data sets shall be mapped to in order to compute the RMSE on the
         # same definition range
         if self.x_def is None:
@@ -57,7 +57,7 @@ class FitnessMethodRangeRMSE(FitnessMethodInterface):
             self.y_relative_range=abs(y_relative_range)
         FitnessMethodInterface.__init__(self, scale_fitness=scale_fitness)
 
-    def compute(self, x_e, y_e, x_m, y_m):
+    def compute(self, x_e, y_e, y2_e, x_m, y_m):
         # compute x array on which the data sets shall be mapped to in order to compute the RMSE on the
         # same definition range
         if self.x_def is None:
@@ -85,7 +85,7 @@ class FitnessMethodRangeRMSE(FitnessMethodInterface):
         else:
             return rmse
 
-class FitnessMethodRangeBandRMSE(FitnessMethodInterface):
+class FitnessMethodBandRMSE(FitnessMethodInterface):
 
     def __init__(self, n_points=None, x_def_range=None, scale_fitness=True):
         self.n = n_points
@@ -94,7 +94,7 @@ class FitnessMethodRangeBandRMSE(FitnessMethodInterface):
         self.scale_fitness = scale_fitness
         FitnessMethodInterface.__init__(self, scale_fitness=scale_fitness)
 
-    def compute(self, x_e, y_e, x_m, y_m):
+    def compute(self, x_e, y_e, y2_e, x_m, y_m):
         # compute x array on which the data sets shall be mapped to in order to compute the RMSE on the
         # same definition range
         if self.x_def is None:
@@ -105,14 +105,14 @@ class FitnessMethodRangeBandRMSE(FitnessMethodInterface):
             self.x_def = np.linspace(self.x_def_range[0], self.x_def_range[1], self.n, endpoint=True)
 
         y_e_mapped = np.interp(self.x_def, x_e, y_e)
-        y_e_mapped_b2 = np.interp(self.x_def, x_e, y_e_2)
+        y_e_mapped_b2 = np.interp(self.x_def, x_e, y2_e)
         y_m_mapped = np.interp(self.x_def, x_m, y_m)
         y_rmse=np.zeros(y_e_mapped.shape)
         for i,value in enumerate(y_e_mapped):
-            if np.min(y_e_mapped[i],y_e_mapped_b2[i]) <= y_m_mapped[i] <= np.max(y_e_mapped[i],y_e_mapped_b2[i]):
+            if np.min((y_e_mapped[i],y_e_mapped_b2[i])) <= y_m_mapped[i] <= np.max((y_e_mapped[i],y_e_mapped_b2[i])):
                 y_rmse[i]=0
             else:
-                y_rmse[i]=np.min(((y_e_mapped[i] - y_m_mapped[i]) ** 2),((y_e_mapped_b2[i] - y_m_mapped[i]) ** 2))
+                y_rmse[i]=np.min((((y_e_mapped[i] - y_m_mapped[i]) ** 2),((y_e_mapped_b2[i] - y_m_mapped[i]) ** 2)))
         rmse = np.sqrt(y_rmse.mean())
         if self.scale_fitness == 'mean' or self.scale_fitness == True:
             return rmse / np.abs(np.mean(y_e_mapped))

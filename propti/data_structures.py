@@ -347,10 +347,12 @@ class DataSource:
         self.header_line = None
         self.label_x = None
         self.label_y = None
+        self.label_y2 = None
         # self.column_x = None
         # self.column_y = None
         self.x = None
         self.y = None
+        self.y2 = None
         self.xfactor = 1.0
         self.xoffset = 0.0
         self.yfactor = 1.0
@@ -444,6 +446,8 @@ class Relation:
         # assign data from file to data source arrays
         ds.x = data[ds.label_x].dropna().values * ds.xfactor + ds.xoffset
         ds.y = data[ds.label_y].dropna().values * ds.yfactor + ds.yoffset
+        if ds.label_y2 is not None:
+            ds.y2 = data[ds.label_y].dropna().values * ds.yfactor + ds.yoffset
 
     def compute_fitness(self):
         
@@ -470,8 +474,12 @@ class Relation:
         else:
             ds_e_x = ds_e.x
             ds_e_y = ds_e.y
+        if ds_e.y2 is not None:
+            ds_e_y2 = ds_e.y2
+        else:
+            ds_e_y2 = None
 
-        return self.fitness_method.compute(ds_e_x, ds_e_y, ds_m.x, ds_m.y)
+        return self.fitness_method.compute(ds_e_x, ds_e_y, ds_e_y, ds_m.x, ds_m.y)
 
 
 
