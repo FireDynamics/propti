@@ -141,7 +141,7 @@ class FitnessMethodThreshold(FitnessMethodInterface):
         self.range = threshold_range
         self.scale_fitness = scale_fitness
 
-    def compute(self, x_e, y_e, x_m, y_m):
+    def compute(self, x_e, y_e, y2_e, x_m, y_m):
 
         x_e_threshold = None
         x_m_threshold = None
