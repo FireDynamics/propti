@@ -479,7 +479,7 @@ class Relation:
         else:
             ds_e_y2 = None
 
-        return self.fitness_method.compute(ds_e_x, ds_e_y, ds_e_y, ds_m.x, ds_m.y)
+        return self.fitness_method.compute(ds_e_x, ds_e_y, ds_e_y2, ds_m.x, ds_m.y)
 
 
 
