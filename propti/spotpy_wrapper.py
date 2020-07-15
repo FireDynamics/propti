@@ -150,8 +150,8 @@ def run_optimisation(params: ParameterSet,
             # Set amount of parameters as default for number of complexes
             # if not explicitly specified.
             opt.ngs = ngs
-        #results=sampler.sample(opt.repetitions, ngs=ngs, max_loop_inc=opt.max_loop_inc)
-        results=sampler.sample(opt.repetitions, ngs=ngs)
+        results=sampler.sample(opt.repetitions, ngs=ngs, max_loop_inc=opt.max_loop_inc)
+        #results=sampler.sample(opt.repetitions, ngs=ngs)
     elif opt.algorithm == 'fscabc':
         sampler = spotpy.algorithms.fscabc(spot,
                                           dbname=opt.db_name,
