@@ -447,7 +447,7 @@ class Relation:
         ds.x = data[ds.label_x].dropna().values * ds.xfactor + ds.xoffset
         ds.y = data[ds.label_y].dropna().values * ds.yfactor + ds.yoffset
         if ds.label_y2 is not None:
-            ds.y2 = data[ds.label_y].dropna().values * ds.yfactor + ds.yoffset
+            ds.y2 = data[ds.label_y2].dropna().values * ds.yfactor + ds.yoffset
 
     def compute_fitness(self):
         
