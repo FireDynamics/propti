@@ -71,7 +71,7 @@ class FitnessMethodRangeRMSE(FitnessMethodInterface):
         y_m_mapped = np.interp(self.x_def, x_m, y_m)
         y_rmse=np.zeros(y_e_mapped.shape)
         for i,value in enumerate(y_e_mapped):
-            if (y_e_mapped[i]*(1-self.y_relative_range)) <= y_m_mapped[i] <= (y_e_mapped[i]*(1-self.y_relative_range)):
+            if (y_e_mapped[i]*(1-self.y_relative_range)) <= y_m_mapped[i] <= (y_e_mapped[i]*(1+self.y_relative_range)):
                 y_rmse[i]=0
             else:
                 y_rmse[i]=(y_e_mapped[i] - y_m_mapped[i]) ** 2
