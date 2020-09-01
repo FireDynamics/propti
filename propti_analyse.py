@@ -18,7 +18,7 @@ import propti.propti_post_processing as ppm
 
 parser = argparse.ArgumentParser()
 parser.add_argument("root_dir", type=str,
-                    help="optimisation root directory",
+                    help="optimisation root directory (location of the 'propti_db.csv', e.g. '.')",
                     default='.')
 
 parser.add_argument("--inspect_init",
