@@ -609,7 +609,7 @@ def plot_box_rmse(df_name, plot_title, para_to_optimise,
 
     # Extract the total amount of individuals over all generations,
     # the very first individual will be skipped.
-    individuals_total = len(df_name['chain'].tolist()) - 1
+    individuals_total = len(df_name['chain'].tolist()) #- 1
     # Debugging:
     # print 'Individuals total:', individuals_total
 

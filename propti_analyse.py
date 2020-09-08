@@ -1152,15 +1152,15 @@ if cmdl_args.clean_db:
         print("{}\t{}\t{}".format(gen, res, left))
         # Intermediate runs.
         for i in range(marker_count - 1):
-            gen = (marker_occurrences[i + 1] - marker_occurrences[i]) \
+            gen = (marker_occurrences[i + 1] - 1 - marker_occurrences[i]) \
                   // generation_size
             gen_per_run.append(gen)
-            res = (marker_occurrences[i + 1] - marker_occurrences[i]) \
+            res = (marker_occurrences[i + 1] - 1 - marker_occurrences[i]) \
                   - gen * generation_size
             left = generation_size - res
             print("{}\t{}\t{}".format(gen, res, left))
         # Last run.
-        lgi = (line_number - marker_count - marker_occurrences[-1])
+        lgi = (line_number - marker_occurrences[-1])
         gen = lgi // generation_size
         gen_per_run.append(gen)
         res = lgi - 1 - gen * generation_size
