@@ -706,7 +706,7 @@ def data_extractor(data_label, data_frame, para_to_optimise, num_complex,
 
     # Extract the total amount of individuals over all generations,
     # the very first individual will be skipped.
-    individuals_total = len(data_frame['chain'].tolist()) - 1
+    individuals_total = len(data_frame['chain'].tolist()) #- 1
     # Debugging:
     # print 'Individuals total:', individuals_total
 
