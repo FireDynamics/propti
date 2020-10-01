@@ -26,8 +26,10 @@ PROPTI is listed to ZENODO to get Data Object Identifiers (DOI) and allow for ci
 
 We have set up a project on ResearchGate: [PROPTI project](https://www.researchgate.net/project/PROPTI-An-Generalised-Inverse-Modelling-Framework)
 
-Corresponding papers can be found here:
+Corresponding publications can be found here:
 
 [PROPTI - A Generalised Inverse Modelling Framework](https://www.researchgate.net/publication/327655651_PROPTI_-_A_Generalised_Inverse_Modelling_Framework)
 
 [Application cases of inverse modelling with the PROPTI framework](https://doi.org/10.1016/j.firesaf.2019.102835)
+
+[Role of the Cost Function for Material Parameter Estimation](https://www.researchgate.net/publication/344217501_ROLE_OF_THE_COST_FUNCTION_FOR_MATERIAL_PARAMETER_ESTIMATION)
