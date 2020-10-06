@@ -27,26 +27,17 @@
 # Not necessary for propti.
 ## SBATCH --signal=B:SIGUSR1@600
 
-####################
-###  USER INPUT  ###
-####################
-
-# define path to propti
-PROPTISTEM=/path/to/propti/repo
-
-####################
-
 
 cd $SLURM_SUBMIT_DIR
 
 
 # load necessary modules
-module load Intel/2018.1.163-GCC-5.4.0 IntelMPI/2018.1.163
-module load SciPy-Stack/2017b-Python-3.6.3
-module load mpi4py/2.0.0-Python-3.6.3
+ml use /usr/local/software/jureca/OtherStages
+ml Stages/2018b
 
-module use --append ~larnold/modules_fire
-module load FDS/6.5.3-gnu720-serial
+module use -a ~arnold1/modules_fire/
+ml spotpy/1.5.13-py3.6.6_IntelCompiler_2019.0_ParaStationMPI_5.2.1
+
 
 pwd
 
@@ -54,10 +45,14 @@ printenv &> user.env-$SLURM_JOB_ID
 
 which python3
 
-which fds
+# Add an extra line to the propti_db, to be able to destinguish between restarts (e.g. job crash).
+# These markers are also looked for by the '--clean_db' function of the post processing scripts.
+if [ -f propti_db.csv ]; then
+   echo "#Restart#" >> propti_db.csv
+fi
 
+# Run PROPTI. Also, create a log file to save the output generated.
+# Assumption that PROPTI is stoed two layers above this script.
+# CHECK PATH FOR YOUR CASE!
 
-# run propti
-#srun fds $FDSSTEM*.fds & wait
-#mpirun python3 $PROPTISTEM/propti/propti/propti_run.py . &> log.propti_run
-srun python3 $PROPTISTEM/propti/propti/propti_run.py . &> log.propti_run
+srun --export=ALL python3.6 ../propti/propti_run.py . &>>log.spotpy_mpi
