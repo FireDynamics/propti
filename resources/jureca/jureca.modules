@@ -1,6 +1,5 @@
-module load Intel/2018.1.163-GCC-5.4.0 IntelMPI/2018.1.163
-module load SciPy-Stack/2017b-Python-3.6.3
-module load mpi4py/2.0.0-Python-3.6.3
+ml use /usr/local/software/jureca/OtherStages
+ml Stages/2018b
 
-module use --append ~larnold/modules_fire
-module load FDS/6.5.3-gnu720-serial
+module use -a ~arnold1/modules_fire/
+ml spotpy/1.5.13-py3.6.6_IntelCompiler_2019.0_ParaStationMPI_5.2.1
