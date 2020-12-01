@@ -471,13 +471,13 @@ class Relation:
         if ds_e is None:
             ds_e_x = None
             ds_e_y = None
+            ds_e_y2 = None
         else:
             ds_e_x = ds_e.x
             ds_e_y = ds_e.y
-        if ds_e.y2 is not None:
-            ds_e_y2 = ds_e.y2
-        else:
-            ds_e_y2 = None
+            if ds_e.y2 is not None:
+                ds_e_y2 = ds_e.y2
+                
 
         return self.fitness_method.compute(ds_e_x, ds_e_y, ds_e_y2, ds_m.x, ds_m.y)
 
