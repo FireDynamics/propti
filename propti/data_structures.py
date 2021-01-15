@@ -816,7 +816,7 @@ class Version:
             # define maximal number of line to be parsed
             lines_count = 100
             while True:
-                line = proc.stdout.readline().decode("utf-8")
+                line = proc.stdout.readline().decode("utf-8", "ignore")
                 if line[1:9] == 'Revision':
                     ver = line[line.index(':')+2:]
                     break
