@@ -14,26 +14,48 @@ class FitnessMethodInterface:
 
 class FitnessMethodRMSE(FitnessMethodInterface):
 
-    def __init__(self, n_points=None, x_def_range=None, scale_fitness=True):
+    def __init__(self, n_points=None, x_def_range=None, scale_fitness=True,
+                 check_model_length=True, penalty=5, difference=0.05):
         """
+        Constructor, setting up basic parameters.
 
         :param n_points: number of evenly spaced data points, endpoint included
         :param x_def_range:
-        :param scale_fitness:
+        :param scale_fitness: default=True
+        :param check_model_length: flag to control if a check for premature
+            model termination is to be conducted.
+        :param penalty: pre-defined RMSE value that is high enough to nudge
+            the optimiser away from this parameter set.
+        :param difference: percentage that is used to calculate the lower limit.
         """
 
         self.n_points = n_points
         self.x_def = None
         self.x_def_range = x_def_range
         self.scale_fitness = scale_fitness
+        self.check_model_length = check_model_length
+        self.penalty = penalty
+        self.difference = difference
+
         FitnessMethodInterface.__init__(self, scale_fitness=scale_fitness)
 
     def compute(self, x_e, y_e, y2_e, x_m, y_m):
         """
         Calculates the root mean squared error between two data series.
 
-        compute x-array on which the data sets shall be mapped to in order
-        to compute the RMSE on the same definition range
+        This method calculates the root mean squared error (RMSE) between
+        two data series. It can also scale the RMSE value based on different
+        aspects of the experiment data.
+        Furthermore, it can check if the end of the experiment and model
+        x-values are close together in an effort to find data series as a
+        result of premature model termination, e.g. numerical instabilites
+        with FDS. This step is necessary in some cases, where the simulation
+        crashes but still some data points are written. Primarily, because
+        this method scales the x-range to map both data series to it,
+        which allows proper comparison in the RMSE step, when no explicit
+        x-range or x-def were provided. The RMSE values are then manually
+        set to a high enough value (penalty) to nudge the optimiser away
+        from this parameter set.
 
         :param x_e: x-values of the experiment data
         :param y_e: y-values of the experiment data
@@ -42,6 +64,21 @@ class FitnessMethodRMSE(FitnessMethodInterface):
         :param y_m: y-values of the model data
         :return: root mean squared error, possibly scaled
         """
+
+        # Check for premature model termination.
+        if self.check_model_length is True:
+            # Determine max x-value.
+            x_e_max = np.max(x_e)  # x_e[-1]
+            x_m_max = np.max(x_m)
+            # Calculate lower limit.
+            epsilon = self.difference * x_e_max
+            threshold = x_e_max - epsilon
+
+            # Check if the model x-values are below the lower limit.
+            if x_m_max < threshold:
+                # Award a penalty.
+                rmse = self.penalty
+                return rmse
 
         # Determine the length of the
         if self.x_def is None:
