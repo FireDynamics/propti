@@ -15,68 +15,119 @@ class FitnessMethodInterface:
 class FitnessMethodRMSE(FitnessMethodInterface):
 
     def __init__(self, n_points=None, x_def_range=None, scale_fitness=True):
-        self.n = n_points
+        """
+
+        :param n_points: number of evenly spaced data points, endpoint included
+        :param x_def_range:
+        :param scale_fitness:
+        """
+
+        self.n_points = n_points
         self.x_def = None
         self.x_def_range = x_def_range
         self.scale_fitness = scale_fitness
         FitnessMethodInterface.__init__(self, scale_fitness=scale_fitness)
 
     def compute(self, x_e, y_e, y2_e, x_m, y_m):
-        # compute x array on which the data sets shall be mapped to in order to compute the RMSE on the
-        # same definition range
+        """
+        Calculates the root mean squared error between two data series.
+
+        compute x-array on which the data sets shall be mapped to in order
+        to compute the RMSE on the same definition range
+
+        :param x_e: x-values of the experiment data
+        :param y_e: y-values of the experiment data
+        :param y2_e: y-values of the experiment data
+        :param x_m: x-values of the model data
+        :param y_m: y-values of the model data
+        :return: root mean squared error, possibly scaled
+        """
+
+        # Determine the length of the
         if self.x_def is None:
             if self.x_def_range is None:
+                # Find minimum and maximum values that are in both data series.
                 x_min = np.max([np.min(x_e), np.min(x_m)])
                 x_max = np.min([np.max(x_e), np.max(x_m)])
                 self.x_def_range = [x_min, x_max]
-            self.x_def = np.linspace(self.x_def_range[0], self.x_def_range[1], self.n, endpoint=True)
 
+            # Create an equidistant interval over n_points, including the
+            # endpoint.
+            self.x_def = np.linspace(self.x_def_range[0],
+                                     self.x_def_range[1],
+                                     self.n_points,
+                                     endpoint=True)
+
+        # Map both y data series on the same x-values, to allow for a
+        # meaningful comparison.
         y_e_mapped = np.interp(self.x_def, x_e, y_e)
         y_m_mapped = np.interp(self.x_def, x_m, y_m)
 
+        # Calculate the root mean squared error (RMSE).
         rmse = np.sqrt(((y_e_mapped - y_m_mapped) ** 2).mean())
-        if self.scale_fitness == 'mean' or self.scale_fitness == True:
+
+        # Scale the RMSE value.
+        if self.scale_fitness == 'mean' or self.scale_fitness is True:
+            # Return the RMSE scaled by the mean value of the data series.
             return rmse / np.abs(np.mean(y_e_mapped))
         elif self.scale_fitness == 'minmax':
+            # Return the RMSE as
             return rmse / np.abs(y_e_mapped[-1] - y_e_mapped[0])
         elif self.scale_fitness == 'interquartile':
+            # Return the RMSE as is.
             return rmse
         else:
+            # Return the RMSE as is.
             return rmse
+
 
 class FitnessMethodRangeRMSE(FitnessMethodInterface):
 
-    def __init__(self, n_points=None, x_def_range=None, y_relative_range=None, scale_fitness=True):
+    def __init__(self, n_points=None, x_def_range=None, y_relative_range=None,
+                 scale_fitness=True):
         self.n = n_points
         self.x_def = None
         self.x_def_range = x_def_range
         self.scale_fitness = scale_fitness
-        if y_relative_range==None:
-            self.y_relative_range=0.05
+        if y_relative_range is None:
+            self.y_relative_range = 0.05
         else:
-            self.y_relative_range=abs(y_relative_range)
+            self.y_relative_range = abs(y_relative_range)
         FitnessMethodInterface.__init__(self, scale_fitness=scale_fitness)
 
     def compute(self, x_e, y_e, y2_e, x_m, y_m):
-        # compute x array on which the data sets shall be mapped to in order to compute the RMSE on the
-        # same definition range
+        """
+
+        compute x array on which the data sets shall be mapped to in order
+        to compute the RMSE on the same definition range
+
+        :param x_e:
+        :param y_e:
+        :param y2_e:
+        :param x_m:
+        :param y_m:
+        :return:
+        """
+
         if self.x_def is None:
             if self.x_def_range is None:
                 x_min = np.max([np.min(x_e), np.min(x_m)])
                 x_max = np.min([np.max(x_e), np.max(x_m)])
                 self.x_def_range = [x_min, x_max]
-            self.x_def = np.linspace(self.x_def_range[0], self.x_def_range[1], self.n, endpoint=True)
+            self.x_def = np.linspace(self.x_def_range[0], self.x_def_range[1],
+                                     self.n, endpoint=True)
 
         y_e_mapped = np.interp(self.x_def, x_e, y_e)
         y_m_mapped = np.interp(self.x_def, x_m, y_m)
-        y_rmse=np.zeros(y_e_mapped.shape)
-        for i,value in enumerate(y_e_mapped):
-            if (y_e_mapped[i]*(1-self.y_relative_range)) <= y_m_mapped[i] <= (y_e_mapped[i]*(1+self.y_relative_range)):
-                y_rmse[i]=0
+        y_rmse = np.zeros(y_e_mapped.shape)
+        for i, value in enumerate(y_e_mapped):
+            if (y_e_mapped[i]*(1-self.y_relative_range)) <= y_m_mapped[i] <=\
+                    (y_e_mapped[i]*(1+self.y_relative_range)):
+                y_rmse[i] = 0
             else:
-                y_rmse[i]=(y_e_mapped[i] - y_m_mapped[i]) ** 2
+                y_rmse[i] = (y_e_mapped[i] - y_m_mapped[i]) ** 2
         rmse = np.sqrt(y_rmse.mean())
-        if self.scale_fitness == 'mean' or self.scale_fitness == True:
+        if self.scale_fitness == 'mean' or self.scale_fitness is True:
             return rmse / np.abs(np.mean(y_e_mapped))
         elif self.scale_fitness == 'minmax':
             return rmse / np.abs(y_e_mapped[-1] - y_e_mapped[0])
@@ -84,6 +135,7 @@ class FitnessMethodRangeRMSE(FitnessMethodInterface):
             return rmse
         else:
             return rmse
+
 
 class FitnessMethodBandRMSE(FitnessMethodInterface):
 
@@ -95,26 +147,40 @@ class FitnessMethodBandRMSE(FitnessMethodInterface):
         FitnessMethodInterface.__init__(self, scale_fitness=scale_fitness)
 
     def compute(self, x_e, y_e, y2_e, x_m, y_m):
-        # compute x array on which the data sets shall be mapped to in order to compute the RMSE on the
-        # same definition range
+        """
+
+        compute x array on which the data sets shall be mapped to in order to
+        compute the RMSE on the same definition range
+
+        :param x_e:
+        :param y_e:
+        :param y2_e:
+        :param x_m:
+        :param y_m:
+        :return:
+        """
+
         if self.x_def is None:
             if self.x_def_range is None:
                 x_min = np.max([np.min(x_e), np.min(x_m)])
                 x_max = np.min([np.max(x_e), np.max(x_m)])
                 self.x_def_range = [x_min, x_max]
-            self.x_def = np.linspace(self.x_def_range[0], self.x_def_range[1], self.n, endpoint=True)
+            self.x_def = np.linspace(self.x_def_range[0], self.x_def_range[1],
+                                     self.n, endpoint=True)
 
         y_e_mapped = np.interp(self.x_def, x_e, y_e)
         y_e_mapped_b2 = np.interp(self.x_def, x_e, y2_e)
         y_m_mapped = np.interp(self.x_def, x_m, y_m)
-        y_rmse=np.zeros(y_e_mapped.shape)
-        for i,value in enumerate(y_e_mapped):
-            if np.min((y_e_mapped[i],y_e_mapped_b2[i])) <= y_m_mapped[i] <= np.max((y_e_mapped[i],y_e_mapped_b2[i])):
-                y_rmse[i]=0
+        y_rmse = np.zeros(y_e_mapped.shape)
+        for i, value in enumerate(y_e_mapped):
+            if np.min((y_e_mapped[i], y_e_mapped_b2[i])) <= y_m_mapped[i] <= \
+                    np.max((y_e_mapped[i], y_e_mapped_b2[i])):
+                y_rmse[i] = 0
             else:
-                y_rmse[i]=np.min((((y_e_mapped[i] - y_m_mapped[i]) ** 2),((y_e_mapped_b2[i] - y_m_mapped[i]) ** 2)))
+                y_rmse[i] = np.min((((y_e_mapped[i] - y_m_mapped[i]) ** 2),
+                                    ((y_e_mapped_b2[i] - y_m_mapped[i]) ** 2)))
         rmse = np.sqrt(y_rmse.mean())
-        if self.scale_fitness == 'mean' or self.scale_fitness == True:
+        if self.scale_fitness == 'mean' or self.scale_fitness is True:
             return rmse / np.abs(np.mean(y_e_mapped))
         elif self.scale_fitness == 'minmax':
             return rmse / np.abs(y_e_mapped[-1] - y_e_mapped[0])
@@ -126,7 +192,8 @@ class FitnessMethodBandRMSE(FitnessMethodInterface):
 
 class FitnessMethodThreshold(FitnessMethodInterface):
 
-    def __init__(self, threshold_type, threshold_target_value=None, threshold_value=None, threshold_range=None,
+    def __init__(self, threshold_type, threshold_target_value=None,
+                 threshold_value=None, threshold_range=None,
                  scale_fitness=True):
 
         super().__init__(scale_fitness)
@@ -142,24 +209,42 @@ class FitnessMethodThreshold(FitnessMethodInterface):
         self.scale_fitness = scale_fitness
 
     def compute(self, x_e, y_e, y2_e, x_m, y_m):
+        """
 
+        :param x_e:
+        :param y_e:
+        :param y2_e:
+        :param x_m:
+        :param y_m:
+        :return:
+        """
         x_e_threshold = None
         x_m_threshold = None
         if self.type == "upper" or self.type == "lower":
             # only needed for experimental data if no target value was specified
             if self.threshold_target_value is None:
-                x_e_threshold = self.simple_threshold(self.type, self.value, x_e, y_e)
+                x_e_threshold = self.simple_threshold(self.type, self.value,
+                                                      x_e, y_e)
             else:
                 x_e_threshold = self.threshold_target_value
-            x_m_threshold = self.simple_threshold(self.type, self.value, x_m, y_m)
+            x_m_threshold = self.simple_threshold(self.type, self.value,
+                                                  x_m, y_m)
 
         if self.type == "range_minmax":
             # only needed for experimental data if no target value was specified
             if self.threshold_target_value is None:
-                x_e_threshold_lower = self.simple_threshold("lower", self.range[0], x_e, y_e)
-                x_e_threshold_upper = self.simple_threshold("upper", self.range[1], x_e, y_e)
-            x_m_threshold_lower = self.simple_threshold("lower", self.range[0], x_m, y_m)
-            x_m_threshold_upper = self.simple_threshold("upper", self.range[1], x_m, y_m)
+                x_e_threshold_lower = self.simple_threshold("lower",
+                                                            self.range[0],
+                                                            x_e, y_e)
+                x_e_threshold_upper = self.simple_threshold("upper",
+                                                            self.range[1],
+                                                            x_e, y_e)
+            x_m_threshold_lower = self.simple_threshold("lower",
+                                                        self.range[0],
+                                                        x_m, y_m)
+            x_m_threshold_upper = self.simple_threshold("upper",
+                                                        self.range[1],
+                                                        x_m, y_m)
 
             # check if target value was explicitly passed
             if self.threshold_target_value is not None:
@@ -192,7 +277,14 @@ class FitnessMethodThreshold(FitnessMethodInterface):
         return np.abs(x_e_threshold - x_m_threshold)
 
     def simple_threshold(self, t, v, x, y):
+        """
 
+        :param t:
+        :param v:
+        :param x:
+        :param y:
+        :return:
+        """
         indices = None
         if t == "upper":
             indices = np.where(y > v)
