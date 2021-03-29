@@ -365,11 +365,11 @@ class DataSource:
 
         """
         :param file_name: file name which contains the information
-        :param header_line: row that contains the labels (pandas data frames)
+        :param header_line: row that contains the labels (pandas DataFrames)
         :param label_x: label of the row which contains the information of the
-            x-axis (pandas data frames)
+            x-axis (pandas DataFrames)
         :param label_y:label of the row which contains the information of the
-            y-axis (pandas data frames)
+            y-axis (pandas DataFrames)
         :param x: data of the x-axis (based on above label)
         :param y: data of the y-axis (based on above label)
         :param factor:
