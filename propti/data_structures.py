@@ -94,9 +94,10 @@ class OptimiserProperties:
         self.mpi = mpi
 
     def upgrade(self) -> List:
-        """ Upgrade method updates object instance with default values,
-            if pickle file is of older version.
-            Returns list of missing parameters.
+        """
+        Upgrade method updates object instance with default values,
+        if pickle file is of older version.
+        Returns list of missing parameters.
         """
         default_constr = OptimiserProperties()
         missing_attr = [x for x in default_constr.__dict__.keys()
@@ -139,8 +140,8 @@ class OptimiserProperties:
                                          self.mpi)
 
 
-#################
-# PARAMETER CLASS
+###################
+# PARAMETER CLASSES
 class Parameter:
     """
     Stores general parameter values and meta data.
@@ -195,9 +196,10 @@ class Parameter:
         pass
 
     def upgrade(self) -> list:
-        """ Upgrade method updates object instance with default values,
-            if pickle file is of older version.
-            Returns list of missing parameters.
+        """
+        Upgrade method updates object instance with default values,
+        if pickle file is of older version.
+        Returns list of missing parameters.
         """
         default_constr = Parameter()
         missing_attr = [x for x in default_constr.__dict__.keys()
@@ -336,7 +338,6 @@ def test_parameter_setup():
 
 ##################
 # RELATION CLASSES
-
 class DataSource:
     """
     Container for data and meta data of a data source, i.e. model or
@@ -364,7 +365,7 @@ class DataSource:
 
         """
         :param file_name: file name which contains the information
-        :param header_line: row that containts the labels (pandas data frames)
+        :param header_line: row that contains the labels (pandas data frames)
         :param label_x: label of the row which contains the information of the
             x-axis (pandas data frames)
         :param label_y:label of the row which contains the information of the
