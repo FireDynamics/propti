@@ -77,14 +77,13 @@ class SpotpySetup(object):
                                                dir=tmp_dir_root)
             create_input_file(s)
 
-        # run all simulatons
+        # run all simulations
         run_simulations(self.setups, self.optimiser.num_subprocesses)
 
         # gather simulation data
         for s in self.setups:
             logging.debug("start data extraction")
             extract_simulation_data(s)
-
 
         # clean up temporary execution directories
         for s in self.setups:
@@ -102,8 +101,8 @@ class SpotpySetup(object):
 
         # first element of returned list is the global fitness value
         # note: in general this should be the simulation data, which is returned
-        # due to our data structure, the passing of the fitness values, i.e. result
-        # of the objective function, is most convenient approach here
+        # due to our data structure, the passing of the fitness values,
+        # i.e. result of the objective function is most convenient approach here
         return [global_fitness_value] + individual_fitness_values
 
     def evaluation(self):
@@ -118,10 +117,11 @@ class SpotpySetup(object):
 
     def objectivefunction(self, simulation, evaluation, params):
 
-        # the simulation function does not return simulation data, but directly the
-        # fitness values, just pass these values
+        # the simulation function does not return simulation data,
+        # but directly the fitness values, just pass these values
         fitness_value = simulation
         return fitness_value
+
 
 def run_optimisation(params: ParameterSet,
                      setups: SimulationSetupSet,
@@ -150,50 +150,51 @@ def run_optimisation(params: ParameterSet,
             # Set amount of parameters as default for number of complexes
             # if not explicitly specified.
             opt.ngs = ngs
-        results=sampler.sample(opt.repetitions, ngs=ngs, max_loop_inc=opt.max_loop_inc)
-        #results=sampler.sample(opt.repetitions, ngs=ngs)
+        results = sampler.sample(opt.repetitions, ngs=ngs,
+                                 max_loop_inc=opt.max_loop_inc)
+        #results = sampler.sample(opt.repetitions, ngs=ngs)
     elif opt.algorithm == 'fscabc':
         sampler = spotpy.algorithms.fscabc(spot,
-                                          dbname=opt.db_name,
-                                          dbformat=opt.db_type,
-                                          parallel=parallel,
-                                          db_precision=np.float64,
-                                          breakpoint=break_point,
-                                          backup_every_rep=opt.backup_every)
+                                           dbname=opt.db_name,
+                                           dbformat=opt.db_type,
+                                           parallel=parallel,
+                                           db_precision=np.float64,
+                                           breakpoint=break_point,
+                                           backup_every_rep=opt.backup_every)
         eb = opt.eb
         if not eb:
             eb = 48
             # Set amount of parameters as default for number of complexes
             # if not explicitly specified.
             opt.eb = eb
-        results=sampler.sample(opt.repetitions, eb=eb)
+        results = sampler.sample(opt.repetitions, eb=eb)
     elif opt.algorithm == 'abc':
         sampler = spotpy.algorithms.abc(spot,
-                                          dbname=opt.db_name,
-                                          dbformat=opt.db_type,
-                                          parallel=parallel,
-                                          breakpoint=break_point,
-                                          backup_every_rep=opt.backup_every)
+                                        dbname=opt.db_name,
+                                        dbformat=opt.db_type,
+                                        parallel=parallel,
+                                        breakpoint=break_point,
+                                        backup_every_rep=opt.backup_every)
         eb = opt.eb
         if not eb:
             eb = 48
             # Set amount of parameters as default for number of complexes
             # if not explicitly specified.
             opt.eb = eb
-        results=sampler.sample(opt.repetitions, eb=eb)
+        results = sampler.sample(opt.repetitions, eb=eb)
     elif opt.algorithm == 'mc':
         sampler = spotpy.algorithms.mc(spot,
-                                          dbname=opt.db_name,
-                                          dbformat=opt.db_type,
-                                          parallel=parallel)
-        results=sampler.sample(opt.repetitions)
+                                       dbname=opt.db_name,
+                                       dbformat=opt.db_type,
+                                       parallel=parallel)
+        results = sampler.sample(opt.repetitions)
 
     elif opt.algorithm == 'dream':
         sampler = spotpy.algorithms.dream(spot,
                                           dbname=opt.db_name,
                                           dbformat=opt.db_type,
                                           parallel=parallel)
-        results=sampler.sample(opt.repetitions)
+        results = sampler.sample(opt.repetitions)
 
     elif opt.algorithm == 'demcz':
         sampler = spotpy.algorithms.demcz(spot,
@@ -201,42 +202,42 @@ def run_optimisation(params: ParameterSet,
                                           dbformat=opt.db_type,
                                           alt_objfun=None,
                                           parallel=parallel)
-        results=sampler.sample(opt.repetitions)
+        results = sampler.sample(opt.repetitions)
     elif opt.algorithm == 'mcmc':
         sampler = spotpy.algorithms.mcmc(spot,
-                                          dbname=opt.db_name,
-                                          dbformat=opt.db_type,
-                                          alt_objfun=None,
-                                          parallel=parallel)
-        results=sampler.sample(opt.repetitions)
+                                         dbname=opt.db_name,
+                                         dbformat=opt.db_type,
+                                         alt_objfun=None,
+                                         parallel=parallel)
+        results = sampler.sample(opt.repetitions)
     elif opt.algorithm == 'mle':
         sampler = spotpy.algorithms.mle(spot,
-                                          dbname=opt.db_name,
-                                          dbformat=opt.db_type,
-                                          parallel=parallel)
-        ##                                  breakpoint=break_point,
-        ##                                  backup_every_rep=opt.backup_every)
-        results=sampler.sample(opt.repetitions)
+                                        dbname=opt.db_name,
+                                        dbformat=opt.db_type,
+                                        parallel=parallel)
+                                        # breakpoint=break_point,
+                                        # backup_every_rep=opt.backup_every)
+        results = sampler.sample(opt.repetitions)
 
     elif opt.algorithm == 'sa':
         sampler = spotpy.algorithms.sa(spot,
-                                          dbname=opt.db_name,
-                                          dbformat=opt.db_type,
-                                          parallel=parallel)
-        results=sampler.sample(opt.repetitions)
+                                       dbname=opt.db_name,
+                                       dbformat=opt.db_type,
+                                       parallel=parallel)
+        results = sampler.sample(opt.repetitions)
     elif opt.algorithm == 'rope':
         sampler = spotpy.algorithms.rope(spot,
-                                          dbname=opt.db_name,
-                                          dbformat=opt.db_type,
-                                          parallel=parallel)
-        results=sampler.sample(opt.repetitions)
+                                         dbname=opt.db_name,
+                                         dbformat=opt.db_type,
+                                         parallel=parallel)
+        results = sampler.sample(opt.repetitions)
 
     elif opt.algorithm == 'mc':
         sampler = spotpy.algorithms.mc(spot,
-                                          dbname=opt.db_name,
-                                          dbformat=opt.db_type,
-                                          parallel=parallel)
-        results=sampler.sample(opt.repetitions)
+                                       dbname=opt.db_name,
+                                       dbformat=opt.db_type,
+                                       parallel=parallel)
+        results = sampler.sample(opt.repetitions)
 
     elif opt.algorithm == 'fast':
         sampler = spotpy.algorithms.fast(spot,
@@ -245,19 +246,20 @@ def run_optimisation(params: ParameterSet,
                                          parallel=parallel,
                                          breakpoint=break_point,
                                          backup_every_rep=opt.backup_every)
-        results=sampler.sample(opt.repetitions)
+        results = sampler.sample(opt.repetitions)
     else:
         return(print('No valid optimization algorithm selected'))
 
     if sampler.status.optimization_direction == 'minimize':
-        pars=sampler.status.params_min
+        pars = sampler.status.params_min
     elif sampler.status.optimization_direction == 'maximize':
-        pars=sampler.status.params_max
+        pars = sampler.status.params_max
     for i in range(len(params)):
         params[i].value = pars[i]
     for s in setups:
         s.model_parameter.update(params)
     return params
+
 
 def test_spotpy_setup():
     p1 = Parameter("density", "RHO", min_value=1.0, max_value=2.4,
