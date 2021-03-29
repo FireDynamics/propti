@@ -174,7 +174,6 @@ def run_simulation_serial(setup: SimulationSetup,
     log_file.close()
 
 
-
 def run_simulation_mp(setups: SimulationSetupSet, num_threads:int = 1):
 
     def do_work(work_item: SimulationSetup):
