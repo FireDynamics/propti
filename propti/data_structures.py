@@ -48,7 +48,8 @@ class OptimiserProperties:
         :param repetitions: number of sampling repetitions, default: 1
         :param backup_every: How many repetitions before backup is performed,
             default: 100
-        :param max_loop_inc: How many loop iteration per sample call, default: None
+        :param max_loop_inc: How many loop iteration per sample call,
+            default: None
         :param ngs: number of complexes, if None then set to len(para),
             only applys to SCEUA
             default: None
@@ -239,16 +240,18 @@ class ParameterSet:
                 # check for existing parameter name
                 for tp in self.parameters:
                     if tp.name == p.name:
-                        logging.error("Parameters with same names detected: {}".format(p.name))
+                        err_msg = "Parameters with same names detected: {}"
+                        logging.error(err_msg.format(p.name))
                         sys.exit(1)
                 self.parameters.append(copy.deepcopy(p))
 
     def upgrade(self) -> List:
-        """ Upgrade method updates object instance with default values,
-            if pickle file is of older version.
-            Returns list of missing parameters.
-            !! CAREFUL !! Since lists like params will be init as [],
-            it may cause unrecognised consequences.
+        """
+        Upgrade method updates object instance with default values,
+        if pickle file is of older version.
+        Returns list of missing parameters.
+        !! CAREFUL !! Since lists like params will be init as [],
+        it may cause unrecognised consequences.
         """
         default_constr = ParameterSet()
         missing_attr = [x for x in default_constr.__dict__.keys()
@@ -289,7 +292,8 @@ class ParameterSet:
         # check for existing parameter name
         for tp in self.parameters:
             if tp.name == p.name:
-                logging.error("Parameters with same names detected: {}".format(p.name))
+                err_msg = "Parameters with same names detected: {}"
+                logging.error(err_msg.format(p.name))
                 sys.exit(1)
 
         self.parameters.append(copy.deepcopy(p))
@@ -398,7 +402,7 @@ class Relation:
         self.fitness_method = fitness_method
         self.x_e = None
         self.y_e = None
-        self.fitness_weight=fitness_weight
+        self.fitness_weight = fitness_weight
 
     def read_data(self, wd: os.path, target: str = 'model'):
         """
@@ -417,8 +421,9 @@ class Relation:
         if target == 'experiment':
             ds = self.experiment
 
-        # if experimental data was explicitly set to None, like in case of an explicit
-        # threshold fitness method, return, as there is no data to be read
+        # if experimental data was explicitly set to None,
+        # like in case of an explicit threshold fitness method,
+        # return, as there is no data to be read
         if ds is None:
             return
 
@@ -441,7 +446,9 @@ class Relation:
         # read data
         data = pd.read_csv(in_file, header=ds.header_line)
         logging.debug("* size of read data: {}".format(data.shape))
-        logging.debug("* last data values: x={} y={}".format(data[ds.label_x].dropna().values[-1], data[ds.label_y].dropna().values[-1]))
+        x_vals = data[ds.label_x].dropna().values[-1]
+        y_vals = data[ds.label_y].dropna().values[-1]
+        logging.debug("* last data values: x={} y={}".format(x_vals, y_vals))
 
         # assign data from file to data source arrays
         ds.x = data[ds.label_x].dropna().values * ds.xfactor + ds.xoffset
@@ -466,7 +473,6 @@ class Relation:
         logging.debug("* model data: {}".format(ds_m))
         logging.debug("* experiment data: {}".format(ds_e))
 
-
         # handle cases in which there is no experimental data set
         if ds_e is None:
             ds_e_x = None
@@ -478,11 +484,9 @@ class Relation:
             ds_e_y2 = None
             if ds_e.y2 is not None:
                 ds_e_y2 = ds_e.y2
-                
 
-        return self.fitness_method.compute(ds_e_x, ds_e_y, ds_e_y2, ds_m.x, ds_m.y)
-
-
+        return self.fitness_method.compute(ds_e_x, ds_e_y, ds_e_y2,
+                                           ds_m.x, ds_m.y)
 
     def __str__(self) -> str:
         """
@@ -565,8 +569,6 @@ class FitnessMethod:
         pass
 
 
-
-
 ########################
 # SIMULATION SETUP CLASS
 class SimulationSetup:
@@ -638,9 +640,10 @@ class SimulationSetup:
         self.id = None
 
     def upgrade(self) -> List:
-        """ Upgrade method updates object instance with default values,
-            if pickle file is of older version.
-            Returns list of missing parameters.
+        """
+        Upgrade method updates object instance with default values,
+        if pickle file is of older version.
+        Returns list of missing parameters.
         """
         default_constr = SimulationSetup()
         missing_attr = [x for x in default_constr.__dict__.keys()
@@ -691,11 +694,12 @@ class SimulationSetupSet:
         self.next_id = 0
 
     def upgrade(self) -> List:
-        """ Upgrade method updates object instance with default values,
-            if pickle file is of older version.
-            Returns list of missing parameters.
-            !! Careful !! Since lists like SimulationSetupc will be init as [],
-            it may cause unrecognised consequences.
+        """
+        Upgrade method updates object instance with default values,
+        if pickle file is of older version.
+        Returns list of missing parameters.
+        !! Careful !! Since lists like SimulationSetupc will be init as [],
+        it may cause unrecognised consequences.
         """
         default_constr = SimulationSetupSet()
         missing_attr = [x for x in default_constr.__dict__.keys()
@@ -752,13 +756,14 @@ class SimulationSetupSet:
 
 
 class Version:
-    '''
-      Version class to determine the current version of propti and simulation
-      software in use.
-      TODO : Think whether repr is the correct thing to code instead of str,i.e
-      even though the class rep of the output variable is a 'Version' it does not
-      represent a method by which the class could be initialized.
-    '''
+    """
+    Version class to determine the current version of propti and simulation
+    software in use.
+    TODO : Think whether repr is the correct thing to code instead of str,i.e
+    even though the class rep of the output variable is a 'Version' it does not
+    represent a method by which the class could be initialized.
+    """
+
     def __init__(self, setup):
         self.flag_propti = 0
         self.flag_exec = 0
@@ -767,9 +772,11 @@ class Version:
         self.ver_spotpy = spotpy.__version__
 
     def propti_versionCall(self) -> str:
-        ''' Look for propti-version and print a human readable representation.
-            Print git hash value if no git is present.
-        '''
+        """
+        Look for propti-version and print a human readable representation.
+        Print git hash value if no git is present.
+        """
+
         # try:
         #     ver = subprocess.check_output(["git describe --always"
         #                                 ], shell=True).strip().decode("utf-8")
@@ -780,7 +787,8 @@ class Version:
         #
         # if self.flag_propti != 0:  # TODO: This is a little hard coded(?)
         #     with open(os.path.join(script_location,
-        #                            '../', '.git/refs/heads/master'), 'r') as f:
+        #                            '../', '.git/refs/heads/master'),
+        #                            'r') as f:
         #         ver = f.readline()[:7]
         #     with open(os.path.join(script_location,
         #                            '../', 'VERSION.txt'), 'r') as f:
@@ -799,19 +807,22 @@ class Version:
             return "Undetermined"
 
     def exec_versionCall(self, executable) -> str:
-        ''' Look for executable version.
-            Look for fds revision by calling fds without parameters
-            and return its revision in use.
-            # TODO: convert exec_versionCall completely to generic executable
-        '''
+        """
+        Look for executable version.
+        Look for fds revision by calling fds without parameters
+        and return its revision in use.
+        TODO: convert exec_versionCall completely to generic executable
+        """
+
         try:
-            #subprocess.check_call(['fds'], shell=True, stdout=subprocess.PIPE,
+            # subprocess.check_call(['fds'], shell=True, stdout=subprocess.PIPE,
             #                    stderr=subprocess.PIPE)
-            proc = subprocess.Popen([executable], shell=True, stdout=subprocess.PIPE,
-                                  stderr=subprocess.STDOUT)
+            proc = subprocess.Popen([executable], shell=True,
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT)
 
             # TODO: make the parsing more general
-            # This bit is only specfic to fds
+            # This bit is only specific to fds
 
             # define maximal number of line to be parsed
             lines_count = 100
@@ -829,7 +840,6 @@ class Version:
             self.flag_exec = 1
             return "!! No Executable Present !!"
 
-
     def __repr__(self) -> str:
         string = self.ver_propti + ', ' + self.ver_exec
         return ('%r') % string
@@ -844,8 +854,8 @@ class Version:
                "Propti Version: \t{}\n" \
                "Spotpy Version: \t{}\n" \
                "Executable Version:\t\t{}\n\n".format(self.ver_propti,
-                                           self.ver_spotpy,
-                                           self.ver_exec)
+                                                      self.ver_spotpy,
+                                                      self.ver_exec)
 
 
 def test_simulation_setup_setup():
