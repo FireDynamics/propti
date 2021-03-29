@@ -11,7 +11,8 @@ mpi4py.rc.recv_mprobe = False
 
 from mpi4py import MPI
 comm = MPI.COMM_WORLD
-print('starting propti on MPI rank {} out of {} ranks'.format(comm.Get_rank(), comm.Get_size()))
+print('starting propti on MPI rank {} out of {} ranks'.format(comm.Get_rank(),
+                                                              comm.Get_size()))
 
 import propti as pr
 import logging
