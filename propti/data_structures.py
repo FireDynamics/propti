@@ -358,10 +358,10 @@ class DataSource:
         self.x = None
         self.y = None
         self.y2 = None
-        self.xfactor = 1.0
-        self.xoffset = 0.0
-        self.yfactor = 1.0
-        self.yoffset = 0.0
+        self.x_factor = 1.0
+        self.x_offset = 0.0
+        self.y_factor = 1.0
+        self.y_offset = 0.0
 
         """
         :param file_name: file name which contains the information
@@ -372,8 +372,10 @@ class DataSource:
             y-axis (pandas DataFrames)
         :param x: data of the x-axis (based on above label)
         :param y: data of the y-axis (based on above label)
-        :param factor:
-        :param offset:
+        :param x_factor: factor to scale the data, default: 1.0
+        :param x_offset: offset to shift the data, default: 0.0
+        :param y_factor: factor to scale the data, default: 1.0
+        :param y_offset: offset to shift the data, default: 0.0
         """
 
 
@@ -415,26 +417,26 @@ class Relation:
         :return: None
         """
 
-        # set ds to none and if it stays none, something went wrong
+        # Set ds to None and if it stays None, something went wrong.
         ds = None
         if target == 'model':
             ds = self.model
         if target == 'experiment':
             ds = self.experiment
 
-        # if experimental data was explicitly set to None,
+        # If experimental data was explicitly set to None,
         # like in case of an explicit threshold fitness method,
-        # return, as there is no data to be read
+        # return, as there is no data to be read.
         if ds is None:
             return
 
-        # error handling
+        # Error handling.
         if ds is None:
             logging.error("wrong data read target: {}".format(target))
             sys.exit()
 
-        # if file name is not specified, do not read from file, as data may
-        # have been set directly to ds.x / ds.y
+        # If file name is not specified, do not read from file, as data may
+        # have been set directly to ds.x / ds.y.
         if ds.file_name is None:
             logging.warning("* Skip reading data, no data file defined")
             return
@@ -442,20 +444,22 @@ class Relation:
         logging.debug("* Read in data file: {} in directory".format(ds.file_name,
                                                                   wd))
 
-        # construct the input file name
+        # Construct the input file name.
         in_file = os.path.join(wd, ds.file_name)
-        # read data
+        # Read data.
         data = pd.read_csv(in_file, header=ds.header_line)
         logging.debug("* size of read data: {}".format(data.shape))
         x_vals = data[ds.label_x].dropna().values[-1]
         y_vals = data[ds.label_y].dropna().values[-1]
         logging.debug("* last data values: x={} y={}".format(x_vals, y_vals))
 
-        # assign data from file to data source arrays
-        ds.x = data[ds.label_x].dropna().values * ds.xfactor + ds.xoffset
-        ds.y = data[ds.label_y].dropna().values * ds.yfactor + ds.yoffset
+        # Assign data from file to data source arrays
+        # and apply offsets and scaling factors.
+        ds.x = data[ds.label_x].dropna().values * ds.x_factor + ds.x_offset
+        ds.y = data[ds.label_y].dropna().values * ds.y_factor + ds.y_offset
         if ds.label_y2 is not None:
-            ds.y2 = data[ds.label_y2].dropna().values * ds.yfactor + ds.yoffset
+            ds.y2 = data[ds.label_y2].dropna().values * ds.y_factor + \
+                    ds.y_offset
 
     def compute_fitness(self):
         
