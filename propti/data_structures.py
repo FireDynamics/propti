@@ -362,20 +362,24 @@ class DataSource:
         self.x_offset = 0.0
         self.y_factor = 1.0
         self.y_offset = 0.0
+        self.integrate_factor = 1.0
 
         """
         :param file_name: file name which contains the information
         :param header_line: row that contains the labels (pandas DataFrames)
         :param label_x: label of the row which contains the information of the
             x-axis (pandas DataFrames)
-        :param label_y:label of the row which contains the information of the
+        :param label_y: label of the row which contains the information of the
             y-axis (pandas DataFrames)
+        :param label_y2: 
         :param x: data of the x-axis (based on above label)
         :param y: data of the y-axis (based on above label)
+        :param y2:
         :param x_factor: factor to scale the data, default: 1.0
         :param x_offset: offset to shift the data, default: 0.0
         :param y_factor: factor to scale the data, default: 1.0
         :param y_offset: offset to shift the data, default: 0.0
+        :param integrate_factor: multiply the integration result, default: 1.0
         """
 
 
@@ -398,6 +402,8 @@ class Relation:
         :param experiment: experiment data source
         :param fitness_method: set fitness method
         :param fitness_weight:
+        :param integrate: Boolean flag to determine if the data is to be
+            integrated
         """
 
         self.model = model if model else DataSource()
@@ -406,6 +412,7 @@ class Relation:
         self.x_e = None
         self.y_e = None
         self.fitness_weight = fitness_weight
+        self.integrate = False
 
     def read_data(self, wd: os.path, target: str = 'model'):
         """
@@ -453,13 +460,24 @@ class Relation:
         y_vals = data[ds.label_y].dropna().values[-1]
         logging.debug("* last data values: x={} y={}".format(x_vals, y_vals))
 
+        # Get data series.
+        data_x = data[ds.label_x].dropna().values
+        data_y = data[ds.label_y].dropna().values
+        data_y2 = data[ds.label_y2].dropna().values
         # Assign data from file to data source arrays
         # and apply offsets and scaling factors.
-        ds.x = data[ds.label_x].dropna().values * ds.x_factor + ds.x_offset
-        ds.y = data[ds.label_y].dropna().values * ds.y_factor + ds.y_offset
+        if self.integrate is True:
+            # Integrate a data series.
+            new_data_x = data_x * ds.x_factor + ds.x_offset
+            new_data_y = data_y * ds.y_factor + ds.y_offset
+            ds.y = np.trapz(new_data_y, new_data_x) * ds.integrate_factor
+        else:
+            # Add a data series (default).
+            ds.x = data_x * ds.x_factor + ds.x_offset
+            ds.y = data_y * ds.y_factor + ds.y_offset
+
         if ds.label_y2 is not None:
-            ds.y2 = data[ds.label_y2].dropna().values * ds.y_factor + \
-                    ds.y_offset
+            ds.y2 = data_y2 * ds.y_factor + ds.y_offset
 
     def compute_fitness(self):
         
