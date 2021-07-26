@@ -362,6 +362,7 @@ class DataSource:
         self.x_offset = 0.0
         self.y_factor = 1.0
         self.y_offset = 0.0
+        self.integrate = False
         self.integrate_factor = 1.0
 
         """
@@ -379,6 +380,8 @@ class DataSource:
         :param x_offset: offset to shift the data, default: 0.0
         :param y_factor: factor to scale the data, default: 1.0
         :param y_offset: offset to shift the data, default: 0.0
+        :param integrate: Boolean flag to determine if the data is to be
+            integrated
         :param integrate_factor: multiply the integration result, default: 1.0
         """
 
@@ -402,8 +405,6 @@ class Relation:
         :param experiment: experiment data source
         :param fitness_method: set fitness method
         :param fitness_weight:
-        :param integrate: Boolean flag to determine if the data is to be
-            integrated
         """
 
         self.model = model if model else DataSource()
@@ -412,7 +413,6 @@ class Relation:
         self.x_e = None
         self.y_e = None
         self.fitness_weight = fitness_weight
-        self.integrate = False
 
     def read_data(self, wd: os.path, target: str = 'model'):
         """
@@ -466,15 +466,16 @@ class Relation:
         data_y2 = data[ds.label_y2].dropna().values
         # Assign data from file to data source arrays
         # and apply offsets and scaling factors.
-        if self.integrate is True:
+        new_data_x = data_x * ds.x_factor + ds.x_offset
+        new_data_y = data_y * ds.y_factor + ds.y_offset
+        if ds.integrate is True:
             # Integrate a data series.
-            new_data_x = data_x * ds.x_factor + ds.x_offset
-            new_data_y = data_y * ds.y_factor + ds.y_offset
+            ds.x = 1
             ds.y = np.trapz(new_data_y, new_data_x) * ds.integrate_factor
         else:
             # Add a data series (default).
-            ds.x = data_x * ds.x_factor + ds.x_offset
-            ds.y = data_y * ds.y_factor + ds.y_offset
+            ds.x = new_data_x
+            ds.y = new_data_y
 
         if ds.label_y2 is not None:
             ds.y2 = data_y2 * ds.y_factor + ds.y_offset
