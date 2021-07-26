@@ -470,7 +470,7 @@ class Relation:
         new_data_y = data_y * ds.y_factor + ds.y_offset
         if ds.integrate is True:
             # Integrate a data series.
-            ds.x = 1
+            ds.x = 1.0
             ds.y = np.trapz(new_data_y, new_data_x) * ds.integrate_factor
         else:
             # Add a data series (default).
