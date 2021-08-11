@@ -8,11 +8,9 @@ import subprocess
 import spotpy
 from .fitness_methods import FitnessMethodInterface
 
-
 import propti as pr
 
 from typing import List
-
 
 # Reads the script's location. Used to access the propti version number from the
 # git repo.
@@ -33,7 +31,7 @@ class OptimiserProperties:
                  backup_every: int = 100,
                  max_loop_inc: int = None,
                  ngs: int = None,  # will be set to len(ops) during
-                                   # propti_prepare, if no value is provided
+                 # propti_prepare, if no value is provided
                  eb: int = None,
                  db_name: str = 'propti_db',
                  db_type: str = 'csv',
@@ -42,14 +40,12 @@ class OptimiserProperties:
                  mpi: bool = False):
         """
         Constructor.
-
         :param algorithm: choose spotpy algorithm, default: sceua,
             range: [sceua]
         :param repetitions: number of sampling repetitions, default: 1
         :param backup_every: How many repetitions before backup is performed,
             default: 100
-        :param max_loop_inc: How many loop iteration per sample call,
-            default: None
+        :param max_loop_inc: How many loop iteration per sample call, default: None
         :param ngs: number of complexes, if None then set to len(para),
             only applys to SCEUA
             default: None
@@ -140,12 +136,11 @@ class OptimiserProperties:
                                          self.mpi)
 
 
-###################
-# PARAMETER CLASSES
+#################
+# PARAMETER CLASS
 class Parameter:
     """
     Stores general parameter values and meta data.
-
     This class is used for the parameters that the optimisation algorithm
     shall work with.
     Furthermore, it is used for meta data that could, for instance, describe
@@ -163,7 +158,6 @@ class Parameter:
                  max_increment: float = None):
         """
         Constructor.
-
         :param name: name of parameter
         :param units: units as a string, default: None
         :param place_holder: place holder string used in templates, if not set,
@@ -229,7 +223,6 @@ class ParameterSet:
     def __init__(self, name: str = None, params: List[Parameter] = None):
         """
         Constructor.
-
         :param name: optional label for parameter set
         :param params: initial list of parameters, deep copy is done
         """
@@ -242,18 +235,18 @@ class ParameterSet:
                 # check for existing parameter name
                 for tp in self.parameters:
                     if tp.name == p.name:
-                        err_msg = "Parameters with same names detected: {}"
-                        logging.error(err_msg.format(p.name))
+                        logging.error(
+                            "Parameters with same names detected: {}".format(
+                                p.name))
                         sys.exit(1)
                 self.parameters.append(copy.deepcopy(p))
 
     def upgrade(self) -> List:
-        """
-        Upgrade method updates object instance with default values,
-        if pickle file is of older version.
-        Returns list of missing parameters.
-        !! CAREFUL !! Since lists like params will be init as [],
-        it may cause unrecognised consequences.
+        """ Upgrade method updates object instance with default values,
+            if pickle file is of older version.
+            Returns list of missing parameters.
+            !! CAREFUL !! Since lists like params will be init as [],
+            it may cause unrecognised consequences.
         """
         default_constr = ParameterSet()
         missing_attr = [x for x in default_constr.__dict__.keys()
@@ -265,7 +258,6 @@ class ParameterSet:
     def update(self, other: 'ParameterSet'):
         """
         Updates parameter set with given other set.
-
         :param other: set used for update
         :return:
         """
@@ -278,7 +270,6 @@ class ParameterSet:
     def __len__(self) -> int:
         """
         Return the length of the parameter set.
-
         :return: length of parameter set.
         """
         return len(self.parameters)
@@ -286,7 +277,6 @@ class ParameterSet:
     def append(self, p: Parameter):
         """
         Append a copy given Parameter object to parameter list.
-
         :param p: parameter to be appended
         :return:
         """
@@ -294,8 +284,8 @@ class ParameterSet:
         # check for existing parameter name
         for tp in self.parameters:
             if tp.name == p.name:
-                err_msg = "Parameters with same names detected: {}"
-                logging.error(err_msg.format(p.name))
+                logging.error(
+                    "Parameters with same names detected: {}".format(p.name))
                 sys.exit(1)
 
         self.parameters.append(copy.deepcopy(p))
@@ -303,7 +293,6 @@ class ParameterSet:
     def __getitem__(self, item: int) -> Parameter:
         """
         Returns parameter at given index.
-
         :param item: selects the index of the chosen Parameter
         :return: selected Parameter object
         """
@@ -312,7 +301,6 @@ class ParameterSet:
     def __str__(self):
         """
         Pretty print of parameter set.
-
         :return: string with information about the set
         """
         res = "\n"
@@ -338,6 +326,7 @@ def test_parameter_setup():
 
 ##################
 # RELATION CLASSES
+
 class DataSource:
     """
     Container for data and meta data of a data source, i.e. model or
@@ -358,31 +347,22 @@ class DataSource:
         self.x = None
         self.y = None
         self.y2 = None
-        self.x_factor = 1.0
-        self.x_offset = 0.0
-        self.y_factor = 1.0
-        self.y_offset = 0.0
-        self.integrate = False
-        self.integrate_factor = 1.0
+        self.xfactor = 1.0
+        self.xoffset = 0.0
+        self.yfactor = 1.0
+        self.yoffset = 0.0
 
         """
         :param file_name: file name which contains the information
-        :param header_line: row that contains the labels (pandas DataFrames)
+        :param header_line: row that contains the labels (pandas data frames)
         :param label_x: label of the row which contains the information of the
-            x-axis (pandas DataFrames)
-        :param label_y: label of the row which contains the information of the
-            y-axis (pandas DataFrames)
-        :param label_y2: 
+            x-axis (pandas data frames)
+        :param label_y:label of the row which contains the information of the
+            y-axis (pandas data frames)
         :param x: data of the x-axis (based on above label)
         :param y: data of the y-axis (based on above label)
-        :param y2:
-        :param x_factor: factor to scale the data, default: 1.0
-        :param x_offset: offset to shift the data, default: 0.0
-        :param y_factor: factor to scale the data, default: 1.0
-        :param y_offset: offset to shift the data, default: 0.0
-        :param integrate: Boolean flag to determine if the data is to be
-            integrated
-        :param integrate_factor: multiply the integration result, default: 1.0
+        :param factor:
+        :param offset:
         """
 
 
@@ -393,13 +373,12 @@ class Relation:
     """
 
     def __init__(self,
-                 model: DataSource=None,
-                 experiment: DataSource=None,
-                 fitness_method: FitnessMethodInterface=None,
-                 fitness_weight: float=1.0):
+                 model: DataSource = None,
+                 experiment: DataSource = None,
+                 fitness_method: FitnessMethodInterface = None,
+                 fitness_weight: float = 1.0):
         """
         Set up a relation between the model and experiment data sources.
-
         :param x_def: definition range for both sources
         :param model: model data source
         :param experiment: experiment data source
@@ -417,71 +396,57 @@ class Relation:
     def read_data(self, wd: os.path, target: str = 'model'):
         """
         Read data from file and store it in the data source object.
-
         :param wd: working directory, i.e. directory prefix
         :param target: choose which data source is read, i.e. model or
             experimental source
         :return: None
         """
 
-        # Set ds to None and if it stays None, something went wrong.
+        # set ds to none and if it stays none, something went wrong
         ds = None
         if target == 'model':
             ds = self.model
         if target == 'experiment':
             ds = self.experiment
 
-        # If experimental data was explicitly set to None,
-        # like in case of an explicit threshold fitness method,
-        # return, as there is no data to be read.
+        # if experimental data was explicitly set to None,
+        # like in case of an explicit
+        # threshold fitness method, return, as there is no data to be read
         if ds is None:
             return
 
-        # Error handling.
+        # error handling
         if ds is None:
             logging.error("wrong data read target: {}".format(target))
             sys.exit()
 
-        # If file name is not specified, do not read from file, as data may
-        # have been set directly to ds.x / ds.y.
+        # if file name is not specified, do not read from file, as data may
+        # have been set directly to ds.x / ds.y
         if ds.file_name is None:
             logging.warning("* Skip reading data, no data file defined")
             return
 
-        logging.debug("* Read in data file: {} in directory".format(ds.file_name,
-                                                                  wd))
+        logging.debug(
+            "* Read in data file: {} in directory".format(ds.file_name,
+                                                          wd))
 
-        # Construct the input file name.
+        # construct the input file name
         in_file = os.path.join(wd, ds.file_name)
-        # Read data.
+        # read data
         data = pd.read_csv(in_file, header=ds.header_line)
         logging.debug("* size of read data: {}".format(data.shape))
-        x_vals = data[ds.label_x].dropna().values[-1]
-        y_vals = data[ds.label_y].dropna().values[-1]
-        logging.debug("* last data values: x={} y={}".format(x_vals, y_vals))
+        logging.debug("* last data values: x={} y={}".format(
+            data[ds.label_x].dropna().values[-1],
+            data[ds.label_y].dropna().values[-1]))
 
-        # Get data series.
-        data_x = data[ds.label_x].dropna().values
-        data_y = data[ds.label_y].dropna().values
-        data_y2 = data[ds.label_y2].dropna().values
-        # Assign data from file to data source arrays
-        # and apply offsets and scaling factors.
-        new_data_x = data_x * ds.x_factor + ds.x_offset
-        new_data_y = data_y * ds.y_factor + ds.y_offset
-        if ds.integrate is True:
-            # Integrate a data series.
-            ds.x = 1.0
-            ds.y = np.trapz(new_data_y, new_data_x) * ds.integrate_factor
-        else:
-            # Add a data series (default).
-            ds.x = new_data_x
-            ds.y = new_data_y
-
+        # assign data from file to data source arrays
+        ds.x = data[ds.label_x].dropna().values * ds.xfactor + ds.xoffset
+        ds.y = data[ds.label_y].dropna().values * ds.yfactor + ds.yoffset
         if ds.label_y2 is not None:
-            ds.y2 = data_y2 * ds.y_factor + ds.y_offset
+            ds.y2 = data[ds.label_y2].dropna().values * ds.yfactor + ds.yoffset
 
     def compute_fitness(self):
-        
+
         logging.debug("* compute fitness")
 
         # error handling
@@ -491,8 +456,8 @@ class Relation:
 
         ds_m = self.model
         ds_e = self.experiment
-        
-        # Debug information to check length of model response and 
+
+        # Debug information to check length of model response and
         # experimental data.
         logging.debug("* model data: {}".format(ds_m))
         logging.debug("* experiment data: {}".format(ds_e))
@@ -509,13 +474,12 @@ class Relation:
             if ds_e.y2 is not None:
                 ds_e_y2 = ds_e.y2
 
-        return self.fitness_method.compute(ds_e_x, ds_e_y, ds_e_y2,
-                                           ds_m.x, ds_m.y)
+        return self.fitness_method.compute(ds_e_x, ds_e_y, ds_e_y2, ds_m.x,
+                                           ds_m.y)
 
     def __str__(self) -> str:
         """
         Creates a string with the major relation information.
-
         :return: information string
         """
         res = "model file: {},\n" \
@@ -564,7 +528,6 @@ def test_read_map_data():
 class EvaluationMethod:
     """
     Stores general parameter values and meta data.
-
     This class is used for the parameters that the optimisation algorithm
     shall work with.
     Furthermore, it is used for meta data that could, for instance, describe
@@ -572,7 +535,7 @@ class EvaluationMethod:
     parameters that are optimised.
     """
 
-    def __init__(self, name: str="Eval_01"):
+    def __init__(self, name: str = "Eval_01"):
         pass
 
 
@@ -581,7 +544,6 @@ class EvaluationMethod:
 class FitnessMethod:
     """
     Stores general parameter values and meta data.
-
     This class is used for the parameters that the optimisation algorithm
     shall work with.
     Furthermore, it is used for meta data that could, for instance, describe
@@ -589,7 +551,7 @@ class FitnessMethod:
     parameters that are optimised.
     """
 
-    def __init__(self, name: str="RMSE"):
+    def __init__(self, name: str = "RMSE"):
         pass
 
 
@@ -602,23 +564,23 @@ class SimulationSetup:
     three simulation setups, e.g. TGA, DSC and Cone Calorimeter.
     They are collected later to form a SimulationSetupSet.
     """
+
     def __init__(self,
                  name: str,
                  work_dir: os.path = os.path.join('.'),
-                 model_template: os.path=None,
-                 model_input_file: os.path='model_input.file',
-                 model_parameter: ParameterSet=None,
-                 model_executable: os.path=None,
-                 execution_dir: os.path=None,
-                 execution_dir_prefix: os.path=None,
+                 model_template: os.path = None,
+                 model_input_file: os.path = 'model_input.file',
+                 model_parameter: ParameterSet = None,
+                 model_executable: os.path = None,
+                 execution_dir: os.path = None,
+                 execution_dir_prefix: os.path = None,
                  # best_dir: os.path='best_para',
-                 analyser_input_file: os.path='input_analyser.py',
-                 relations: List[Relation]=None,
-                 evaluation_method: EvaluationMethod=None,
-                 fitness_method: FitnessMethod=None):
+                 analyser_input_file: os.path = 'input_analyser.py',
+                 relations: List[Relation] = None,
+                 evaluation_method: EvaluationMethod = None,
+                 fitness_method: FitnessMethod = None):
         """
         Constructor.
-
         :param name: name for simulation setup
         :param work_dir: work directory, will contain all needed data
         :param model_template: points to the model input template
@@ -679,7 +641,6 @@ class SimulationSetup:
     def __str__(self) -> str:
         """
         Creates a string with the major simulation setup information.
-
         :return: information string
         """
         res = "id: {}, name: {}, workdir: {}".format(self.id,
@@ -701,7 +662,6 @@ class SimulationSetupSet:
                  setups: List[SimulationSetup] = None):
         """
         Constructor.
-
         :param name: set name
         :param setups: list of initial setups
         """
@@ -735,7 +695,6 @@ class SimulationSetupSet:
     def __len__(self) -> int:
         """
         Computes and returns the length of the set.
-
         :return: length of the simulation setup set
         """
 
@@ -744,7 +703,6 @@ class SimulationSetupSet:
     def append(self, s: SimulationSetup):
         """
         Appends a deep copy of the simulation setup to set.
-
         :param s: simulation setup to be appended
         :return: None
         """
@@ -755,7 +713,6 @@ class SimulationSetupSet:
     def __getitem__(self, item: int) -> SimulationSetup:
         """
         Returns selected simulation setup.
-
         :param item: index of selected element
         :return: selected simulation setup
         """
@@ -764,7 +721,6 @@ class SimulationSetupSet:
     def __str__(self):
         """
         Creates an information string.
-
         :return: information string
         """
         res = "\n"
@@ -800,7 +756,6 @@ class Version:
         Look for propti-version and print a human readable representation.
         Print git hash value if no git is present.
         """
-
         # try:
         #     ver = subprocess.check_output(["git describe --always"
         #                                 ], shell=True).strip().decode("utf-8")
@@ -811,8 +766,7 @@ class Version:
         #
         # if self.flag_propti != 0:  # TODO: This is a little hard coded(?)
         #     with open(os.path.join(script_location,
-        #                            '../', '.git/refs/heads/master'),
-        #                            'r') as f:
+        #                            '../', '.git/refs/heads/master'), 'r') as f:
         #         ver = f.readline()[:7]
         #     with open(os.path.join(script_location,
         #                            '../', 'VERSION.txt'), 'r') as f:
@@ -835,9 +789,8 @@ class Version:
         Look for executable version.
         Look for fds revision by calling fds without parameters
         and return its revision in use.
-        TODO: convert exec_versionCall completely to generic executable
+        # TODO: convert exec_versionCall completely to generic executable
         """
-
         try:
             # subprocess.check_call(['fds'], shell=True, stdout=subprocess.PIPE,
             #                    stderr=subprocess.PIPE)
@@ -846,14 +799,14 @@ class Version:
                                     stderr=subprocess.STDOUT)
 
             # TODO: make the parsing more general
-            # This bit is only specific to fds
+            # This bit is only specific to FDS.
 
-            # define maximal number of line to be parsed
+            # Define maximal number of line to be parsed.
             lines_count = 100
             while True:
                 line = proc.stdout.readline().decode("utf-8")
                 if line[1:9] == 'Revision':
-                    ver = line[line.index(':')+2:]
+                    ver = line[line.index(':') + 2:]
                     break
                 lines_count -= 1
                 if lines_count < 0:
