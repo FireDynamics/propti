@@ -285,7 +285,7 @@ class FitnessMethodIntegrate(FitnessMethodInterface):
         value_m = np.trapz(y_m_mapped, self.x_def) * self.integrate_factor
 
         # Compare experiment and model data.
-        rmse = np.sqrt(((value_e - value_m) ** 2).mean())
+        rmse = np.abs(value_e - value_m)
 
         # Scale the fitness value, if required.
         if self.scale_fitness == 'mean' or self.scale_fitness is True:
