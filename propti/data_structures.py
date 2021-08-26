@@ -441,7 +441,7 @@ class Relation:
         # Get all header labels from the data frame.
         headers = list(data)
         # Check if the header labels from the input match with existing headers.
-        msg = "* Wrong header: {} not found in {}"
+        msg = "* Wrong header: '{}' not found in {}"
         if ds.label_x not in headers:
             logging.error(msg.format(ds.label_x, in_file))
             sys.exit()
