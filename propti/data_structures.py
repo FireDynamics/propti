@@ -373,12 +373,15 @@ class Relation:
     """
 
     def __init__(self,
+                 id_label: str = None,
                  model: DataSource = None,
                  experiment: DataSource = None,
                  fitness_method: FitnessMethodInterface = None,
                  fitness_weight: float = 1.0):
         """
         Set up a relation between the model and experiment data sources.
+        :param id_label: a label entered by the user to better identify the
+            relation
         :param x_def: definition range for both sources
         :param model: model data source
         :param experiment: experiment data source
@@ -386,6 +389,7 @@ class Relation:
         :param fitness_weight:
         """
 
+        self.id_label = id_label
         self.model = model if model else DataSource()
         self.experiment = experiment if experiment else DataSource()
         self.fitness_method = fitness_method

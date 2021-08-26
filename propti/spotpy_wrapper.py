@@ -100,6 +100,7 @@ class SpotpySetup(object):
         # Compute fitness values.
         for s in self.setups:
             for r in s.relations:
+                logging.debug("* Relation ID: {}.".format(r.id_label))
                 current_fitness = r.fitness_weight * r.compute_fitness()
                 global_fitness_value += current_fitness
                 individual_fitness_values.append(current_fitness)
