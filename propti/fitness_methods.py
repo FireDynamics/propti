@@ -22,6 +22,10 @@ class FitnessMethodRMSE(FitnessMethodInterface):
         FitnessMethodInterface.__init__(self, scale_fitness=scale_fitness)
 
     def compute(self, x_e, y_e, y2_e, x_m, y_m):
+
+        msg = "* Compute FitnessMethodRMSE."
+        logging.debug(msg)
+
         # compute x array on which the data sets shall be mapped to,
         # in order to compute the RMSE on the same definition range
         if self.x_def is None:
@@ -62,6 +66,10 @@ class FitnessMethodRangeRMSE(FitnessMethodInterface):
         FitnessMethodInterface.__init__(self, scale_fitness=scale_fitness)
 
     def compute(self, x_e, y_e, y2_e, x_m, y_m):
+
+        msg = "* Compute FitnessMethodRangeRMSE."
+        logging.debug(msg)
+
         # compute x array on which the data sets shall be mapped to, in order
         #  to compute the RMSE on the same definition range
         if self.x_def is None:
@@ -102,6 +110,10 @@ class FitnessMethodBandRMSE(FitnessMethodInterface):
         FitnessMethodInterface.__init__(self, scale_fitness=scale_fitness)
 
     def compute(self, x_e, y_e, y2_e, x_m, y_m):
+
+        msg = "* Compute FitnessMethodBandRMSE."
+        logging.debug(msg)
+
         # compute x array on which the data sets shall be mapped to,
         # in order to compute the RMSE on the same definition range.
         if self.x_def is None:
@@ -154,6 +166,9 @@ class FitnessMethodThreshold(FitnessMethodInterface):
         self.scale_fitness = scale_fitness
 
     def compute(self, x_e, y_e, y2_e, x_m, y_m):
+
+        msg = "* Compute FitnessMethodThreshold."
+        logging.debug(msg)
 
         x_e_threshold = None
         x_m_threshold = None
@@ -244,6 +259,7 @@ class FitnessMethodIntegrate(FitnessMethodInterface):
     Integrate a data series and determine the distance to a target value.
     For instance to get the heat of combustion from MCC data.
     """
+
     def __init__(self, n_points=None, x_def_range=None, scale_fitness=True,
                  integrate_factor=1.0):
         """
@@ -267,25 +283,42 @@ class FitnessMethodIntegrate(FitnessMethodInterface):
         in order to compute the RMSE on the same definition range.
         """
 
-        logging.debug("* Compute FitnessMethodIntegrate.")
+        msg = "* Compute FitnessMethodIntegrate."
+        logging.debug(msg)
 
         if self.x_def is None:
+            msg = "* Note: 'x_def' is None."
+            logging.debug(msg)
             if self.x_def_range is None:
+                msg = "* Note: 'x_def_range' is None."
+                logging.debug(msg)
                 x_min = np.max([np.min(x_e), np.min(x_m)])
                 x_max = np.min([np.max(x_e), np.max(x_m)])
                 self.x_def_range = [x_min, x_max]
+                msg = "* From 'compute': 'x_def_range' is now: {}."
+                logging.debug(msg.format(self.x_def_range))
+
             self.x_def = np.linspace(self.x_def_range[0],
                                      self.x_def_range[1],
                                      self.n,
                                      endpoint=True)
+            msg = "* From 'compute': 'x_def' is now: {}."
+            logging.debug(msg.format(self.x_def))
+
+        msg = "* Mapping data..."
+        logging.debug(msg)
 
         # Map data series to the same definition range.
         y_e_mapped = np.interp(self.x_def, x_e, y_e)
         y_m_mapped = np.interp(self.x_def, x_m, y_m)
+        msg = "* FitnessMethodIntegrate info: y_e_mapped={}, y_m_mapped={}"
+        logging.debug(msg.format(y_e_mapped, y_m_mapped))
 
         # Integrate experiment and model data series.
         value_e = np.trapz(y_e_mapped, self.x_def) * self.integrate_factor
         value_m = np.trapz(y_m_mapped, self.x_def) * self.integrate_factor
+        msg = "* FitnessMethodIntegrate info: value_e={}, value_m={}"
+        logging.debug(msg.format(value_e, value_m))
 
         # Compare experiment and model data.
         rmse = np.abs(value_e - value_m)
