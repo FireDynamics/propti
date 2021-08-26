@@ -433,17 +433,31 @@ class Relation:
             logging.warning("* Skip reading data, no data file defined")
             return
 
-        logging.debug("* Read in data file: {} in directory".format(ds.file_name,
-                                                                  wd))
+        msg = "* From read_data: Read in data file: {} in directory: {}"
+        logging.debug(msg.format(ds.file_name, wd))
 
-        # construct the input file name
+        # Construct the input file name.
         in_file = os.path.join(wd, ds.file_name)
-        # read data
+        # Read data as Pandas DataFrame.
         data = pd.read_csv(in_file, header=ds.header_line)
-        logging.debug("* size of read data: {}".format(data.shape))
-        logging.debug("* last data values: x={} y={}".format(data[ds.label_x].dropna().values[-1], data[ds.label_y].dropna().values[-1]))
 
-        # assign data from file to data source arrays
+        # Get all header labels from the data frame.
+        headers = list(data)
+        # Check if the header labels from the input match with existing headers.
+        msg = "* Wrong header: '{}' not found in {}"
+        if ds.label_x not in headers:
+            logging.error(msg.format(ds.label_x, in_file))
+            sys.exit()
+        elif ds.label_y not in headers:
+            logging.error(msg.format(ds.label_y, in_file))
+            sys.exit()
+
+        logging.debug("* Size of read data: {}".format(data.shape))
+        logging.debug("* Last data values: x={}, y={}".format(
+            data[ds.label_x].dropna().values[-1],
+            data[ds.label_y].dropna().values[-1]))
+
+        # Assign data from file to data source arrays.
         ds.x = data[ds.label_x].dropna().values * ds.xfactor + ds.xoffset
         ds.y = data[ds.label_y].dropna().values * ds.yfactor + ds.yoffset
         if ds.label_y2 is not None:
