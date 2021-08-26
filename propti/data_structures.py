@@ -433,10 +433,22 @@ class Relation:
         msg = "* From read_data: Read in data file: {} in directory: {}"
         logging.debug(msg.format(ds.file_name, wd))
 
-        # construct the input file name
+        # Construct the input file name.
         in_file = os.path.join(wd, ds.file_name)
-        # read data
+        # Read data as Pandas DataFrame.
         data = pd.read_csv(in_file, header=ds.header_line)
+
+        # Get all header labels from the data frame.
+        headers = list(data)
+        # Check if the header labels from the input match with existing headers.
+        msg = "* Wrong header: {} not found in {}"
+        if ds.label_x not in headers:
+            logging.error(msg.format(ds.label_x, in_file))
+            sys.exit()
+        elif ds.label_y not in headers:
+            logging.error(msg.format(ds.label_y, in_file))
+            sys.exit()
+
         logging.debug("* Size of read data: {}".format(data.shape))
         logging.debug("* Last data values: x={}, y={}".format(
             data[ds.label_x].dropna().values[-1],
