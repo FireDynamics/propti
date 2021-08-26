@@ -11,8 +11,8 @@ mpi4py.rc.recv_mprobe = False
 
 from mpi4py import MPI
 comm = MPI.COMM_WORLD
-print('starting propti on MPI rank {} out of {} ranks'.format(comm.Get_rank(),
-                                                              comm.Get_size()))
+print('Starting PROPTI on MPI rank {} out of {} ranks.'.format(comm.Get_rank(),
+                                                               comm.Get_size()))
 
 import propti as pr
 import logging
@@ -32,7 +32,7 @@ in_file = open('propti.pickle.init', 'rb')
 ver, setups, ops, optimiser = pickle.load(in_file)
 in_file.close()
 
-# check if propti version is same as in pickle file
+# Check if PROPTI version is same as in pickle file
 # else upgrade files to new values using defaults.
 dict_of_upgrades = {}
 if ver.ver_propti != pr.Version(setups[0]).ver_propti:
@@ -52,13 +52,13 @@ if ver.ver_propti != pr.Version(setups[0]).ver_propti:
     out_file.close()
 
 if ver.flag_propti != 0:
-    logging.warning("No git. Propti version is represented as a hash.")
+    logging.warning("No git. PROPTI version is represented as a hash.")
 if ops is None:
-    logging.critical("optimisation parameter are not defined")
+    logging.critical("Optimisation parameter are not defined.")
 if setups is None:
-    logging.critical("simulation setups are not defined")
+    logging.critical("Simulation setups are not defined.")
 if optimiser is None:
-    logging.critical("optimiser properties are not defined")
+    logging.critical("Optimiser properties are not defined.")
 
 print(ver, setups, ops, optimiser)
 

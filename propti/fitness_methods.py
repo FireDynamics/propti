@@ -266,6 +266,9 @@ class FitnessMethodIntegrate(FitnessMethodInterface):
         Compute x array on which the data sets shall be mapped to,
         in order to compute the RMSE on the same definition range.
         """
+
+        logging.debug("* Compute FitnessMethodIntegrate.")
+
         if self.x_def is None:
             if self.x_def_range is None:
                 x_min = np.max([np.min(x_e), np.min(x_m)])
@@ -286,6 +289,9 @@ class FitnessMethodIntegrate(FitnessMethodInterface):
 
         # Compare experiment and model data.
         rmse = np.abs(value_e - value_m)
+
+        msg = "* FitnessMethodIntegrate info: value_e={}, value_m={}, rmse={}"
+        logging.debug(msg.format(value_e, value_m, rmse))
 
         # Scale the fitness value, if required.
         if self.scale_fitness == 'mean' or self.scale_fitness is True:

@@ -417,25 +417,25 @@ class Relation:
 
         # error handling
         if ds is None:
-            logging.error("wrong data read target: {}".format(target))
+            logging.error("* Wrong data read target: {}".format(target))
             sys.exit()
 
         # if file name is not specified, do not read from file, as data may
         # have been set directly to ds.x / ds.y
         if ds.file_name is None:
-            logging.warning("* Skip reading data, no data file defined")
+            logging.warning("* Skip reading data, no data file defined.")
             return
 
         logging.debug(
-            "* Read in data file: {} in directory".format(ds.file_name,
-                                                          wd))
+            "* Read in data file: {} in directory: {}".format(ds.file_name,
+                                                              wd))
 
         # construct the input file name
         in_file = os.path.join(wd, ds.file_name)
         # read data
         data = pd.read_csv(in_file, header=ds.header_line)
-        logging.debug("* size of read data: {}".format(data.shape))
-        logging.debug("* last data values: x={} y={}".format(
+        logging.debug("* Size of read data: {}".format(data.shape))
+        logging.debug("* Last data values: x={}, y={}".format(
             data[ds.label_x].dropna().values[-1],
             data[ds.label_y].dropna().values[-1]))
 
@@ -459,8 +459,8 @@ class Relation:
 
         # Debug information to check length of model response and
         # experimental data.
-        logging.debug("* model data: {}".format(ds_m))
-        logging.debug("* experiment data: {}".format(ds_e))
+        logging.debug("* Model data: {}".format(ds_m))
+        logging.debug("* Experiment data: {}".format(ds_e))
 
         # handle cases in which there is no experimental data set
         if ds_e is None:
@@ -474,8 +474,13 @@ class Relation:
             if ds_e.y2 is not None:
                 ds_e_y2 = ds_e.y2
 
-        return self.fitness_method.compute(ds_e_x, ds_e_y, ds_e_y2, ds_m.x,
-                                           ds_m.y)
+        fitness_value = self.fitness_method.compute(ds_e_x, ds_e_y,
+                                                    ds_e_y2, ds_m.x,
+                                                    ds_m.y)
+
+        logging.debug("* Fitness value after compute: {}".format(fitness_value))
+
+        return fitness_value
 
     def __str__(self) -> str:
         """

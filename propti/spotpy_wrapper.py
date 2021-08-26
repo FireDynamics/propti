@@ -30,7 +30,7 @@ class SpotpySetup(object):
         self.spotpy_parameter = []
 
         for p in params:
-            logging.debug("setup spotpy parameter: {}".format(p.name))
+            logging.debug("Setup SPOTPY parameter: {}".format(p.name))
             if p.distribution == 'uniform':
 
                 optguess = None
@@ -50,24 +50,24 @@ class SpotpySetup(object):
             else:
 
                 logging.error(
-                    'parameter distribution function unknown: {}'.format(
+                    '* Parameter distribution function unknown: {}'.format(
                         p.distribution))
 
     def parameters(self):
         return spotpy.parameter.generate(self.spotpy_parameter)
 
     def simulation(self, vector):
-        logging.debug("current spotpy simulation vector: {}".format(vector))
+        logging.debug("* Current SPOTPY simulation vector: {}".format(vector))
 
-        # copy spotpy parameter vector to parameter set
+        # Copy SPOTPY parameter vector to parameter set.
         for i in range(len(vector)):
             self.params[i].value = vector[i]
 
-        # update all simulation setup parameter sets
+        # Update all simulation setup parameter sets.
         for s in self.setups:
             s.model_parameter.update(self.params)
 
-        # create run directories for all simulation setups
+        # Create run directories for all simulation setups.
         for s in self.setups:
             if s.execution_dir_prefix:
                 tmp_dir_root = s.execution_dir_prefix
@@ -77,30 +77,35 @@ class SpotpySetup(object):
                                                dir=tmp_dir_root)
             create_input_file(s)
 
-        # run all simulations
+        # Run all simulations.
+        logging.debug("* Run all simulations.")
         run_simulations(self.setups, self.optimiser.num_subprocesses)
 
         # gather simulation data
         for s in self.setups:
-            logging.debug("start data extraction")
+            logging.debug("* Start data extraction.")
             extract_simulation_data(s)
+        logging.debug("* Finished data extraction.")
 
-        # clean up temporary execution directories
+        # Clean up temporary execution directories.
         for s in self.setups:
+            logging.debug("* Clean up of temporary execution directories.")
             shutil.rmtree(s.execution_dir)
 
-        # compute fitness values
+        # Initialise values needed to compute fitness.
+        logging.debug("* Compute fitness values.")
         global_fitness_value = 0
         individual_fitness_values = list()
 
+        # Compute fitness values.
         for s in self.setups:
             for r in s.relations:
                 current_fitness = r.fitness_weight * r.compute_fitness()
                 global_fitness_value += current_fitness
                 individual_fitness_values.append(current_fitness)
 
-        # first element of returned list is the global fitness value
-        # note: in general this should be the simulation data, which is returned
+        # First element of returned list is the global fitness value.
+        # Note: in general this should be the simulation data, which is returned
         # due to our data structure, the passing of the fitness values,
         # i.e. result of the objective function is most convenient approach here
         return [global_fitness_value] + individual_fitness_values
@@ -111,15 +116,19 @@ class SpotpySetup(object):
             for r in s.relations:
                 r.read_data(wd='.', target='experiment')
 
-        # return dummy data
+        # Return dummy data.
         # TODO: reconsider returning proper values
         return [1]
 
     def objectivefunction(self, simulation, evaluation, params):
 
-        # the simulation function does not return simulation data,
-        # but directly the fitness values, just pass these values
+        # The simulation function does not return simulation data,
+        # but directly the fitness values, just pass these values.
         fitness_value = simulation
+
+        msg = "* From objectivefunction: fitness_value={}"
+        logging.debug(msg.format(fitness_value))
+
         return fitness_value
 
 
