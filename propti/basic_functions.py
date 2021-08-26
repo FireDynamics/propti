@@ -225,7 +225,7 @@ def extract_simulation_data(setup: SimulationSetup):
     # TODO: this is not general, but specific for FDS, i.e. first
     # TODO: line contains units, second the quantities names
 
-    msg = "* From 'extract_simulation_data', execution directory: {}"
+    msg = "* From 'extract_simulation_data': execution directory={}"
     logging.debug(msg.format(setup.execution_dir))
 
     if os.path.exists(os.path.join(setup.execution_dir, 'wct.csv')):
@@ -235,7 +235,12 @@ def extract_simulation_data(setup: SimulationSetup):
         logging.debug("WCT info: {}".format(line))
 
     for r in setup.relations:
+        msg = "* From 'extract_simulation_data': Relation ID: {}"
+        logging.debug(msg.format(r.id_label))
         r.read_data(setup.execution_dir)
+
+    msg = "* From 'extract_simulation_data': Finished reading data."
+    logging.debug(msg)
 
 
 def map_data(x_def, x, y):
