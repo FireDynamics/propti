@@ -112,7 +112,7 @@ class SpotpySetup(object):
         return [global_fitness_value] + individual_fitness_values
 
     def evaluation(self):
-        logging.debug("evaluation")
+        logging.debug("* evaluation")
         for s in self.setups:
             for r in s.relations:
                 r.read_data(wd='.', target='experiment')
@@ -162,7 +162,7 @@ def run_optimisation(params: ParameterSet,
             opt.ngs = ngs
         results = sampler.sample(opt.repetitions, ngs=ngs,
                                  max_loop_inc=opt.max_loop_inc)
-        #results = sampler.sample(opt.repetitions, ngs=ngs)
+        # results = sampler.sample(opt.repetitions, ngs=ngs)
     elif opt.algorithm == 'fscabc':
         sampler = spotpy.algorithms.fscabc(spot,
                                            dbname=opt.db_name,

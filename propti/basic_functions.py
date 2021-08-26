@@ -225,7 +225,8 @@ def extract_simulation_data(setup: SimulationSetup):
     # TODO: this is not general, but specific for FDS, i.e. first
     # TODO: line contains units, second the quantities names
 
-    logging.debug("execution directory: {}".format(setup.execution_dir))
+    msg = "* From 'extract_simulation_data', execution directory: {}"
+    logging.debug(msg.format(setup.execution_dir))
 
     if os.path.exists(os.path.join(setup.execution_dir, 'wct.csv')):
         wct_file = open(os.path.join(setup.execution_dir, 'wct.csv'))

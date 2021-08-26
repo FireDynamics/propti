@@ -430,9 +430,8 @@ class Relation:
             logging.warning("* Skip reading data, no data file defined.")
             return
 
-        logging.debug(
-            "* Read in data file: {} in directory: {}".format(ds.file_name,
-                                                              wd))
+        msg = "* From read_data: Read in data file: {} in directory: {}"
+        logging.debug(msg.format(ds.file_name, wd))
 
         # construct the input file name
         in_file = os.path.join(wd, ds.file_name)
@@ -446,12 +445,16 @@ class Relation:
         # assign data from file to data source arrays
         ds.x = data[ds.label_x].dropna().values * ds.xfactor + ds.xoffset
         ds.y = data[ds.label_y].dropna().values * ds.yfactor + ds.yoffset
+
+        msg = "* From read_data: ds.x={} ds.y={}"
+        logging.debug(msg.format(ds.x, ds.y))
+
         if ds.label_y2 is not None:
             ds.y2 = data[ds.label_y2].dropna().values * ds.yfactor + ds.yoffset
 
     def compute_fitness(self):
 
-        logging.debug("* compute fitness")
+        logging.debug("* Compute fitness")
 
         # error handling
         if self.fitness_method is None:
