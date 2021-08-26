@@ -286,6 +286,11 @@ class FitnessMethodIntegrate(FitnessMethodInterface):
         msg = "* Compute FitnessMethodIntegrate."
         logging.debug(msg)
 
+        if self.n is None:
+            msg = "* Note: 'n_points' is None, please choose a number!"
+            logging.error(msg)
+            sys.exit()
+
         if self.x_def is None:
             msg = "* Note: 'x_def' is None."
             logging.debug(msg)
