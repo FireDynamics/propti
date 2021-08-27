@@ -5,6 +5,9 @@ import copy
 import pandas as pd
 import shutil as sh
 import pickle
+import propti as pr
+import logging
+import argparse
 
 import mpi4py
 mpi4py.rc.recv_mprobe = False
@@ -14,11 +17,7 @@ comm = MPI.COMM_WORLD
 print('Starting PROPTI on MPI rank {} out of {} ranks.'.format(comm.Get_rank(),
                                                                comm.Get_size()))
 
-import propti as pr
-import logging
 
-
-import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("root_dir", type=str,
                     help="optimisation root directory")

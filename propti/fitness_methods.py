@@ -2,6 +2,8 @@ import sys
 import logging
 import numpy as np
 
+from mpi4py import MPI
+
 
 class FitnessMethodInterface:
 
@@ -281,10 +283,13 @@ class FitnessMethodIntegrate(FitnessMethodInterface):
         self.integrate_factor = integrate_factor
         FitnessMethodInterface.__init__(self, scale_fitness=scale_fitness)
 
+        # TODO: implement parameter check in propti_prepare
         if self.n is None:
             msg = "* Note: 'n_points' is None, please choose a number!"
             logging.error(msg)
-            sys.exit()
+            comm = MPI.COMM_WORLD
+            comm.abort()
+            # sys.exit()
 
     def compute(self, x_e, y_e, y2_e, x_m, y_m):
         """
