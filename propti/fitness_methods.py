@@ -260,7 +260,7 @@ class FitnessMethodIntegrate(FitnessMethodInterface):
     For instance to get the heat of combustion from MCC data.
     """
 
-    def __init__(self, n_points=None, x_def_range=None, scale_fitness=True,
+    def __init__(self, n_points, x_def_range=None, scale_fitness=True,
                  integrate_factor=1.0):
         """
         Constructor.
@@ -270,6 +270,10 @@ class FitnessMethodIntegrate(FitnessMethodInterface):
         :param scale_fitness:
         :param integrate_factor: multiply the integration result, default: 1.0
         """
+
+        msg = "* From FitnessMethodIntegrate.__init__"
+        logging.debug(msg)
+
         self.n = n_points
         self.x_def = None
         self.x_def_range = x_def_range
@@ -277,19 +281,19 @@ class FitnessMethodIntegrate(FitnessMethodInterface):
         self.integrate_factor = integrate_factor
         FitnessMethodInterface.__init__(self, scale_fitness=scale_fitness)
 
+        if self.n is None:
+            msg = "* Note: 'n_points' is None, please choose a number!"
+            logging.error(msg)
+            sys.exit()
+
     def compute(self, x_e, y_e, y2_e, x_m, y_m):
         """
         Compute x array on which the data sets shall be mapped to,
         in order to compute the RMSE on the same definition range.
         """
 
-        msg = "* Compute FitnessMethodIntegrate."
+        msg = "* From FitnessMethodIntegrate.compute"
         logging.debug(msg)
-
-        if self.n is None:
-            msg = "* Note: 'n_points' is None, please choose a number!"
-            logging.error(msg)
-            sys.exit()
 
         if self.x_def is None:
             msg = "* Note: 'x_def' is None."
@@ -316,19 +320,19 @@ class FitnessMethodIntegrate(FitnessMethodInterface):
         # Map data series to the same definition range.
         y_e_mapped = np.interp(self.x_def, x_e, y_e)
         y_m_mapped = np.interp(self.x_def, x_m, y_m)
-        msg = "* FitnessMethodIntegrate info: y_e_mapped={}, y_m_mapped={}"
+        msg = "* FitnessMethodIntegrate.compute: y_e_mapped={}, y_m_mapped={}"
         logging.debug(msg.format(y_e_mapped, y_m_mapped))
 
         # Integrate experiment and model data series.
         value_e = np.trapz(y_e_mapped, self.x_def) * self.integrate_factor
         value_m = np.trapz(y_m_mapped, self.x_def) * self.integrate_factor
-        msg = "* FitnessMethodIntegrate info: value_e={}, value_m={}"
+        msg = "* FitnessMethodIntegrate.compute: value_e={}, value_m={}"
         logging.debug(msg.format(value_e, value_m))
 
         # Compare experiment and model data.
         rmse = np.abs(value_e - value_m)
 
-        msg = "* FitnessMethodIntegrate info: value_e={}, value_m={}, rmse={}"
+        msg = "* FitnessMethodIntegrate.compute: value_e={}, value_m={}, rmse={}"
         logging.debug(msg.format(value_e, value_m, rmse))
 
         # Scale the fitness value, if required.
