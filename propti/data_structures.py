@@ -5,6 +5,7 @@ import copy
 import numpy as np
 import pandas as pd
 import subprocess
+from typing import Union
 import spotpy
 from .fitness_methods import FitnessMethodInterface
 
@@ -151,14 +152,16 @@ class Parameter:
     parameters that are optimised.
     """
 
+    # TODO: do None default values make sense?
     def __init__(self, name: str,
                  units: str = None,
                  place_holder: str = None,
-                 value: float = None,
+                 value: Union[int, float] = None,
                  distribution: str = 'uniform',
                  min_value: float = None,
                  max_value: float = None,
-                 max_increment: float = None):
+                 max_increment: float = None,
+                 output_float_precision: int = 6):
         """
         Constructor.
 
@@ -174,6 +177,8 @@ class Parameter:
         :param max_value: assumed maximal value
         :param max_increment: step size required for some optimisation
         algorithms
+        :param output_float_precision: number of decimal positions places after
+            the decimal sign for floats
         """
         self.name = name
         self.units = units
@@ -189,6 +194,8 @@ class Parameter:
         self.max_value = max_value
         self.distribution = distribution
         self.max_increment = max_increment
+
+        self.output_float_precision = output_float_precision
 
     def create_spotpy_parameter(self):
         pass
