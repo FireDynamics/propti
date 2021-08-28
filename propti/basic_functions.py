@@ -77,9 +77,12 @@ def fill_place_holder(tc: str, paras: ParameterSet) -> str:
     res = tc
     if paras is not None:
         for p in paras:
-            if type(p.value) == float:
+            if type(p.value) == float or \
+                    type(p.value) == np.float64 or \
+                    type(p.value) == np.float32:
                 res = res.replace("#" + p.place_holder + "#",
-                                  "{:E}".format(p.value))
+                                  "{:.{}E}".format(p.value,
+                                                   p.output_float_precision))
             else:
                 res = res.replace("#" + p.place_holder + "#", str(p.value))
     else:

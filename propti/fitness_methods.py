@@ -287,6 +287,8 @@ class FitnessMethodIntegrate(FitnessMethodInterface):
         if self.n is None:
             msg = "* Note: 'n_points' is None, please choose a number!"
             logging.error(msg)
+            # Is supposed to stop the whole MPI job, i.e. communicate
+            # "upwards" to the main process that it shuts down.
             comm = MPI.COMM_WORLD
             comm.abort()
             # sys.exit()
