@@ -8,6 +8,7 @@ import subprocess
 import logging
 import queue
 import threading
+import datetime
 import numpy as np
 
 from .data_structures import Parameter, ParameterSet, SimulationSetup, \
@@ -143,14 +144,18 @@ def run_simulations(setups: SimulationSetupSet,
     :param best_para_run: flag to switch to simulating the best parameter set
     :return: None
     """
+
+    # Get system time now, for debug output.
+    time_now = datetime.datetime.now()
+
     if num_subprocesses == 1:
-        logging.info('serial model execution started')
+        logging.info('* Serial model execution started, at:', time_now)
         for s in setups:
             logging.info('start execution of simulation setup: {}'
                          .format(s.name))
             run_simulation_serial(s, best_para_run)
     else:
-        logging.info('multi process execution started')
+        logging.info('* Multi process execution started, at:', time_now)
         run_simulation_mp(setups, num_subprocesses)
 
 
