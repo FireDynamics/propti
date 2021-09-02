@@ -343,11 +343,13 @@ class FitnessMethodIntegrate(FitnessMethodInterface):
         logging.debug(msg.format(value_e, value_m, rmse))
 
         # Scale the fitness value, if required.
-        if self.scale_fitness == 'mean' or self.scale_fitness is True:
-            return rmse / np.abs(np.mean(y_e_mapped))
-        elif self.scale_fitness == 'minmax':
-            return rmse / np.abs(y_e_mapped[-1] - y_e_mapped[0])
-        elif self.scale_fitness == 'interquartile':
-            return rmse
+        # TODO: Find better way for scaling
+        if self.scale_fitness is True:
+            # return rmse / np.abs(np.mean(y_e_mapped))
+            return rmse / value_e
+        # elif self.scale_fitness == 'minmax':
+        #     return rmse / np.abs(y_e_mapped[-1] - y_e_mapped[0])
+        # elif self.scale_fitness == 'interquartile':
+        #     return rmse
         else:
             return rmse
