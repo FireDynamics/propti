@@ -2,12 +2,13 @@ import os
 import sys
 import logging
 import copy
+import ast
 import numpy as np
 import pandas as pd
 import subprocess
 from typing import Union
 import spotpy
-from .fitness_methods import FitnessMethodInterface
+from propti.fitness_methods import FitnessMethodInterface
 
 
 import propti as pr
@@ -152,7 +153,8 @@ class Parameter:
     parameters that are optimised.
     """
 
-    # TODO: do None default values make sense?
+    # TODO: Do None default values make sense?
+    # TODO: Add type (f,e) of float output? How to deal with precision of 'f'?
     def __init__(self, name: str,
                  units: str = None,
                  place_holder: str = None,
@@ -161,7 +163,8 @@ class Parameter:
                  min_value: float = None,
                  max_value: float = None,
                  max_increment: float = None,
-                 output_float_precision: int = 6):
+                 output_float_precision: int = 6,
+                 evaluate_value: str = None):
         """
         Constructor.
 
@@ -179,6 +182,8 @@ class Parameter:
         algorithms
         :param output_float_precision: number of decimal positions places after
             the decimal sign for floats
+        :param evaluate_value: string which contains the expression to be evaluated
+            when replacing the placeholder
         """
         self.name = name
         self.units = units
@@ -196,6 +201,13 @@ class Parameter:
         self.max_increment = max_increment
 
         self.output_float_precision = output_float_precision
+
+        self.evaluate_value = evaluate_value
+        self.derived = False
+        self.evaluated = None
+        if self.evaluate_value is not None:
+            self.derived = True
+            self.evaluated = False
 
     def create_spotpy_parameter(self):
         pass
@@ -301,6 +313,91 @@ class ParameterSet:
 
         self.parameters.append(copy.deepcopy(p))
 
+    def reset_derived_parameter(self):
+        """
+        Reset all derived parameters.
+        """
+        for p in self.parameters:
+            if p.derived:
+                p.evaluated = False
+
+    def evaluate_derived_parameter(self):
+        """
+        Evaluate all derived parameters.
+        """
+
+        # loop over all parameters to be derived, as long as there is progress, i.e. progress=True
+        # if progress is false and parameters are not evaluated, not all dependencies have been
+        # resolved
+
+        self.reset_derived_parameter()
+
+        progress = True
+        while progress:
+            progress = False
+            # dumb loop over all parameters in this set
+            for p in self.parameters:
+
+                # consider only derived parameters and not yet evaluated ones
+                if not p.derived:
+                    continue
+                elif p.evaluated:
+                    continue
+
+                # this dict will contain the parameters needed to evaluate the expression
+                local_vars = {}
+
+                print(f'Evaluating variable {p.name}, as {p.evaluate_value}')
+                code = ast.parse(p.evaluate_value)
+
+                skip_evaluation = False
+                for node in ast.walk(code):
+                    if type(node) is ast.Name:
+                        var_name = node.id
+                        print(f'  found required variable {var_name}')
+                        p_index = self.get_index_by_name(var_name)
+                        if p_index is None:
+                            # Raise ERROR
+                            print(f"ERROR, required parameter for variable {var_name} not found")
+                            sys.exit(1)
+                            return None
+                        cp = self.parameters[p_index]
+                        print(f'  found matching parameter {cp}')
+                        if cp.derived and not cp.evaluated:
+                            print(f'   skipping not evalued parameter {cp}')
+                            skip_evaluation = True
+                        local_vars[var_name] = self.parameters[p_index].value
+
+                if not skip_evaluation:
+                    result = eval(p.evaluate_value, local_vars)
+                    print(f'  resulting value {result}')
+                    p.value = float(result)
+                    p.evaluated = True
+                    progress = True
+
+        for p in self.parameters:
+            if p.evaluated == False:
+                # Raise ERROR
+                print(f"ERROR, not all parameters could be evaluated, one of them is {p}")
+                sys.exit(1)
+
+        return None
+
+
+    def get_index_by_name(self, name: str):
+        """
+        Returns parameter index which matches a given name.
+
+        :param name: selects the index of the chosen Parameter
+        :return: selected Parameter object
+        """
+
+        for i in range(len(self.parameters)):
+            if self.parameters[i].name == name:
+                return i
+
+        return None
+
     def __getitem__(self, item: int) -> Parameter:
         """
         Returns parameter at given index.
@@ -336,6 +433,16 @@ def test_parameter_setup():
 
     print(ps)
 
+def evaluate_parameters_test():
+    ps = ParameterSet("evaluation test")
+    ps.append(Parameter("density", value=5.6))
+    ps.append(Parameter("heat_flux", value=25))
+    ps.append(Parameter("my_value", evaluate_value='my_fraction ** 2'))
+    ps.append(Parameter("my_fraction", evaluate_value='density * heat_flux'))
+
+    ps.evaluate_derived_parameter()
+
+    print(ps)
 
 ##################
 # RELATION CLASSES
@@ -885,7 +992,7 @@ def data_structure_tests():
     # test_simulation_setup_setup()
     test_read_map_data()
 
-
 # run tests if executed
 if __name__ == "__main__":
-    data_structure_tests()
+    # data_structure_tests()
+    evaluate_parameters_test()
