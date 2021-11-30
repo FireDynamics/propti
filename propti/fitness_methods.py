@@ -15,7 +15,7 @@ class FitnessMethodInterface:
 class FitnessMethodRMSE(FitnessMethodInterface):
 
     def __init__(self, n_points=None, x_def_range=None, scale_fitness=True,
-                 check_model_length=True, penalty=5, difference=0.05):
+                 check_model_length=True, penalty=3.5, difference=0.05):
         #TODO set default of check_model_length to False
         """
         Constructor, setting up basic parameters.
