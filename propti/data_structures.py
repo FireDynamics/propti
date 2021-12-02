@@ -291,6 +291,8 @@ class ParameterSet:
                 if my.name == ot.name:
                     my.value = ot.value
 
+        self.evaluate_derived_parameters()
+
     def __len__(self) -> int:
         """
         Return the length of the parameter set.
@@ -323,7 +325,7 @@ class ParameterSet:
             if p.derived:
                 p.evaluated = False
 
-    def evaluate_derived_parameter(self):
+    def evaluate_derived_parameters(self):
         """
         Evaluate all derived parameters.
         """
@@ -442,7 +444,7 @@ def evaluate_parameters_test():
     ps.append(Parameter("my_value", evaluate_value='my_fraction ** 2'))
     ps.append(Parameter("my_fraction", evaluate_value='density * heat_flux'))
 
-    ps.evaluate_derived_parameter()
+    ps.evaluate_derived_parameters()
 
     print(ps)
 
