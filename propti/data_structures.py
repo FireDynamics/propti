@@ -233,6 +233,8 @@ class Parameter:
         if self.units:
             res += ", units: {}".format(self.units)
         res += ", value: {}".format(self.value)
+        if self.derived:
+            res += ", evaluation string: {}".format(self.evaluate_value)
         return res
 
 
