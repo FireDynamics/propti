@@ -77,6 +77,14 @@ def fill_place_holder(tc: str, paras: ParameterSet) -> str:
     res = tc
     if paras is not None:
         for p in paras:
+
+            if p.place_holder is None:
+                continue
+
+            if p.derived and not p.evaluated:
+                logging.error("* parameter not evaluated: ", p)
+                sys.exit()
+
             if type(p.value) == float or \
                     type(p.value) == np.float64 or \
                     type(p.value) == np.float32:
