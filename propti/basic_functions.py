@@ -157,13 +157,15 @@ def run_simulations(setups: SimulationSetupSet,
     time_now = datetime.datetime.now()
 
     if num_subprocesses == 1:
-        logging.info('* Serial model execution started, at:', time_now)
+        msg_serial = '* Serial model execution started, at: {}'
+        logging.info(msg_serial.format(time_now))
         for s in setups:
             logging.info('start execution of simulation setup: {}'
                          .format(s.name))
             run_simulation_serial(s, best_para_run)
     else:
-        logging.info('* Multi process execution started, at:', time_now)
+        msg_multiprocess = '* Multi process execution started, at: {}'
+        logging.info(msg_multiprocess.format(time_now))
         run_simulation_mp(setups, num_subprocesses)
 
 
