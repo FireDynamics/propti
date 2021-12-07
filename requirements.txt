@@ -1,0 +1,6 @@
+numpy
+matplotlib
+scipy
+pandas
+spotpy
+mpi4py

@@ -2,9 +2,11 @@ import os
 import sys
 import logging
 import copy
+import ast
 import numpy as np
 import pandas as pd
 import subprocess
+from typing import Union
 import spotpy
 from .fitness_methods import FitnessMethodInterface
 from typing import Union
@@ -149,7 +151,8 @@ class Parameter:
     parameters that are optimised.
     """
 
-    # TODO: do None default values make sense?
+    # TODO: Do None default values make sense?
+    # TODO: Add type (f,e) of float output? How to deal with precision of 'f'?
     def __init__(self, name: str,
                  units: str = None,
                  place_holder: str = None,
@@ -158,7 +161,8 @@ class Parameter:
                  min_value: float = None,
                  max_value: float = None,
                  max_increment: float = None,
-                 output_float_precision: int = 6):
+                 output_float_precision: int = 6,
+                 evaluate_value: str = None):
         """
         Constructor.
         :param name: name of parameter
@@ -172,9 +176,11 @@ class Parameter:
         :param min_value: assumed minimal value
         :param max_value: assumed maximal value
         :param max_increment: step size required for some optimisation
-            algorithms
+        algorithms
         :param output_float_precision: number of decimal positions places after
             the decimal sign for floats
+        :param evaluate_value: string which contains the expression to be evaluated
+            when replacing the placeholder
         """
         self.name = name
         self.units = units
@@ -191,6 +197,15 @@ class Parameter:
         self.distribution = distribution
         self.max_increment = max_increment
         self.output_float_precision = output_float_precision
+
+        self.output_float_precision = output_float_precision
+
+        self.evaluate_value = evaluate_value
+        self.derived = False
+        self.evaluated = None
+        if self.evaluate_value is not None:
+            self.derived = True
+            self.evaluated = False
 
     def create_spotpy_parameter(self):
         pass
@@ -217,6 +232,8 @@ class Parameter:
         if self.units:
             res += ", units: {}".format(self.units)
         res += ", value: {}".format(self.value)
+        if self.derived:
+            res += ", evaluation string: {}".format(self.evaluate_value)
         return res
 
 
@@ -273,6 +290,8 @@ class ParameterSet:
                 if my.name == ot.name:
                     my.value = ot.value
 
+        self.evaluate_derived_parameters()
+
     def __len__(self) -> int:
         """
         Return the length of the parameter set.
@@ -295,6 +314,91 @@ class ParameterSet:
                 sys.exit(1)
 
         self.parameters.append(copy.deepcopy(p))
+
+    def reset_derived_parameter(self):
+        """
+        Reset all derived parameters.
+        """
+        for p in self.parameters:
+            if p.derived:
+                p.evaluated = False
+
+    def evaluate_derived_parameters(self):
+        """
+        Evaluate all derived parameters.
+        """
+
+        # loop over all parameters to be derived, as long as there is progress, i.e. progress=True
+        # if progress is false and parameters are not evaluated, not all dependencies have been
+        # resolved
+
+        self.reset_derived_parameter()
+
+        progress = True
+        while progress:
+            progress = False
+            # dumb loop over all parameters in this set
+            for p in self.parameters:
+
+                # consider only derived parameters and not yet evaluated ones
+                if not p.derived:
+                    continue
+                elif p.evaluated:
+                    continue
+
+                # this dict will contain the parameters needed to evaluate the expression
+                local_vars = {}
+
+                print(f'Evaluating variable {p.name}, as {p.evaluate_value}')
+                code = ast.parse(p.evaluate_value)
+
+                skip_evaluation = False
+                for node in ast.walk(code):
+                    if type(node) is ast.Name:
+                        var_name = node.id
+                        print(f'  found required variable {var_name}')
+                        p_index = self.get_index_by_name(var_name)
+                        if p_index is None:
+                            # Raise ERROR
+                            print(f"ERROR, required parameter for variable {var_name} not found")
+                            sys.exit(1)
+                            return None
+                        cp = self.parameters[p_index]
+                        print(f'  found matching parameter {cp}')
+                        if cp.derived and not cp.evaluated:
+                            print(f'   skipping not evalued parameter {cp}')
+                            skip_evaluation = True
+                        local_vars[var_name] = self.parameters[p_index].value
+
+                if not skip_evaluation:
+                    result = eval(p.evaluate_value, local_vars)
+                    print(f'  resulting value {result}')
+                    p.value = float(result)
+                    p.evaluated = True
+                    progress = True
+
+        for p in self.parameters:
+            if p.evaluated == False:
+                # Raise ERROR
+                print(f"ERROR, not all parameters could be evaluated, one of them is {p}")
+                sys.exit(1)
+
+        return None
+
+
+    def get_index_by_name(self, name: str):
+        """
+        Returns parameter index which matches a given name.
+
+        :param name: selects the index of the chosen Parameter
+        :return: selected Parameter object
+        """
+
+        for i in range(len(self.parameters)):
+            if self.parameters[i].name == name:
+                return i
+
+        return None
 
     def __getitem__(self, item: int) -> Parameter:
         """
@@ -329,6 +433,16 @@ def test_parameter_setup():
 
     print(ps)
 
+def evaluate_parameters_test():
+    ps = ParameterSet("evaluation test")
+    ps.append(Parameter("density", value=5.6))
+    ps.append(Parameter("heat_flux", value=25))
+    ps.append(Parameter("my_value", evaluate_value='my_fraction ** 2'))
+    ps.append(Parameter("my_fraction", evaluate_value='density * heat_flux'))
+
+    ps.evaluate_derived_parameters()
+
+    print(ps)
 
 ##################
 # RELATION CLASSES
@@ -460,7 +574,23 @@ class Relation:
             data[ds.label_x].dropna().values[-1],
             data[ds.label_y].dropna().values[-1]))
 
-        # assign data from file to data source arrays
+        # Get all header labels from the data frame.
+        headers = list(data)
+        # Check if the header labels from the input match with existing headers.
+        msg = "* Wrong header: '{}' not found in {}"
+        if ds.label_x not in headers:
+            logging.error(msg.format(ds.label_x, in_file))
+            sys.exit()
+        elif ds.label_y not in headers:
+            logging.error(msg.format(ds.label_y, in_file))
+            sys.exit()
+
+        logging.debug("* Size of read data: {}".format(data.shape))
+        logging.debug("* Last data values: x={}, y={}".format(
+            data[ds.label_x].dropna().values[-1],
+            data[ds.label_y].dropna().values[-1]))
+
+        # Assign data from file to data source arrays.
         ds.x = data[ds.label_x].dropna().values * ds.xfactor + ds.xoffset
         ds.y = data[ds.label_y].dropna().values * ds.yfactor + ds.yoffset
 
@@ -881,7 +1011,7 @@ def data_structure_tests():
     # test_simulation_setup_setup()
     test_read_map_data()
 
-
 # run tests if executed
 if __name__ == "__main__":
-    data_structure_tests()
+    # data_structure_tests()
+    evaluate_parameters_test()
