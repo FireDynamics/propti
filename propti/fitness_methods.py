@@ -38,7 +38,7 @@ class FitnessMethodRMSE(FitnessMethodInterface):
         if self.scale_fitness == 'mean' or self.scale_fitness == True:
             return rmse / np.abs(np.mean(y_e_mapped))
         elif self.scale_fitness == 'minmax':
-            return rmse / np.abs(y_e_mapped[-1] - y_e_mapped[0])
+            return rmse / np.abs(np.max(y_e_mapped) - np.min(y_e_mapped))
         elif self.scale_fitness == 'interquartile':
             return rmse
         else:
@@ -79,7 +79,7 @@ class FitnessMethodRangeRMSE(FitnessMethodInterface):
         if self.scale_fitness == 'mean' or self.scale_fitness == True:
             return rmse / np.abs(np.mean(y_e_mapped))
         elif self.scale_fitness == 'minmax':
-            return rmse / np.abs(y_e_mapped[-1] - y_e_mapped[0])
+            return rmse / np.abs(np.max(y_e_mapped) - np.min(y_e_mapped))
         elif self.scale_fitness == 'interquartile':
             return rmse
         else:
@@ -117,7 +117,7 @@ class FitnessMethodBandRMSE(FitnessMethodInterface):
         if self.scale_fitness == 'mean' or self.scale_fitness == True:
             return rmse / np.abs(np.mean(y_e_mapped))
         elif self.scale_fitness == 'minmax':
-            return rmse / np.abs(y_e_mapped[-1] - y_e_mapped[0])
+            return rmse / np.abs(np.max(y_e_mapped) - np.min(y_e_mapped))
         elif self.scale_fitness == 'interquartile':
             return rmse
         else:
