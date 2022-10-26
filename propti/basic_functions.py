@@ -8,6 +8,7 @@ import subprocess
 import logging
 import queue
 import threading
+import datetime
 import numpy as np
 
 from .data_structures import Parameter, ParameterSet, SimulationSetup, \
@@ -77,11 +78,20 @@ def fill_place_holder(tc: str, paras: ParameterSet) -> str:
     res = tc
     if paras is not None:
         for p in paras:
+
+            if p.place_holder is None:
+                continue
+
+            if p.derived and not p.evaluated:
+                logging.error("* Parameter not evaluated: ", p)
+                sys.exit()
+
             if type(p.value) == float or \
                     type(p.value) == np.float64 or \
                     type(p.value) == np.float32:
                 res = res.replace("#" + p.place_holder + "#",
-                                  "{:.{}E}".format(p.value, p.output_float_precision))
+                                  "{:.{}E}".format(p.value,
+                                                   p.output_float_precision))
             else:
                 res = res.replace("#" + p.place_holder + "#", str(p.value))
     else:
@@ -142,14 +152,20 @@ def run_simulations(setups: SimulationSetupSet,
     :param best_para_run: flag to switch to simulating the best parameter set
     :return: None
     """
+
+    # Get system time now, for debug output.
+    time_now = datetime.datetime.now()
+
     if num_subprocesses == 1:
-        logging.info('serial model execution started')
+        msg_serial = '* Serial model execution started, at: {}'
+        logging.info(msg_serial.format(time_now))
         for s in setups:
             logging.info('start execution of simulation setup: {}'
                          .format(s.name))
             run_simulation_serial(s, best_para_run)
     else:
-        logging.info('multi process execution started')
+        msg_multiprocess = '* Multi process execution started, at: {}'
+        logging.info(msg_multiprocess.format(time_now))
         run_simulation_mp(setups, num_subprocesses)
 
 
@@ -174,7 +190,6 @@ def run_simulation_serial(setup: SimulationSetup,
     subprocess.check_call(cmd, shell=True,
                           stdout=log_file, stderr=log_file)
     log_file.close()
-
 
 
 def run_simulation_mp(setups: SimulationSetupSet, num_threads:int = 1):
@@ -228,7 +243,8 @@ def extract_simulation_data(setup: SimulationSetup):
     # TODO: this is not general, but specific for FDS, i.e. first
     # TODO: line contains units, second the quantities names
 
-    logging.debug("execution directory: {}".format(setup.execution_dir))
+    msg = "* From 'extract_simulation_data': execution directory: {}"
+    logging.debug(msg.format(setup.execution_dir))
 
     if os.path.exists(os.path.join(setup.execution_dir, 'wct.csv')):
         wct_file = open(os.path.join(setup.execution_dir, 'wct.csv'))
@@ -237,7 +253,12 @@ def extract_simulation_data(setup: SimulationSetup):
         logging.debug("WCT info: {}".format(line))
 
     for r in setup.relations:
+        msg = "* From 'extract_simulation_data': Relation ID: {}"
+        logging.debug(msg.format(r.id_label))
         r.read_data(setup.execution_dir)
+
+    msg = "* From 'extract_simulation_data': Finished reading data."
+    logging.debug(msg)
 
 
 def map_data(x_def, x, y):
