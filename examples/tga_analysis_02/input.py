@@ -104,7 +104,7 @@ for i in range(len(HeatingRatesTGA)):
 
     # Define definition set for data comparison. Basically providing the
     # amount of data points in x-axis.
-    relation.fitness_method=pr.FitnessMethodRMSE(n_points=(TEND/12))
+    relation.fitness_method=pr.FitnessMethodRMSE(n_points=int(TEND/12))
 
     # Collect the different relations.
     r.append(relation)

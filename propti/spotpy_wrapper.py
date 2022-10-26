@@ -28,6 +28,7 @@ class SpotpySetup(object):
         self.params = params
         self.optimiser = optimiser
         self.spotpy_parameter = []
+        self.j=0
 
         for p in params:
             logging.debug("Setup SPOTPY parameter: {}".format(p.name))
@@ -104,12 +105,13 @@ class SpotpySetup(object):
                 current_fitness = r.fitness_weight * r.compute_fitness()
                 global_fitness_value += current_fitness
                 individual_fitness_values.append(current_fitness)
-
-        # First element of returned list is the global fitness value.
-        # Note: in general this should be the simulation data, which is returned
-        # due to our data structure, the passing of the fitness values,
-        # i.e. result of the objective function is most convenient approach here
-        return [global_fitness_value] + individual_fitness_values
+        self.j+=1
+        # first element of returned list is the global fitness value
+        # note: in general this should be the simulation data, which is returned
+        # due to our data structure, the passing of the fitness values, i.e. result
+        # of the objective function, is most convenient approach here
+        # last element of the list counts the number of executed simulations
+        return [global_fitness_value] + individual_fitness_values + [self.j]
 
     def evaluation(self):
         logging.debug("* evaluation")
