@@ -162,7 +162,8 @@ class Parameter:
                  max_value: float = None,
                  max_increment: float = None,
                  output_float_precision: int = 6,
-                 evaluate_value: str = None):
+                 evaluate_value: str = None,
+                 evaluate_dict: dict = None):
         """
         Constructor.
         :param name: name of parameter
@@ -181,6 +182,8 @@ class Parameter:
             the decimal sign for floats
         :param evaluate_value: string which contains the expression to be evaluated
             when replacing the placeholder
+        :param evaluate_dict: dictionary which contains variables provided to the 
+            evaluate function
         """
         self.name = name
         self.units = units
@@ -201,6 +204,7 @@ class Parameter:
         self.output_float_precision = output_float_precision
 
         self.evaluate_value = evaluate_value
+        self.evaluate_dict = evaluate_dict
         self.derived = False
         self.evaluated = None
         if self.evaluate_value is not None:
@@ -357,6 +361,10 @@ class ParameterSet:
                     if type(node) is ast.Name:
                         var_name = node.id
                         print(f'  found required variable {var_name}')
+                        if p.evaluate_dict:
+                            if var_name in p.evaluate_dict:
+                                print(f'    variable provided by user {var_name}={p.evaluate_dict[var_name]}')
+                                continue
                         p_index = self.get_index_by_name(var_name)
                         if p_index is None:
                             # Raise ERROR
@@ -371,7 +379,10 @@ class ParameterSet:
                         local_vars[var_name] = self.parameters[p_index].value
 
                 if not skip_evaluation:
-                    result = eval(p.evaluate_value, local_vars)
+                    combined_vars = local_vars
+                    if p.evaluate_dict:
+                        combined_vars = combined_vars | p.evaluate_dict
+                    result = eval(p.evaluate_value, combined_vars)
                     print(f'  resulting value {result}')
                     p.value = float(result)
                     p.evaluated = True
@@ -434,6 +445,9 @@ def test_parameter_setup():
     print(ps)
 
 def evaluate_parameters_test():
+
+    print("TEST: evaluate value")
+    
     ps = ParameterSet("evaluation test")
     ps.append(Parameter("density", value=5.6))
     ps.append(Parameter("heat_flux", value=25))
@@ -443,6 +457,30 @@ def evaluate_parameters_test():
     ps.evaluate_derived_parameters()
 
     print(ps)
+
+    print("END TEST\n")
+
+def evaluate_parameters_dict_test():
+
+    print("TEST: evaluate value dict")
+
+    def combine_values(a, b):
+        return a * b
+
+    eval_dict = {'combine_values': combine_values, 'my_const': 42}
+
+    ps = ParameterSet("dict evaluation test")
+    ps.append(Parameter("density", value=2))
+    ps.append(Parameter("heat_flux", value=5))
+    ps.append(Parameter("my_value", 
+        evaluate_value = 'combine_values(density, heat_flux) * my_const',
+        evaluate_dict=eval_dict))
+
+    ps.evaluate_derived_parameters()
+
+    print(ps)
+
+    print("END TEST\n")
 
 ##################
 # RELATION CLASSES
@@ -1015,3 +1053,4 @@ def data_structure_tests():
 if __name__ == "__main__":
     # data_structure_tests()
     evaluate_parameters_test()
+    evaluate_parameters_dict_test()
