@@ -381,7 +381,7 @@ class ParameterSet:
                 if not skip_evaluation:
                     combined_vars = local_vars
                     if p.evaluate_dict:
-                        combined_vars = combined_vars | p.evaluate_dict
+                        combined_vars = dict(combined_vars.items() | p.evaluate_dict.items())
                     result = eval(p.evaluate_value, combined_vars)
                     print(f'  resulting value {result}')
                     p.value = float(result)
