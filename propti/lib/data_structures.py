@@ -11,7 +11,7 @@ import spotpy
 from .fitness_methods import FitnessMethodInterface
 from typing import Union
 
-import propti as pr
+from .. import lib as pr
 
 from typing import List
 

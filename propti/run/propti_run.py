@@ -5,7 +5,7 @@ import copy
 import pandas as pd
 import shutil as sh
 import pickle
-import propti as pr
+from .. import lib as pr
 import logging
 import argparse
 

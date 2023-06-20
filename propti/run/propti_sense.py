@@ -1,9 +1,8 @@
 import numpy as np
-import propti as pr
 
 import pickle
 
-import propti as pr
+from .. import lib as pr
 
 import logging
 

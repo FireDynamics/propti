@@ -4,7 +4,7 @@ import sys
 import shutil as sh
 import logging
 
-import propti as pr
+from .. import lib as pr
 
 import statistics as stat
 import numpy as np

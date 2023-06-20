@@ -5,7 +5,7 @@ Created on Wed Nov 30 15:39:13 2016
 @author: thehnen; based on a script from belt
 """
 
-import propti as pr
+from .. import lib as pr
 import numpy as np
 import pandas as pd
 import scipy.signal as sign
