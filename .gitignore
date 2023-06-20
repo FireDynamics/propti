@@ -7,3 +7,6 @@
 .idea/modules.xml
 .idea/workspace.xml
 .idea/propti.iml
+__pycache__
+build/
+propti.egg-info/
