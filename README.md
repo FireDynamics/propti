@@ -20,6 +20,16 @@ Basic functionality for data analysis of the inverse modelling process is provid
 
 Documentation is provided in [Wiki](https://github.com/FireDynamics/propti/wiki). The folder 'examples' contains application examples tested with FDS version 6.7. 
 
+## Building the Package from Source
+
+In the event that you have obtained this package directly from the repository, you can build it by executing the following commands:
+```bash
+python setup.py
+pip install --upgrade dist/propti-[version number].tar.gz
+# alternatively
+pip install --upgrade .
+```
+
 ## Citation
 
 PROPTI is listed to ZENODO to get Data Object Identifiers (DOI) and allow for citations in scientific papers. You can find the necessary information here: 
