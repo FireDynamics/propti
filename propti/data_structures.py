@@ -1002,6 +1002,97 @@ def test_simulation_setup_setup():
 
     print(sss)
 
+###############
+# SAMPLER CLASS
+class Sampler:
+    """
+    Stores sampler parameters and provides sampling schemes.
+    """
+
+    def __init__(self,
+                 algorithm: str = 'LHS',
+                 nsamples: int = 12,
+                 deterministic: bool = False,
+                 seed: int = None,
+                 db_name: str = 'propti_db',
+                 db_type: str = 'csv',
+                 db_precision=np.float64):
+        """
+        Constructor.
+        :param algorithm: choose sampling algorithm, default: LHS,
+            range: [LHS]
+        :param nsamples: number of samples, default: 12
+        :param deterministic: If possible, use a deterministic sampling,
+            default: false
+        :param seed: If possible, set the seed for the random number generator, 
+            default: None
+        :param db_name: name of spotpy database file, default: propti_db
+        :param db_type: type of database, default: csv, range: [csv]
+        :param db_precision: desired precision of the values to be written into
+            the data base, default: np.float64
+        """
+        self.algorithm = algorithm
+        self.nsamples = nsamples
+        self.deterministic = deterministic
+        self.seed = seed
+        self.db_name = db_name
+        self.db_type = db_type
+        self.db_precision = db_precision
+
+    def __str__(self) -> str:
+        """
+        Pretty print of (major) class values
+        :return: string
+        """
+
+        return "\nsampler properties\n" \
+               "--------------------\n" \
+               "alg: {}\nsamples: {}\ndeterministic: {}\nseed: {}" \
+               "\ndb_name: {}\ndb_type: {}" \
+               "\ndb_precision: {}\n".format(self.algorithm,
+                                            self.nsamples,
+                                            self.deterministic,
+                                            self.seed,
+                                            self.db_name,
+                                            self.db_type,
+                                            self.db_precision)
+
+    def create_sample_set(self, params: ParameterSet) -> List[ParameterSet]:
+        if self.algorithm == 'LHS':
+            logging.info("Using LHS sampler")
+            import scipy.stats
+
+
+
+            bounds_low = []
+            bounds_high = []
+            param_name = []
+            for p in params:
+                print(p)
+                if p.value is None:
+                    print(  p.min_value, p.max_value)
+                    bounds_low.append(p.min_value)
+                    bounds_high.append(p.max_value)
+                    param_name.append(p.name)
+
+            sample_dim = len(bounds_low)
+
+            sampler = scipy.stats.qmc.LatinHypercube(d = sample_dim)
+            sample_raw = sampler.random(self.nsamples)
+            sample_scaled = scipy.stats.qmc.scale(sample_raw, l_bounds=bounds_low, u_bounds=bounds_high)
+
+            sampling_set = []
+            sampling_index = 0
+            for ps in sample_scaled:
+                new_sample = ParameterSet(name=f"sample_{sampling_index:06d}", params=params)
+                sampling_index += 1
+                for ip in range(sample_dim):
+                    new_sample[new_sample.get_index_by_name(param_name[ip])].value = ps[ip]
+                sampling_set.append(new_sample)
+
+            return sampling_set
+
+        logging.critical("No maching sampler algorithm found.")
 
 ######
 # MAIN

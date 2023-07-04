@@ -32,7 +32,7 @@ def create_input_file(setup: SimulationSetup, work_dir='execution'):
     #
     # small test
     if work_dir == 'execution':
-        wd = setup.execution_dir
+        wd = os.path.join(setup.execution_dir_prefix, setup.execution_dir)
     elif work_dir == 'best':
         wd = setup.best_dir
     #
