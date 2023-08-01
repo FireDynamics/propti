@@ -24,7 +24,7 @@ Documentation is provided in [Wiki](https://github.com/FireDynamics/propti/wiki)
 
 In the event that you have obtained this package directly from the repository, you can build it by executing the following commands:
 ```bash
-python setup.py
+python setup.py sdist
 pip install --upgrade dist/propti-[version number].tar.gz
 # alternatively
 pip install --upgrade .
