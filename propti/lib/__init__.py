@@ -41,8 +41,8 @@ logging.getLogger('').addHandler(console)
 from .spotpy_wrapper import run_optimisation, create_input_file
 from .data_structures import Parameter, ParameterSet, \
     SimulationSetupSet, SimulationSetup, Relation, DataSource, \
-    OptimiserProperties, Version
-from .basic_functions import run_simulations
+    OptimiserProperties, Version, Sampler
+from .basic_functions import run_simulations, get_save_path
 from .propti_post_processing import run_best_para
 
 from .propti_monitor import plot_scatter, plot_scatter2, \
