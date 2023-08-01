@@ -2,7 +2,11 @@ import sys
 import logging
 import numpy as np
 
-from mpi4py import MPI
+try:
+    from mpi4py import MPI
+except:
+    logging.warning("mpi4py is not installed")
+    pass
 
 
 class FitnessMethodInterface:
