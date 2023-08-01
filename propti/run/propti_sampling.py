@@ -7,11 +7,13 @@ import pandas as pd
 import shutil as sh
 import scipy
 
-import propti as pr
+from .. import lib as pr
 
 import logging
 
 import argparse
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument("input_file", type=str,
                     help="python input file containing parameters and "
@@ -20,9 +22,10 @@ parser.add_argument("--root_dir", type=str,
                     help="root directory for sampling process", default='.')
 cmdl_args = parser.parse_args()
 
-setups = None  # type: pr.SimulationSetupSet
-params = None  # type: pr.ParameterSet
-sampler = None  # type: pr.Sampler
+setups: pr.SimulationSetupSet = None
+params: pr.ParameterSet = None
+sampler: pr.Sampler = None
+
 
 input_file = cmdl_args.input_file
 
@@ -42,19 +45,19 @@ logging.info("input file directory: {}".format(input_file_directory))
 
 
 # TODO: put the following lines into a general function (basic_functions.py)?
-for s in setups:
+for simulation in setups:
 
-    cdir = os.path.join(cmdl_args.root_dir, s.work_dir)
+    cdir = os.path.join(cmdl_args.root_dir, simulation.work_dir)
 
     # create work directories
     if not os.path.exists(cdir):
         os.mkdir(cdir)
 
     # copy model template
-    sh.copy(os.path.join(input_file_directory, s.model_template), cdir)
+    sh.copy(os.path.join(input_file_directory, simulation.model_template), cdir)
 
-    s.model_template = os.path.join(cdir, os.path.basename(s.model_template))
-
+    simulation.model_template = os.path.join(cdir, os.path.basename(simulation.model_template))
+    simulation.model_input_file = os.path.basename(simulation.model_template)
     # TODO Sampler: add comparison capability 
     # # copy all experimental data
     # # TODO: Re-think the copy behaviour. If file is identical, just keep one
@@ -66,8 +69,8 @@ for s in setups:
 
 # check for potential non-unique model input files
 in_file_list = []
-for s in setups:
-    tpath = os.path.join(s.work_dir, s.model_input_file)
+for simulation in setups:
+    tpath = os.path.join(simulation.work_dir, simulation.model_input_file)
     logging.debug("check if {} is in {}".format(tpath, in_file_list))
     if tpath in in_file_list:
         logging.error("non unique module input file path: {}".format(tpath))
@@ -78,18 +81,19 @@ logging.info(setups)
 logging.info(params)
 logging.info(sampler)
 
-for s in setups:
-    os.mkdir(s.execution_dir_prefix)
-    sample_set = sampler.create_sample_set(s.model_parameter)
+for simulation in setups:
+    os.makedirs(simulation.execution_dir_prefix,exist_ok=True)
+    sample_set = sampler.create_sample_set(simulation.model_parameter)
 
-    para_table_file = open(os.path.join(s.execution_dir_prefix, 'sample_table.csv'), 'w')
+    para_table_file = open(os.path.join(simulation.execution_dir_prefix, 'sample_table.csv'), 'w')
+    para_table_file.write("#file_name = {}\n".format(os.path.basename(simulation.model_template)))
 
     line_name = "# NAME  -  index"
     line_min = f"# MIN   - {0:6d}"
     line_max = f"# MAX   - {sampler.nsamples-1:6d}"
     lines_consts = ""
     next_tabs = 1
-    for p in s.model_parameter:
+    for p in simulation.model_parameter:
         if p.max_value is None or p.min_value is None:
             lines_consts += f"# CONST - {p.name} = {p.value}\n"
             continue
@@ -109,17 +113,18 @@ for s in setups:
     for sample in sample_set:
         logging.debug(f"  {sample}")
 
-        line = f"\t\t{sample_index:6d}"
+        line = f"\t\t{sample_index:06d}"
         for p in sample:
             if p.max_value is None or p.min_value is None:
                 continue
-            line += ',\t' + f"{p.value:.6e}"
+            else:
+                line += ',\t' + f"{p.value:.6e}"
         para_table_file.write(line + '\n')
 
-        tmp_simulation_setup = typing.cast(pr.SimulationSetup, copy.deepcopy(s))
+        tmp_simulation_setup = typing.cast(pr.SimulationSetup, copy.deepcopy(simulation))
         tmp_simulation_setup.model_parameter = sample
         tmp_simulation_setup.execution_dir = sample.name
-        os.mkdir(os.path.join(tmp_simulation_setup.execution_dir_prefix, tmp_simulation_setup.execution_dir))
+        os.makedirs(os.path.join(tmp_simulation_setup.execution_dir_prefix, tmp_simulation_setup.execution_dir), exist_ok=True)
         pr.create_input_file(tmp_simulation_setup)
 
         sample_index += 1

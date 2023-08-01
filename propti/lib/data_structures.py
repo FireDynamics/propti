@@ -1021,7 +1021,7 @@ class Sampler:
         """
         Constructor.
         :param algorithm: choose sampling algorithm, default: LHS,
-            range: [LHS]
+            range: [LHS,LINEAR]
         :param nsamples: number of samples, default: 12
         :param deterministic: If possible, use a deterministic sampling,
             default: false
@@ -1069,12 +1069,12 @@ class Sampler:
             bounds_high = []
             param_name = []
             for p in params:
-                print(p)
                 if p.value is None:
                     print(  p.min_value, p.max_value)
                     bounds_low.append(p.min_value)
                     bounds_high.append(p.max_value)
                     param_name.append(p.name)
+
 
             sample_dim = len(bounds_low)
 
@@ -1086,11 +1086,30 @@ class Sampler:
             sampling_index = 0
             for ps in sample_scaled:
                 new_sample = ParameterSet(name=f"sample_{sampling_index:06d}", params=params)
-                sampling_index += 1
                 for ip in range(sample_dim):
                     new_sample[new_sample.get_index_by_name(param_name[ip])].value = ps[ip]
+                
                 sampling_set.append(new_sample)
+                sampling_index += 1
 
+            return sampling_set
+        if self.algorithm == "LINEAR":
+            logging.info("Using LINEAR sampler")
+            n = self.nsamples
+            sampling_set = []
+            sampling_index = 0
+            for i in range(n):
+                if n > 1:
+                    f = i/(n-1)
+                else:
+                    f = 0
+                new_sample = ParameterSet(name=f"sample_{sampling_index:06d}", params=params)
+                for p in new_sample:
+                    if p.value == None:
+                        p.value = p.min_value + (p.max_value - p.min_value) * f
+
+                sampling_set.append(new_sample)
+                sampling_index += 1
             return sampling_set
 
         logging.critical("No maching sampler algorithm found.")
