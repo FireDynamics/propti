@@ -1,14 +1,15 @@
 import os
 import setuptools
-import propti
 
 base_dir = os.path.dirname(os.path.realpath(__file__))
 with open(os.path.join(base_dir, "README.md"), 'r', encoding="utf-8") as f:
     long_description = f.read()
+with open(os.path.join(base_dir, "propti", "__init__.py"), 'r', encoding="utf-8") as f:
+    version = f.readline().split("=")[-1].strip()[1:-1]
 
 setuptools.setup(
     name="propti",
-    version=propti.__version__,
+    version=version,
     #TODO #author=
     #TODO #author_email=
     description="PROPTI is an interface tool that couples simulation models with algorithms to solve the inverse problem of material parameter estimation in a modular way. It is designed with flexibility in mind and can communicate with arbitrary algorithm libraries and simulation models. Furthermore, it provides basic means of pre- and post-processing.",
@@ -22,7 +23,8 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.0',
-    package_dir={"propti": "propti"},
+    #package_dir={"propti": "propti/"},
+    packages = ["propti", "propti/lib", "propti/run"],
     install_requires=
         [
             "numpy",
@@ -30,11 +32,11 @@ setuptools.setup(
             "scipy",
             "pandas",
             "spotpy",
-            "mpi4py",
+            #"mpi4py", This should be optional since it is not possible to install on every system with out root
         ],
     entry_points={
         'console_scripts': [
-            'propti = propti:main',
+            'propti = propti.__main__:main',
         ]
     }
 )
