@@ -37,6 +37,13 @@ s = pr.SimulationSetup(name='cone_pmma',
 
 setups.append(s)
 
-# use default values for optimiser
-sampler = pr.Sampler(algorithm='LHS',
-                     nsamples=10)
+nsamples = 5
+sampler = pr.Sampler(algorithm='LINEAR',
+                     nsamples=nsamples)
+time = []
+for i in range(nsamples):
+    time.append(f"0-00:1{i}:00")
+job = pr.Job(template="fds", parameter=[
+    ("CHID",CHID),
+    ("TIME",time), 
+    ("NODES","1")])
