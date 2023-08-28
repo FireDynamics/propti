@@ -17,9 +17,23 @@ from .data_structures import Parameter, ParameterSet, SimulationSetup, \
 
 #####################
 # INPUT FILE HANDLING
+def get_save_path(setup: SimulationSetup, work_dir='execution'):
+    """
+
+    :param setup: specification of  SimulationSetup on which to base the
+        simulation run
+    :param work_dir: flag to indicate if the regular execution of the function
+        (in the sense of inverse modeling) is wanted or if only a simulation
+        of the best parameter set is desired, range:['execution', 'best']
+    :return: save path of the simulation
+    """
+    if work_dir == 'execution':
+        wd = os.path.join(setup.execution_dir_prefix, setup.execution_dir)
+    elif work_dir == 'best':
+        wd = setup.best_dir
+    return os.path.join(wd, setup.model_input_file)
 
 def create_input_file(setup: SimulationSetup, work_dir='execution'):
-
     """
 
     :param setup: specification of  SimulationSetup on which to base the
@@ -29,17 +43,11 @@ def create_input_file(setup: SimulationSetup, work_dir='execution'):
         of the best parameter set is desired, range:['execution', 'best']
     :return: Saves a file that is read by the simulation software as input file
     """
-    #
-    # small test
-    if work_dir == 'execution':
-        wd = setup.execution_dir
-    elif work_dir == 'best':
-        wd = setup.best_dir
-    #
-    #
+
+    save_path = get_save_path(setup, work_dir)
 
     # Log the set working directory
-    logging.debug(wd)
+    logging.debug(save_path)
 
     in_fn = setup.model_template
     template_content = read_template(in_fn)
@@ -51,9 +59,7 @@ def create_input_file(setup: SimulationSetup, work_dir='execution'):
 
     logging.debug(input_content)
 
-    out_fn = os.path.join(wd, setup.model_input_file)
-
-    write_input_file(input_content, out_fn)
+    write_input_file(input_content, save_path)
 
 
 def write_input_file(content: str, filename: os.path):

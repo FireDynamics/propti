@@ -7,13 +7,13 @@ import sys
 import copy
 import shutil
 
-import propti.basic_functions as pbf
 
 # import matplotlib.pyplot as plt
 
-import propti as pr
-import propti.propti_monitor as pm
-import propti.propti_post_processing as ppm
+from .. import lib as pr
+from ..lib import basic_functions as pbf
+from ..lib import propti_monitor as pm
+from ..lib import propti_post_processing as ppm
 
 
 parser = argparse.ArgumentParser()

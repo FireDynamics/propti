@@ -12,7 +12,7 @@ import shutil as sh
 import logging
 import subprocess
 
-import propti as pr
+from .. import lib as pr
 
 import numpy as np
 import pandas as pd

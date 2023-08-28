@@ -6,14 +6,14 @@ import ast
 import numpy as np
 import pandas as pd
 import subprocess
-from typing import Union
 import spotpy
 from .fitness_methods import FitnessMethodInterface
+
+from .. import lib as pr
+
 from typing import Union
-
-import propti as pr
-
 from typing import List
+from typing import Tuple
 
 # Reads the script's location. Used to access the propti version number from the
 # git repo.
@@ -1002,6 +1002,225 @@ def test_simulation_setup_setup():
 
     print(sss)
 
+
+###############
+# SAMPLER CLASS
+class Sampler:
+    """
+    Stores sampler parameters and provides sampling schemes.
+    """
+
+    def __init__(self,
+                 algorithm: str = 'LHS',
+                 nsamples: int = 12,
+                 deterministic: bool = False,
+                 seed: int = None,
+                 db_name: str = 'propti_db',
+                 db_type: str = 'csv',
+                 db_precision=np.float64):
+        """
+        Constructor.
+        :param algorithm: choose sampling algorithm, default: LHS, range: [LHS,LINEAR]
+        :param nsamples: number of samples, default: 12
+        :param deterministic: If possible, use a deterministic sampling, default: false
+        :param seed: If possible, set the seed for the random number generator, default: None
+        :param db_name: name of spotpy database file, default: propti_db
+        :param db_type: type of database, default: csv, range: [csv]
+        :param db_precision: desired precision of the values to be written into the data base, default: np.float64
+        """
+        self.algorithm = algorithm
+        self.nsamples = nsamples
+        self.deterministic = deterministic
+        self.seed = seed
+        self.db_name = db_name
+        self.db_type = db_type
+        self.db_precision = db_precision
+
+    def __str__(self) -> str:
+        """
+        Pretty print of (major) class values
+        :return: string
+        """
+
+        return "\nsampler properties\n" \
+               "--------------------\n" \
+               "alg: {}\nsamples: {}\ndeterministic: {}\nseed: {}" \
+               "\ndb_name: {}\ndb_type: {}" \
+               "\ndb_precision: {}\n".format(self.algorithm,
+                                            self.nsamples,
+                                            self.deterministic,
+                                            self.seed,
+                                            self.db_name,
+                                            self.db_type,
+                                            self.db_precision)
+
+    def create_sample_set(self, params: ParameterSet) -> List[ParameterSet]:
+        if self.algorithm == 'LHS':
+            logging.info("Using LHS sampler")
+            import scipy.stats
+
+
+
+            bounds_low = []
+            bounds_high = []
+            param_name = []
+            for p in params:
+                if p.value is None:
+                    print(  p.min_value, p.max_value)
+                    bounds_low.append(p.min_value)
+                    bounds_high.append(p.max_value)
+                    param_name.append(p.name)
+
+
+            sample_dim = len(bounds_low)
+
+            sampler = scipy.stats.qmc.LatinHypercube(d = sample_dim)
+            sample_raw = sampler.random(self.nsamples)
+            sample_scaled = scipy.stats.qmc.scale(sample_raw, l_bounds=bounds_low, u_bounds=bounds_high)
+
+            sampling_set = []
+            sampling_index = 0
+            for ps in sample_scaled:
+                new_sample = ParameterSet(name=f"sample_{sampling_index:06d}", params=params)
+                for ip in range(sample_dim):
+                    new_sample[new_sample.get_index_by_name(param_name[ip])].value = ps[ip]
+                
+                sampling_set.append(new_sample)
+                sampling_index += 1
+
+            return sampling_set
+        if self.algorithm == "LINEAR":
+            logging.info("Using LINEAR sampler")
+            n = self.nsamples
+            sampling_set = []
+            sampling_index = 0
+            for i in range(n):
+                if n > 1:
+                    f = i/(n-1)
+                else:
+                    f = 0
+                new_sample = ParameterSet(name=f"sample_{sampling_index:06d}", params=params)
+                for p in new_sample:
+                    if p.value == None:
+                        p.value = p.min_value + (p.max_value - p.min_value) * f
+
+                sampling_set.append(new_sample)
+                sampling_index += 1
+            return sampling_set
+
+        logging.critical("No maching sampler algorithm found.")
+
+
+##############
+# JOB CLASS
+class Job:
+    """
+    Class for storing all relevant job parameter, including
+    - scheduler: wich scheduler should be used e.g. slurm
+    - template: the path to the template
+    - parameters: wich placeholder should be changed in the template
+    """
+
+    def __init__(self, scheduler: str = "slurm", template: str = "#fds", parameter = []) -> None:
+        """
+        Constructor.
+        :param scheduler: choose scheduler, default: slurm, range: [slurm]
+        :param template: path to a template or a default starting with '#', default: #fds, range: [#fds]
+        :param parameter: list of parameter to replace, default: []
+
+        parameter can be constructed in different ways:
+        - str:          the string is replaced by the created value from the sampler  
+        - (str, str):   the first string is replaced by the second string  
+        - (str, [str]): the first string is replaced by the string inside the list indexed by the sample index  
+        """
+        self.scheduler = scheduler
+        self.template = template
+        self.parameter = parameter
+        pass
+
+    def __str__(self) -> str:
+        """
+        Pretty print of (major) class values
+        :return: str
+        """
+
+        template_text = None
+        if self.template.startswith("#"):
+            template_text = f"default '{self.template[1:]}'"
+        else:
+            template_text = f"'{self.template}'"
+
+        parameter_text = ""
+        for p in self.parameter:
+            if type(p) == str:
+                parameter_text += f"\t'{p}': auto\n"
+            else:
+                (name, value) = p
+                if type(value) == str:
+                    parameter_text += f"\t'{name}' = {value}\n"
+                else:
+                    parameter_text += f"\t'{name}' = \n"
+                    for (i, item) in enumerate(value):
+                        parameter_text += f"\t   {i}:\t{item}\n"
+
+
+        text =  "\nsampler properties\n" \
+                "--------------------\n" \
+               f"scheduler: {self.scheduler}\n"\
+               f"template: {template_text}\n" \
+               f"parameters: \n{parameter_text}"\
+                
+        return text
+
+    def create_jobs(self, execution_dirs: List[str], parameter_sets: List[ParameterSet]):
+        """
+        create a job for each sampled simulation inside its execution directory.
+        :param execution_dirs: the path to the execution directory.
+        :param parameter_set: parameters for every simulation.
+        """
+        template = None
+        template_path = self.template
+        if os.path.exists(template_path):
+            file = open(self.template, "r")
+            template = file.read()
+            file.close()
+        else:
+            sys.exit(f"Template file at '{template_path}' does not exist.\n Use 'propti job template' to clone a predefined template inside the current directory.")
+
+        if len(execution_dirs) != len(parameter_sets):
+            raise RuntimeError(f"'execution_dirs' ({len(execution_dirs)}) and 'parameter_sets' ({len(parameter_sets)}) have different length.")
+
+
+        for i in range(len(execution_dirs)):
+            sample_template = template
+            for p in self.parameter:
+                set_parameter = None
+                set_value = None
+                if type(p) == str:
+                    parameter_set = parameter_sets[i]
+                    index = parameter_set.get_index_by_name(p)
+                    set_parameter = p
+                    if index == None:
+                        sys.exit(f"Tried to replace {p} with an auto generated parameter witch does not exist.")
+                    else:
+                        set_value = parameter_sets[i][index].value
+                else:
+                    (name, value) = p
+                    if type(value) == str:
+                        set_parameter = name
+                        set_value = value
+                    else:
+                        set_parameter = name
+                        set_value = value[i]
+                # TODO write in documentation that the parameter in the job file must be padded in # and the parameter in the input file mut not have a # padding
+                sample_template = sample_template.replace(f"#{set_parameter}#", str(set_value))
+            sample_template = sample_template.replace("#ID#", str(i))
+            sample_template = sample_template.replace("#EXECUTION_DIRS#", execution_dirs[i])
+            path = os.path.join(execution_dirs[i], "job.sh")
+            print("created job at", os.path.join(execution_dirs[i], "job.sh"))
+            file = open(path, mode="w+")
+            file.write(sample_template)
+            file.close()
 
 ######
 # MAIN

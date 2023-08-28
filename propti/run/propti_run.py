@@ -5,17 +5,19 @@ import copy
 import pandas as pd
 import shutil as sh
 import pickle
-import propti as pr
+from .. import lib as pr
 import logging
 import argparse
 
-import mpi4py
-mpi4py.rc.recv_mprobe = False
+try:
+    import mpi4py
+    mpi4py.rc.recv_mprobe = False
 
-from mpi4py import MPI
-comm = MPI.COMM_WORLD
-print('Starting PROPTI on MPI rank {} out of {} ranks.'.format(comm.Get_rank(),
-                                                               comm.Get_size()))
+    from mpi4py import MPI
+    comm = MPI.COMM_WORLD
+    print('Starting PROPTI on MPI rank {} out of {} ranks.'.format(comm.Get_rank(), comm.Get_size()))
+except:
+    logging.warning("mpi4py is not installed")
 
 
 parser = argparse.ArgumentParser()
