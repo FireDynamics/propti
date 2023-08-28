@@ -1,7 +1,7 @@
 def main():
     import argparse
     import sys
-    commands = ["analyse","prepare","run","sampler","sense","sjob"]
+    commands = ["analyse","prepare","run","sampler","sense","job"]
 
     command =  sys.argv[1] if len(sys.argv) > 1 else None
     if command in commands:
@@ -16,8 +16,8 @@ def main():
             from .run import propti_sampling
         elif command == "sense":
             from .run import propti_sense
-        elif command == "sjob":
-            from .run import propti_sjob
+        elif command == "job":
+            from .run import propti_job
     else:
         parser = argparse.ArgumentParser(
                             prog='propti',

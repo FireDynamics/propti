@@ -6,14 +6,14 @@ import ast
 import numpy as np
 import pandas as pd
 import subprocess
-from typing import Union
 import spotpy
 from .fitness_methods import FitnessMethodInterface
-from typing import Union
 
 from .. import lib as pr
 
+from typing import Union
 from typing import List
+from typing import Tuple
 
 # Reads the script's location. Used to access the propti version number from the
 # git repo.
@@ -1020,17 +1020,13 @@ class Sampler:
                  db_precision=np.float64):
         """
         Constructor.
-        :param algorithm: choose sampling algorithm, default: LHS,
-            range: [LHS,LINEAR]
+        :param algorithm: choose sampling algorithm, default: LHS, range: [LHS,LINEAR]
         :param nsamples: number of samples, default: 12
-        :param deterministic: If possible, use a deterministic sampling,
-            default: false
-        :param seed: If possible, set the seed for the random number generator, 
-            default: None
+        :param deterministic: If possible, use a deterministic sampling, default: false
+        :param seed: If possible, set the seed for the random number generator, default: None
         :param db_name: name of spotpy database file, default: propti_db
         :param db_type: type of database, default: csv, range: [csv]
-        :param db_precision: desired precision of the values to be written into
-            the data base, default: np.float64
+        :param db_precision: desired precision of the values to be written into the data base, default: np.float64
         """
         self.algorithm = algorithm
         self.nsamples = nsamples
@@ -1114,6 +1110,117 @@ class Sampler:
 
         logging.critical("No maching sampler algorithm found.")
 
+
+##############
+# JOB CLASS
+class Job:
+    """
+    Class for storing all relevant job parameter, including
+    - scheduler: wich scheduler should be used e.g. slurm
+    - template: the path to the template
+    - parameters: wich placeholder should be changed in the template
+    """
+
+    def __init__(self, scheduler: str = "slurm", template: str = "#fds", parameter = []) -> None:
+        """
+        Constructor.
+        :param scheduler: choose scheduler, default: slurm, range: [slurm]
+        :param template: path to a template or a default starting with '#', default: #fds, range: [#fds]
+        :param parameter: list of parameter to replace, default: []
+
+        parameter can be constructed in different ways:
+        - str:          the string is replaced by the created value from the sampler  
+        - (str, str):   the first string is replaced by the second string  
+        - (str, [str]): the first string is replaced by the string inside the list indexed by the sample index  
+        """
+        self.scheduler = scheduler
+        self.template = template
+        self.parameter = parameter
+        pass
+
+    def __str__(self) -> str:
+        """
+        Pretty print of (major) class values
+        :return: str
+        """
+
+        template_text = None
+        if self.template.startswith("#"):
+            template_text = f"default '{self.template[1:]}'"
+        else:
+            template_text = f"'{self.template}'"
+
+        parameter_text = ""
+        for p in self.parameter:
+            if type(p) == str:
+                parameter_text += f"\t'{p}': auto\n"
+            else:
+                (name, value) = p
+                if type(value) == str:
+                    parameter_text += f"\t'{name}' = {value}\n"
+                else:
+                    parameter_text += f"\t'{name}' = \n"
+                    for (i, item) in enumerate(value):
+                        parameter_text += f"\t   {i}:\t{item}\n"
+
+
+        text =  "\nsampler properties\n" \
+                "--------------------\n" \
+               f"scheduler: {self.scheduler}\n"\
+               f"template: {template_text}\n" \
+               f"parameters: \n{parameter_text}"\
+                
+        return text
+
+    def create_jobs(self, execution_dirs: List[str], parameter_sets: List[ParameterSet]):
+        """
+        create a job for each sampled simulation inside its execution directory.
+        :param execution_dirs: the path to the execution directory.
+        :param parameter_set: parameters for every simulation.
+        """
+        template = None
+        template_path = self.template
+        if os.path.exists(template_path):
+            file = open(self.template, "r")
+            template = file.read()
+            file.close()
+        else:
+            sys.exit(f"Template file at '{template_path}' does not exist.\n Use 'propti job template' to clone a predefined template inside the current directory.")
+
+        if len(execution_dirs) != len(parameter_sets):
+            raise RuntimeError(f"'execution_dirs' ({len(execution_dirs)}) and 'parameter_sets' ({len(parameter_sets)}) have different length.")
+
+
+        for i in range(len(execution_dirs)):
+            sample_template = template
+            for p in self.parameter:
+                set_parameter = None
+                set_value = None
+                if type(p) == str:
+                    parameter_set = parameter_sets[i]
+                    index = parameter_set.get_index_by_name(p)
+                    set_parameter = p
+                    if index == None:
+                        sys.exit(f"Tried to replace {p} with an auto generated parameter witch does not exist.")
+                    else:
+                        set_value = parameter_sets[i][index].value
+                else:
+                    (name, value) = p
+                    if type(value) == str:
+                        set_parameter = name
+                        set_value = value
+                    else:
+                        set_parameter = name
+                        set_value = value[i]
+                # TODO write in documentation that the parameter in the job file must be padded in # and the parameter in the input file mut not have a # padding
+                sample_template = sample_template.replace(f"#{set_parameter}#", str(set_value))
+            sample_template = sample_template.replace("#ID#", str(i))
+            sample_template = sample_template.replace("#EXECUTION_DIRS#", execution_dirs[i])
+            path = os.path.join(execution_dirs[i], "job.sh")
+            print("created job at", os.path.join(execution_dirs[i], "job.sh"))
+            file = open(path, mode="w+")
+            file.write(sample_template)
+            file.close()
 
 ######
 # MAIN

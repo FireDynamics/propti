@@ -1,11 +1,9 @@
 import sys
 import os
 import typing
-import numpy as np
 import copy
-import pandas as pd
 import shutil as sh
-import scipy
+import pickle
 
 from .. import lib as pr
 
@@ -25,6 +23,7 @@ cmdl_args = parser.parse_args()
 setups: pr.SimulationSetupSet = None
 params: pr.ParameterSet = None
 sampler: pr.Sampler = None
+job: pr.Job = None
 
 
 input_file = cmdl_args.input_file
@@ -80,7 +79,13 @@ for simulation in setups:
 logging.info(setups)
 logging.info(params)
 logging.info(sampler)
+if job != None:
+    logging.info(job)
+else:
+    logging.info("no job settings in input file")
 
+# Build simulation and jobs
+pickle_data = []
 for simulation in setups:
     os.makedirs(simulation.execution_dir_prefix,exist_ok=True)
     sample_set = sampler.create_sample_set(simulation.model_parameter)
@@ -109,8 +114,9 @@ for simulation in setups:
     para_table_file.write(line_max + '\n')
 
     logging.debug("Sample set:\n")
-    sample_index = 0
-    for sample in sample_set:
+
+    execution_dirs = []
+    for (sample_index, sample) in enumerate(sample_set):
         logging.debug(f"  {sample}")
 
         line = f"\t\t{sample_index:06d}"
@@ -124,12 +130,20 @@ for simulation in setups:
         tmp_simulation_setup = typing.cast(pr.SimulationSetup, copy.deepcopy(simulation))
         tmp_simulation_setup.model_parameter = sample
         tmp_simulation_setup.execution_dir = sample.name
+        execution_dirs.append(os.path.join(tmp_simulation_setup.execution_dir_prefix, tmp_simulation_setup.execution_dir))
         os.makedirs(os.path.join(tmp_simulation_setup.execution_dir_prefix, tmp_simulation_setup.execution_dir), exist_ok=True)
         pr.create_input_file(tmp_simulation_setup)
 
-        sample_index += 1
+    pickle_data.append((execution_dirs, sample_set))
+    # Create job files
+    if job != None:
+        job.create_jobs(execution_dirs, sample_set)
 
     para_table_file.close()
+
+out_file = open('propti.pickle.sampler', 'wb')
+pickle.dump((pickle_data, job), out_file)
+out_file.close()
 
 # if cmdl_args.prepare_init_inputs:
 #     logging.info("prepare input files with initial values")

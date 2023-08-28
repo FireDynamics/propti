@@ -7,6 +7,18 @@ with open(os.path.join(base_dir, "README.md"), 'r', encoding="utf-8") as f:
 with open(os.path.join(base_dir, "propti", "__init__.py"), 'r', encoding="utf-8") as f:
     version = f.readline().split("=")[-1].strip()[1:-1]
 
+data_files = []
+def get_data_files(path, data_files):
+    for p in os.listdir(path):
+        p = os.path.join(path, p)
+        if os.path.isdir(p):
+            get_data_files(p, data_files)
+        else:
+            data_files.append(p)
+get_data_files("propti/jobs", data_files)
+print(data_files)
+
+
 setuptools.setup(
     name="propti",
     version=version,
@@ -23,8 +35,9 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.0',
-    #package_dir={"propti": "propti/"},
-    packages = ["propti", "propti/lib", "propti/run"],
+    include_package_data=True,
+    data_files=data_files,
+    packages = ["propti", "propti/lib", "propti/run", "propti/jobs"],
     install_requires=
         [
             "numpy",
