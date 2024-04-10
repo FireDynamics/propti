@@ -1,0 +1,7 @@
+.*
+*.md
+*.txt
+examples
+docker
+!VERSION.txt
+!.git/refs/heads/master

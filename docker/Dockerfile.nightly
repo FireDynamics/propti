@@ -1,8 +1,8 @@
-# FDS version (default: latest), e.g. 6.9.1
-ARG FDS_VERSION=latest
+# FDS version
+ARG FDS_VERSION
 
 # FDS base image
-FROM ghcr.io/openbcl/fds:${FDS_VERSION}
+FROM ghcr.io/openbcl/fds-nightly:${FDS_VERSION}
 
 # install app dependencies
 RUN apt-get update && apt-get install -y libmpich-dev python3-pip python3.10-venv
