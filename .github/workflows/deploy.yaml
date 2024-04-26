@@ -19,9 +19,9 @@ jobs:
       contents: read
       packages: write
     steps:
-      - name: Check compatibility (minimum FDS version should be 6.7.1)
+      - name: Check compatibility (minimum FDS version should be 6.7.4)
         run: |
-          if $(printf '%s\n%s\n' "6.7.1" "${{ inputs.tag }}" | sort --check=quiet --version-sort)
+          if [ "${{ inputs.tag }}" \> "6.7.3" ]
           then
             exit 0
           fi

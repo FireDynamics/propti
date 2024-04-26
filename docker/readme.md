@@ -38,7 +38,7 @@ There you will find all information on options, problems, errors and their solut
 1. Clone this repository.
 1. Navigate with your shell to this folder.
 1. Choose between building the image with the latest FDS version or with a specific one. You can find all available versions (tags) [here](https://github.com/openbcl/fds-dockerfiles/pkgs/container/fds/versions).
-For compatibility reasons, the FDS version should be at least 6.7.1.
+For compatibility reasons, the FDS version should be at least 6.7.4.
 
 ```bash
 # build command: propti image with latest FDS version
