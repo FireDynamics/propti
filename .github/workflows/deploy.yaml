@@ -1,0 +1,81 @@
+name: Deploy Propti
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'FDS version'
+        required: true
+        type: string
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: propti
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    env:
+      IS_LATEST: true
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check compatibility (minimum FDS version should be 6.7.4)
+        run: |
+          if [ "${{ inputs.tag }}" \> "6.7.3" ]
+          then
+            exit 0
+          fi
+          exit 1
+      - name: Extract image name
+        run: echo "BASE=${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}" >> $GITHUB_ENV
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${BASE}
+      - name: Check if new build version is latest
+        continue-on-error: true
+        run: |
+          REGEX=[0-9]+\.[0-9]+\.[0-9]+
+          LATEST_VERSION=0.0.0
+          VERSIONS=$(curl --silent "https://api.github.com/users/${{ github.repository_owner }}/packages/container/${{ env.IMAGE_NAME }}/versions" --stderr - \
+            --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" | \
+            grep -E "[[:space:]]+\"${REGEX}\"" | grep -oEi ${REGEX})
+          for VERSION in $VERSIONS; do
+            [ "$VERSION" \> "$LATEST_VERSION" ] && LATEST_VERSION=$VERSION
+          done
+          if [ "${{ inputs.tag }}" \< "${LATEST_VERSION}" ]
+          then
+            echo "IS_LATEST=false" >> $GITHUB_ENV
+          fi
+      - name: Set Tags
+        run: |
+          if [[ ${{ env.IS_LATEST }} == true ]]
+          then
+            echo "TAGS=${BASE}:${{ inputs.tag }},${BASE}:latest" >> $GITHUB_ENV
+          else
+            echo "TAGS=${BASE}:${{ inputs.tag }}" >> $GITHUB_ENV
+          fi
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          provenance: false
+          file: docker/Dockerfile
+          build-args: |
+            FDS_VERSION=${{ inputs.tag }}
+          push: true
+          tags: ${{ env.TAGS }}
+          labels: ${{ steps.meta.outputs.labels }}
