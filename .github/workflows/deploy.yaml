@@ -9,6 +9,7 @@ on:
         type: string
 env:
   REGISTRY: ghcr.io
+  ORG: firedynamics
   IMAGE_NAME: propti
 jobs:
   build-and-push-image:
@@ -27,7 +28,7 @@ jobs:
           fi
           exit 1
       - name: Extract image name
-        run: echo "BASE=${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}" >> $GITHUB_ENV
+        run: echo "BASE=${{ env.REGISTRY }}/${{ env.ORG }}/${{ env.IMAGE_NAME }}" >> $GITHUB_ENV
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -48,7 +49,7 @@ jobs:
         run: |
           REGEX=[0-9]+\.[0-9]+\.[0-9]+
           LATEST_VERSION=0.0.0
-          VERSIONS=$(curl --silent "https://api.github.com/users/${{ github.repository_owner }}/packages/container/${{ env.IMAGE_NAME }}/versions" --stderr - \
+          VERSIONS=$(curl --silent "https://api.github.com/users/${{ env.ORG }}/packages/container/${{ env.IMAGE_NAME }}/versions" --stderr - \
             --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" | \
             grep -E "[[:space:]]+\"${REGEX}\"" | grep -oEi ${REGEX})
           for VERSION in $VERSIONS; do

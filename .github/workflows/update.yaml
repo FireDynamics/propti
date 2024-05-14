@@ -8,6 +8,7 @@ on:
       - '.dockerignore'
       - 'docker/Dockerfile'
 env:
+  ORG: firedynamics
   IMAGE_NAME: propti
 jobs:
   trigger-updates:
@@ -20,7 +21,7 @@ jobs:
         continue-on-error: true
         run: |
           REGEX=[0-9]+\.[0-9]+\.[0-9]+
-          VERSIONS=$(curl --silent "https://api.github.com/users/${{ github.repository_owner }}/packages/container/${{ env.IMAGE_NAME }}/versions" --stderr - \
+          VERSIONS=$(curl --silent "https://api.github.com/users/${{ env.ORG }}/packages/container/${{ env.IMAGE_NAME }}/versions" --stderr - \
             --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" | \
             grep -E "[[:space:]]+\"${REGEX}\"" | grep -oEi ${REGEX})
           for VERSION in ${VERSIONS}; do
