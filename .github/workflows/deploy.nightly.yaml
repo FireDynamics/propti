@@ -9,6 +9,7 @@ on:
         type: string
 env:
   REGISTRY: ghcr.io
+  ORG: firedynamics
   IMAGE_NAME: propti-nightly
 jobs:
   build-and-push-image:
@@ -31,7 +32,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.ORG }}/${{ env.IMAGE_NAME }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Build and push Docker image
@@ -43,5 +44,5 @@ jobs:
           build-args: |
             FDS_VERSION=${{ inputs.tag }}
           push: true
-          tags: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ inputs.tag }}
+          tags: ${{ env.REGISTRY }}/${{ env.ORG }}/${{ env.IMAGE_NAME }}:${{ inputs.tag }}
           labels: ${{ steps.meta.outputs.labels }}
