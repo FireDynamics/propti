@@ -557,6 +557,8 @@ class Relation:
         in_file = os.path.join(wd, ds.file_name)
         # Read data as Pandas DataFrame.
         data = pd.read_csv(in_file, header=ds.header_line)
+        # Get rid of unwanted spaces.
+        data = data.rename(columns=lambda x: x.strip())
 
         # Get all header labels from the data frame.
         headers = list(data)
