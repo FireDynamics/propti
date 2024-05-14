@@ -5,7 +5,7 @@ ARG FDS_VERSION=latest
 FROM ghcr.io/openbcl/fds:${FDS_VERSION}
 
 # install app dependencies
-RUN apt-get update && apt-get install -y libmpich-dev python3-pip python3.10-venv
+RUN apt-get update && apt-get install -y libmpich-dev python3-pip python3-venv
 
 # create python venv for propti
 RUN python3 -m venv /opt/venv/propti
