@@ -16,7 +16,12 @@ You can now use propti with the following commands:
 - `propti_run .`
 - `propti_sense .`
 
-You can display the help for each command by using the `-h` argument (e.g. `propti_analyse -h`).
+*You can display the help for each command by using the `-h` argument (e.g. `propti_analyse -h`).*
+
+If you would like to run the `propti_run` command in parallel via mpi, you can start it as follows:
+```bash
+mpiexec.openmpi -n <number of processes> propti_run .
+```
 
 ## Run propti non-interactive
 ```bash

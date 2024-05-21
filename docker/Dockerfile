@@ -4,8 +4,12 @@ ARG FDS_VERSION=latest
 # FDS base image
 FROM ghcr.io/openbcl/fds:${FDS_VERSION}
 
+# Enable mpiexec.openmpi run as root
+ENV OMPI_ALLOW_RUN_AS_ROOT=1
+ENV OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
+
 # install app dependencies
-RUN apt-get update && apt-get install -y libmpich-dev python3-pip python3-venv
+RUN apt-get update && apt-get install -y libopenmpi-dev python3-pip python3-venv
 
 # create python venv for propti
 RUN python3 -m venv /opt/venv/propti
