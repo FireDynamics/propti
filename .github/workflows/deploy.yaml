@@ -22,7 +22,7 @@ jobs:
     steps:
       - name: Check compatibility (minimum FDS version should be 6.7.4)
         run: |
-          if [ "${{ inputs.tag }}" \> "6.7.3" ]
+          if [ "${{ inputs.tag }}" == "`echo -e "6.7.3\n${{ inputs.tag  }}" | sort -V | tail -n1`" ]
           then
             exit 0
           fi
@@ -48,14 +48,10 @@ jobs:
         continue-on-error: true
         run: |
           REGEX=[0-9]+\.[0-9]+\.[0-9]+
-          LATEST_VERSION=0.0.0
-          VERSIONS=$(curl --silent "https://api.github.com/users/${{ env.ORG }}/packages/container/${{ env.IMAGE_NAME }}/versions" --stderr - \
+          LATEST_VERSION=$(curl --silent "https://api.github.com/users/${{ env.ORG }}/packages/container/${{ env.IMAGE_NAME }}/versions" --stderr - \
             --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" | \
-            grep -E "[[:space:]]+\"${REGEX}\"" | grep -oEi ${REGEX})
-          for VERSION in $VERSIONS; do
-            [ "$VERSION" \> "$LATEST_VERSION" ] && LATEST_VERSION=$VERSION
-          done
-          if [ "${{ inputs.tag }}" \< "${LATEST_VERSION}" ]
+            grep -E "[[:space:]]+\"${REGEX}\"" | grep -oEi ${REGEX} | tr " " "\n" | sort -V | tail -n1)
+          if [ "${{ inputs.tag }}" != "$LATEST_VERSION" ] && [ "${{ inputs.tag }}" == "`echo -e "$LATEST_VERSION\n${{ inputs.tag  }}" | sort -V | head -n1`" ]
           then
             echo "IS_LATEST=false" >> $GITHUB_ENV
           fi
